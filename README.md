@@ -1,4 +1,4 @@
-# gakuseisien# gakuseisien
+#学生支援.com
 
 ## GitHub運用ルール（簡易版）
 
