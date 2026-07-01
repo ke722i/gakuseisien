@@ -99,6 +99,8 @@ php artisan migrate
 composer run dev
 ```
 
+Windowsでは `pcntl` が使えないため、標準の起動スクリプトから `php artisan pail` は外しています。必要なら別途 Linux / WSL 環境で Pail を使ってください。
+
 補足:
 
 - `.env` は `.gitignore` 済みのため、DBパスワードは `.env` にのみ記載してください。
