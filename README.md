@@ -62,6 +62,50 @@
 - Node.js
 	- 24.18
 
+## 起動手順（ローカル開発）
+
+1. 依存関係のインストール
+
+```bash
+composer install
+npm install --ignore-scripts
+```
+
+2. 環境変数ファイルを作成（GitHubにpushしない）
+
+```bash
+cp .env.example .env
+php artisan key:generate
+```
+
+3. PostgreSQL接続情報を `.env` に設定
+
+- `DB_CONNECTION=pgsql`
+- `DB_HOST=127.0.0.1`
+- `DB_PORT=5433`
+- `DB_DATABASE=gakuseisien`（必要に応じて変更）
+- `DB_USERNAME=postgres`（各自のユーザー名に変更）
+- `DB_PASSWORD=`（各自のパスワードを設定）
+
+4. マイグレーション実行
+
+```bash
+php artisan migrate
+```
+
+5. アプリ起動
+
+```bash
+composer run dev
+```
+
+Windowsでは `pcntl` が使えないため、標準の起動スクリプトから `php artisan pail` は外しています。必要なら別途 Linux / WSL 環境で Pail を使ってください。
+
+補足:
+
+- `.env` は `.gitignore` 済みのため、DBパスワードは `.env` にのみ記載してください。
+- `.env.example` にはパスワードを記載しないでください（空欄のまま運用）。
+
 # Git ブランチ運用ルール
 
 このプロジェクトのブランチ運用ルールです。
@@ -165,3 +209,13 @@ VSCode なら衝突箇所が色分け表示され、
 | 自分のブランチに develop の最新が入っていない | 手順1のマージを実行したか |
 | マージしても変わらない | 自分の feature ブランチにいる状態で実行したか |
 | push できない | 自分のブランチにいるか、コミット済みか |
+
+
+
+
+
+
+
+
+
+ああささああｗｆｄさｆｒｂわｃわｆしｈｂふぃあｄ
