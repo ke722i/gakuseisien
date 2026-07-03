@@ -23,7 +23,7 @@
                 <a href="#">ホーム</a>
                 <a href="#">空き教室予約</a>
                 <a href="#">掲示板</a>
-                <a href="#">学内Q＆A</a>
+                <a href="{{ route('gakunai.qna') }}">学内Q＆A</a>
                 <a href="#">イベント・締切カレンダー</a>
                 <a href="#">欠席・遅刻届</a>
                 <a href="#" class="active">時事ニュースまとめ</a>

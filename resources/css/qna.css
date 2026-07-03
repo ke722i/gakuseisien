@@ -1,0 +1,151 @@
+/* ==========================================================================
+   学内Q&A 専用パーツスタイル（完全版）
+   ========================================================================== */
+
+/* 1. ヘッダーまわり（横並び） */
+.qna-header-container {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    margin-bottom: 40px !important;
+    width: 100%;
+    max-width: 900px;
+}
+
+.qna-title {
+    font-size: 28px !important;
+    font-weight: bold !important;
+    margin: 0 !important;
+    color: #000000 !important;
+}
+
+.qna-search-box {
+    flex: 1;
+    max-width: 500px;
+    margin: 0 30px;
+}
+
+.qna-search-input {
+    width: 100%;
+    padding: 10px 16px !important;
+    border: 2px solid #000000 !important;
+    border-radius: 4px !important;
+    text-align: center !important;
+    font-size: 16px !important;
+    background-color: #ffffff !important;
+}
+
+.qna-profile-btn {
+    width: 44px !important;
+    height: 44px !important;
+    border: 2px solid #000000 !important;
+    border-radius: 50% !important;
+    background-color: transparent !important;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+/* 2. 質問カード（手書きワイヤーフレームの黒枠再現） */
+.qna-card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+    max-width: 900px;
+}
+
+.qna-custom-card {
+    position: relative !important;
+    border: 3px solid #000000 !important; /* 太い黒枠 */
+    border-radius: 0px !important;
+    padding: 24px !important;
+    background-color: #ffffff !important;
+    box-sizing: border-box;
+}
+
+/* 右上のゴミ箱ボタン */
+.qna-delete-icon {
+    position: absolute !important;
+    top: 15px !important;
+    right: 15px !important;
+    background: none !important;
+    border: none !important;
+    font-size: 20px !important;
+    cursor: pointer;
+    z-index: 10;
+}
+
+/* カードの中身のレイアウト */
+.qna-card-body {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: flex-start !important;
+    gap: 20px;
+    margin-bottom: 20px !important;
+    padding-right: 30px;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.qna-card-body:hover {
+    opacity: 0.8;
+}
+
+.qna-card-title {
+    font-size: 18px !important;
+    font-weight: bold !important;
+    margin: 0 0 10px 0 !important;
+    color: #000000 !important;
+}
+
+.qna-card-desc {
+    font-size: 15px !important;
+    color: #333333 !important;
+    margin: 0 !important;
+    line-height: 1.5;
+}
+
+/* 右側のグレーのサムネイル */
+.qna-thumb-box {
+    width: 140px !important;
+    height: 90px !important;
+    background-color: #dcdcdc !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 13px !important;
+    color: #333333 !important;
+    flex-shrink: 0;
+}
+
+/* 3. 下部のアクションボタン */
+.qna-card-footer {
+    display: flex !important;
+    gap: 10px !important;
+}
+
+.qna-icon-btn {
+    border: 1px solid #000000 !important;
+    background-color: #ffffff !important;
+    padding: 4px 12px !important;
+    font-size: 13px !important;
+    border-radius: 3px !important;
+    cursor: pointer;
+    display: flex !important;
+    align-items: center;
+}
+
+/* 4. 巨大画像エリア */
+.qna-image-large-box {
+    width: 100% !important;
+    height: 380px !important;
+    background-color: #dcdcdc !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 72px !important;
+    font-weight: bold !important;
+    color: #333333 !important;
+    margin-top: 15px !important;
+    margin-bottom: 20px !important;
+}
