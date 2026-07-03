@@ -1,5 +1,9 @@
 # gakuseisien
 
+## このリポジトリについて
+
+学生支援系のLaravelアプリを開発するためのリポジトリです。基本の考え方や、どこに何を書くかの詳細は [docs/laravel-guide.md](docs/laravel-guide.md) にまとめています。
+
 ## GitHub運用ルール（簡易版）
 
 このREADMEでは、次の3つの書き方を統一する。
@@ -61,6 +65,10 @@
 	- バージョン指定なし
 - Node.js
 	- 24.18
+
+## Laravel の案内
+
+Laravel の基本的な動きや、どのファイルに何を書くべきかは [docs/laravel-guide.md](docs/laravel-guide.md) を見てください。
 
 ## 起動手順（ローカル開発）
 
