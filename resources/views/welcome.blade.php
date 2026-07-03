@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <title>時事ニュースまとめ</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    @vite(['resources/css/app.css', 'resources/js/app.ts'])
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
+
 <body>
     <div class="app-layout">
 
         <!-- 左サイドバー -->
-        <aside class="sidebar">
+        <aside class="sidebar" id="sidebar">
             <div class="sidebar-logo">
                 <h2>学生支援.com</h2>
                 <p>学校便利掲示板システム</p>
@@ -35,6 +37,13 @@
 
         <!-- メイン画面 -->
         <main class="content">
+
+            <!-- スマホ用ヘッダー -->
+            <div class="top-header">
+                <button class="menu-button" id="menuButton">☰</button>
+            </div>
+            <!-- メニューを開いた時の背景 -->
+            <div class="overlay" id="overlay"></div>
             <div class="content-header">
                 <div>
                     <h1>時事ニュースまとめ</h1>
@@ -50,8 +59,8 @@
                 <button>経済</button>
                 <button>スポーツ</button>
                 <button>政治</button>
-                <button>その他</button>
                 <button>IT</button>
+                <button>その他</button>
             </div>
 
             <!-- ニュース一覧 -->
@@ -70,12 +79,16 @@
                         <button class="circle-button">⌃</button>
                     </div>
 
-                    <p class="news-summary">
-                        今夏開催のパリ五輪に向け、日本代表選手団の最終選考結果が発表された。
-                        陸上・水泳・体操など各競技から計200名超が選出された。
-                    </p>
+                    <div class="news-detail">
+                        <p class="news-summary">
+                            今夏開催のパリ五輪に向け、日本代表選手団の最終選考結果が発表された。
+                            陸上・水泳・体操など各競技から計200名超が選出された。
+                        </p>
 
-                    <a href="#" class="read-more">続きを読む</a>
+                        <a href="https://example.com" target="_blank" class="read-more">
+                            続きを読む
+                        </a>
+                    </div>
                 </article>
 
                 <article class="news-card">
@@ -90,47 +103,16 @@
 
                         <button class="circle-button">⌄</button>
                     </div>
-                </article>
 
-                <article class="news-card">
-                    <div class="news-top">
-                        <div>
-                            <div class="news-meta">
-                                <span class="tag other">その他</span>
-                                <span>2024-05-16・教育新聞</span>
-                            </div>
-                            <h2>文部科学省、大学入試制度の見直し方針を発表</h2>
-                        </div>
+                    <div class="news-detail">
+                        <p class="news-summary">
+                            G7サミットで、各国は気候変動対策を強化するための合意文書を発表しました。
+                            再生可能エネルギーの活用や温室効果ガスの削減が重要なテーマとなっています。
+                        </p>
 
-                        <button class="circle-button">⌄</button>
-                    </div>
-                </article>
-
-                <article class="news-card">
-                    <div class="news-top">
-                        <div>
-                            <div class="news-meta">
-                                <span class="tag politics">政治</span>
-                                <span>2024-05-16・読売新聞オンライン</span>
-                            </div>
-                            <h2>NYダウ終値、最高値を更新</h2>
-                        </div>
-
-                        <button class="circle-button">⌄</button>
-                    </div>
-                </article>
-
-                <article class="news-card">
-                    <div class="news-top">
-                        <div>
-                            <div class="news-meta">
-                                <span class="tag sports">スポーツ</span>
-                                <span>2024-05-16・スポーツニッポン</span>
-                            </div>
-                            <h2>パリ五輪日本代表選手団の構成発表</h2>
-                        </div>
-
-                        <button class="circle-button">⌄</button>
+                        <a href="https://example.com" target="_blank" class="read-more">
+                            続きを読む
+                        </a>
                     </div>
                 </article>
 
@@ -138,4 +120,5 @@
         </main>
     </div>
 </body>
+
 </html>
