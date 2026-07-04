@@ -72,21 +72,19 @@ Laravel の基本的な動きや、どのファイルに何を書くべきかは
 
 ## 起動手順（ローカル開発）
 
-1. 依存関係のインストール
+### 1. 最初に 1 回だけやること
 
 ```bash
 composer install
 npm install --ignore-scripts
 ```
 
-2. 環境変数ファイルを作成（GitHubにpushしない）
-
 ```bash
-cp .env.example .env
+copy .env.example .env
 php artisan key:generate
 ```
 
-3. PostgreSQL接続情報を `.env` に設定
+`.env` には各自の PostgreSQL 情報を入れてください。
 
 - `DB_CONNECTION=pgsql`
 - `DB_HOST=127.0.0.1`
@@ -95,22 +93,36 @@ php artisan key:generate
 - `DB_USERNAME=postgres`（各自のユーザー名に変更）
 - `DB_PASSWORD=`（各自のパスワードを設定）
 
-4. マイグレーション実行
-
 ```bash
 php artisan migrate
 ```
 
-5. アプリ起動
+### 2. 毎回の起動方法
+
+まずはリポジトリ直下の `start-dev.cmd` を実行してください。これが通常の起動入口です。
+
+- VS Code から起動する場合: ワークスペースを開くと自動で `start-dev.cmd` 相当の処理が動きます。
+- VS Code 以外から起動する場合: エクスプローラーやターミナルから `start-dev.cmd` を実行します。
+
+`start-dev.cmd` は次をまとめて行います。
+
+1. Laravel サーバーを起動する
+2. Laravel の `http://127.0.0.1:8000` と Vite の `http://127.0.0.1:5173` が両方応答するまで待つ
+3. ブラウザを自動で開く
+
+### 3. 手動で直接起動したい場合
 
 ```bash
 composer run dev
 ```
 
-Windowsでは `pcntl` が使えないため、標準の起動スクリプトから `php artisan pail` は外しています。必要なら別途 Linux / WSL 環境で Pail を使ってください。
+そのあとブラウザで `http://127.0.0.1:8000` を開いてください。
 
-補足:
+もし見た目が崩れる場合は、`start-dev.cmd` を使って起動してください。Laravel だけ先に開くのではなく、Vite の準備が終わってからページを表示するためです。
 
+### 4. 補足
+
+- Windows では `pcntl` が使えないため、既定の起動スクリプトから `php artisan pail` は外しています。
 - `.env` は `.gitignore` 済みのため、DBパスワードは `.env` にのみ記載してください。
 - `.env.example` にはパスワードを記載しないでください（空欄のまま運用）。
 
@@ -218,12 +230,3 @@ VSCode なら衝突箇所が色分け表示され、
 | マージしても変わらない | 自分の feature ブランチにいる状態で実行したか |
 | push できない | 自分のブランチにいるか、コミット済みか |
 
-
-
-
-
-
-
-
-
-ああささああｗｆｄさｆｒｂわｃわｆしｈｂふぃあｄ
