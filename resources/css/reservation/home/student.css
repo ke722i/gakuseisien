@@ -1,0 +1,47 @@
+.content {
+    flex: 1;
+    padding: 40px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.center-panel {
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    flex-direction: column;
+    gap: 48px;
+    align-items: center;
+}
+
+.big-button {
+    width: 560px;
+    height: 160px;
+    border: 3px solid #111;
+    border-radius: 10px;
+    background: #fff;
+    font-size: 48px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: #111;
+    box-shadow: 0 2px 0 rgba(0,0,0,0.06);
+    transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+.big-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+}
+
+@media (max-width: 640px) {
+    .big-button {
+        width: 90%;
+        height: 120px;
+        font-size: 32px;
+    }
+}
