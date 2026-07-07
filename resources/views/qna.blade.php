@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <title>学内Q&A - 学生支援.com</title>
@@ -7,11 +8,12 @@
 
     @vite(['resources/css/app.css', 'resources/css/qna.css', 'resources/js/app.js'])
 </head>
-<body>
 
+<body>
     <div class="app-layout">
 
-        <aside class="sidebar">
+        <!-- 左サイドバー -->
+        <aside class="sidebar" id="sidebar">
             <div class="sidebar-logo">
                 <h2>学生支援.com</h2>
                 <p>学校便利掲示板システム</p>
@@ -42,7 +44,7 @@
 
             <div class="qna-header-container">
                 <h1 class="qna-title">学内Q&A</h1>
-                
+
                 <div class="qna-search-box">
                     <input type="text" placeholder="キーワードで質問を検索..." class="qna-search-input">
                 </div>
@@ -54,7 +56,7 @@
 
                 <article class="qna-custom-card">
                     <button class="qna-delete-icon">🗑️</button>
-                    
+
                     <div class="qna-card-body">
                         <div class="qna-card-text">
                             <h2 class="qna-card-title">履修登録の変更期間はいつまでですか？</h2>
@@ -73,7 +75,7 @@
 
                 <article class="qna-custom-card">
                     <button class="qna-delete-icon">🗑️</button>
-                    
+
                     <div class="qna-card-body">
                         <div class="qna-card-text">
                             <h2 class="qna-card-title">学食の発券機は新紙幣に対応していますか？</h2>
@@ -91,7 +93,7 @@
 
                 <article class="qna-custom-card">
                     <button class="qna-delete-icon">🗑️</button>
-                    
+
                     <div class="qna-card-body">
                         <div class="qna-card-text">
                             <h2 class="qna-card-title">3号館の入り口で見落とし物（鍵）がありました</h2>
@@ -114,5 +116,7 @@
             </div>
         </main>
 
-    </div> </body>
+    </div>
+</body>
+
 </html>
