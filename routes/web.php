@@ -47,7 +47,7 @@ Route::get('/notification', function () {
 // 時事ニュースページのルート設定
 Route::get('/recentnews', function() { //担当者へ、ファイル名違ったら修正してください
     return view('welcome'); // recentNews.blade.php を呼び出す 
-})->name('recentnews');
+})->name('recent.news');
 
 // 近辺店舗ページのルート設定
 Route::get('/nearby-shop', function () { //担当者へ、ファイル名違ったら修正してください
