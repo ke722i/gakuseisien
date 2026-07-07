@@ -25,21 +25,21 @@ class UserFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
+            // 英数字6〜10文字のランダムなログインID
+            'login_id' => fake()->unique()->bothify('user###'),
+            'password' => static::$password ??= Hash::make('password1'),
+            'role' => 'student',
             'remember_token' => Str::random(10),
         ];
     }
 
     /**
-     * Indicate that the model's email address should be unverified.
+     * 先生アカウントの状態を指定する。
      */
-    public function unverified(): static
+    public function teacher(): static
     {
         return $this->state(fn (array $attributes) => [
-            'email_verified_at' => null,
+            'role' => 'teacher',
         ]);
     }
 }
