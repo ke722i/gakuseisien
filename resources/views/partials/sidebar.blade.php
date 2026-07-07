@@ -47,7 +47,7 @@
         <a href="{{ route('notification') }}" class="{{ $active === 'notification' ? 'active' : '' }}">
             <span class="menu-icon">📝</span><span class="label">欠席・遅刻届</span>
         </a>
-        <a href="{{ route('recentnews') }}" class="{{ $active === 'news' ? 'active' : '' }}">
+        <a href="{{ route('recent.news') }}" class="{{ $active === 'news' ? 'active' : '' }}">
             <span class="menu-icon">📰</span><span class="label">時事ニュースまとめ</span>
         </a>
         <a href="{{ route('nearby.shop') }}" class="{{ $active === 'shop' ? 'active' : '' }}">
