@@ -21,7 +21,7 @@
 
             <nav class="sidebar-menu">
                 <a href="#">ホーム</a>
-                <a href="#">空き教室予約</a>
+                <a href="{{ route('reservation.teacher') }}">空き教室予約</a>
                 <a href="#">掲示板</a>
                 <a href="{{ route('gakunai.qna') }}">学内Q＆A</a>
                 <a href="#">イベント・締切カレンダー</a>
