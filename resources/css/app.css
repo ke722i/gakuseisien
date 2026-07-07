@@ -138,6 +138,8 @@ body {
     border-radius: 999px;
     font-weight: bold;
     cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
 }
 
 /* カテゴリー */
@@ -148,16 +150,19 @@ body {
     margin: 35px 0 35px;
 }
 
-.category-tabs button {
+.category-tabs a {
     border: 1px solid #ddd;
     background-color: white;
+    color: #111;
     padding: 8px 18px;
     border-radius: 999px;
     font-weight: bold;
     cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
 }
 
-.category-tabs button.selected {
+.category-tabs a.selected {
     background-color: #0d8bff;
     color: white;
     border-color: #0d8bff;
@@ -176,6 +181,10 @@ body {
     border-radius: 8px;
     padding: 18px 20px;
     margin-bottom: 24px;
+}
+
+.selected-history {
+    border: 4px solid #0d8bff;
 }
 
 .news-card.open {
@@ -205,24 +214,29 @@ body {
     font-weight: bold;
 }
 
+.tag.all {
+    background-color: #e6edff;
+     color: #334155;
+}
+
+.tag.business {
+    background-color: #e9ffe9;
+    color: #22a447;
+}
+
 .tag.sports {
     background-color: #e6edff;
     color: #2563eb;
 }
 
-.tag.economy {
-    background-color: #e9ffe9;
-    color: #22a447;
-}
-
-.tag.other {
-    background-color: #fff0dc;
-    color: #f97316;
-}
-
 .tag.politics {
     background-color: #ffe4e6;
     color: #e11d48;
+}
+
+.tag.technology {
+    background-color: #ede9fe;
+    color: #7c3aed;
 }
 
 .news-card h2 {
@@ -336,12 +350,11 @@ body {
         padding-bottom: 6px;
     }
 
-    .category-tabs button {
-        padding: 6px 12px;
-        font-size: 11px;
-        flex-shrink: 0;
-    }
-
+    .category-tabs a {
+    padding: 6px 12px;
+    font-size: 11px;
+    flex-shrink: 0;
+}
     .news-list {
         max-width: none;
         width: 100%;
@@ -389,5 +402,182 @@ body {
         height: 22px;
         font-size: 13px;
         flex-shrink: 0;
+    }
+}
+
+/* =========================
+   閲覧履歴画面
+========================= */
+
+.history-layout {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f2f2f2;
+}
+
+/* 履歴画面ではサイドバーを常に表示 */
+.history-sidebar {
+    width: 240px;
+    min-height: 100vh;
+    background: linear-gradient(180deg, #1d4ed8, #2563eb);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+.history-content {
+    flex: 1;
+    background-color: white;
+    margin: 36px 44px;
+    padding: 70px 70px;
+}
+
+.history-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.history-header h1 {
+    margin: 0;
+    font-size: 30px;
+    letter-spacing: 2px;
+}
+
+.history-header p {
+    margin-top: 12px;
+    font-size: 13px;
+    color: #666;
+}
+
+.back-button {
+    border: none;
+    background-color: #f1f1f1;
+    color: #111;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-weight: bold;
+    font-size: 13px;
+    text-decoration: none;
+}
+
+.history-category-tabs {
+    display: flex;
+    justify-content: flex-end;
+    gap: 14px;
+    margin: 35px 0 35px;
+}
+
+.history-category-tabs button {
+    border: 1px solid #ddd;
+    background-color: white;
+    padding: 8px 18px;
+    border-radius: 999px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.history-category-tabs button.selected {
+    background-color: #0d8bff;
+    color: white;
+    border-color: #0d8bff;
+}
+
+.history-news-list {
+    width: 100%;
+    max-width: 930px;
+    margin: 0 auto;
+}
+
+.history-news-card {
+    background-color: white;
+    border: 1px solid #999;
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin-bottom: 24px;
+}
+
+.history-news-card.open {
+    padding-bottom: 26px;
+}
+
+/* 青枠で選択されている履歴 */
+.selected-history {
+    border: 4px solid #0d8bff;
+}
+
+/* 履歴カードでも開閉できるようにする */
+.history-news-card .news-detail {
+    display: none;
+}
+
+.history-news-card.open .news-detail {
+    display: block;
+}
+
+/* スマホ対応 */
+@media (max-width: 600px) {
+    .history-layout {
+        display: block;
+    }
+
+    .history-sidebar {
+        display: none;
+    }
+
+    .history-content {
+        margin: 0;
+        padding: 24px 14px 32px;
+    }
+
+    .history-header {
+        align-items: flex-start;
+    }
+
+    .history-header h1 {
+        font-size: 22px;
+    }
+
+    .history-header p {
+        font-size: 11px;
+    }
+
+    .back-button {
+        padding: 5px 10px;
+        font-size: 10px;
+    }
+
+    .history-category-tabs {
+        justify-content: flex-start;
+        gap: 8px;
+        margin: 18px 0;
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: 6px;
+    }
+
+    .history-category-tabs button {
+        padding: 6px 12px;
+        font-size: 11px;
+        flex-shrink: 0;
+    }
+
+    .history-news-list {
+        max-width: none;
+        width: 100%;
+    }
+
+    .history-news-card {
+        padding: 10px 12px;
+        margin-bottom: 10px;
+    }
+
+    .history-news-card.open {
+        padding-bottom: 14px;
+    }
+
+    .selected-history {
+        border: 3px solid #0d8bff;
     }
 }
