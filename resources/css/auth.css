@@ -1,0 +1,172 @@
+* {
+    box-sizing: border-box;
+}
+
+.auth-body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", sans-serif;
+    background-color: #2f56ea;
+    color: #111;
+}
+
+/* 中央の白カード */
+.auth-card {
+    width: 100%;
+    max-width: 380px;
+    background-color: #fff;
+    border-radius: 18px;
+    padding: 30px 30px 24px;
+    box-shadow: 0 16px 38px rgba(0, 0, 0, 0.18);
+}
+
+/* ロゴ */
+.auth-logo {
+    text-align: center;
+    margin-bottom: 22px;
+}
+
+.auth-logo h1 {
+    margin: 0;
+    font-size: 27px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+.auth-logo .dot {
+    color: #111;
+}
+
+.auth-logo p {
+    margin: 7px 0 0;
+    font-size: 13px;
+    color: #6b7280;
+}
+
+/* タブ */
+.auth-tabs {
+    display: flex;
+    background-color: #eef0f2;
+    border-radius: 10px;
+    padding: 4px;
+    margin-bottom: 22px;
+}
+
+.auth-tab {
+    flex: 1;
+    border: 2px solid transparent;
+    background: transparent;
+    padding: 10px 0;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #6b7280;
+    cursor: pointer;
+}
+
+/* 選択中のタブ */
+.auth-card[data-active="login"] .auth-tab[data-tab="login"],
+.auth-card[data-active="register"] .auth-tab[data-tab="register"] {
+    background-color: #fff;
+    border-color: #111;
+    color: #111;
+}
+
+.auth-card[data-active="register"] .auth-tab[data-tab="register"] {
+    color: #2f56ea;
+}
+
+/* フォームの表示切り替え */
+.auth-form {
+    display: none;
+}
+
+.auth-card[data-active="login"] .auth-form[data-form="login"],
+.auth-card[data-active="register"] .auth-form[data-form="register"] {
+    display: block;
+}
+
+/* 入力欄 */
+.field {
+    margin-bottom: 16px;
+}
+
+.field label {
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 7px;
+}
+
+.field input {
+    width: 100%;
+    padding: 11px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 9px;
+    font-size: 14px;
+    color: #111;
+    background-color: #fafafa;
+}
+
+.field input:focus {
+    outline: none;
+    border-color: #2f56ea;
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(47, 86, 234, 0.15);
+}
+
+.field .hint {
+    margin: 7px 0 0;
+    font-size: 11px;
+    color: #9ca3af;
+    line-height: 1.5;
+}
+
+.field .error {
+    margin: 7px 0 0;
+    font-size: 12px;
+    color: #dc2626;
+    line-height: 1.5;
+}
+
+/* 送信ボタン */
+.auth-submit {
+    width: 100%;
+    border: none;
+    background-color: #2f56ea;
+    color: #fff;
+    padding: 13px 0;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 4px;
+}
+
+.auth-submit:hover {
+    background-color: #2545c8;
+}
+
+/* 補足文 */
+.auth-note {
+    text-align: center;
+    margin: 18px 0 0;
+    font-size: 12px;
+    color: #9ca3af;
+    line-height: 1.6;
+}
+
+@media (max-width: 480px) {
+    .auth-card {
+        padding: 28px 20px 24px;
+        border-radius: 18px;
+    }
+
+    .auth-logo h1 {
+        font-size: 28px;
+    }
+}

@@ -16,28 +16,8 @@
 <body>
     <div class="app-layout">
 
-        <!-- 左サイドバー -->
-        <aside class="sidebar">
-            <div class="sidebar-logo">
-                <h2>学生支援.com</h2>
-                <p>学校便利掲示板システム</p>
-            </div>
-
-            <nav class="sidebar-menu">
-                <a href="#">ホーム</a>
-                <a href="#">空き教室予約</a>
-                <a href="#">掲示板</a>
-                <a href="#">学内Q＆A</a>
-                <a href="#">イベント・締切カレンダー</a>
-                <a href="#" class="active">欠席・遅刻届</a>
-                <a href="#">時事ニュースまとめ</a>
-                <a href="#">近辺店舗情報マップ</a>
-            </nav>
-
-            <div class="logout">
-                <a href="#">ログアウト</a>
-            </div>
-        </aside>
+        <!-- 左サイドバー（共通部品） -->
+        @include('partials.sidebar', ['active' => 'notification'])
 
         <!-- メイン画面 -->
         <main class="content">
