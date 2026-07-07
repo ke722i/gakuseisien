@@ -1,5 +1,9 @@
 # gakuseisien
 
+## このリポジトリについて
+
+学生支援系のLaravelアプリを開発するためのリポジトリです。基本の考え方や、どこに何を書くかの詳細は [docs/laravel-guide.md](docs/laravel-guide.md) にまとめています。
+
 ## GitHub運用ルール（簡易版）
 
 このREADMEでは、次の3つの書き方を統一する。
@@ -61,6 +65,66 @@
 	- バージョン指定なし
 - Node.js
 	- 24.18
+
+## Laravel の案内
+
+Laravel の基本的な動きや、どのファイルに何を書くべきかは [docs/laravel-guide.md](docs/laravel-guide.md) を見てください。
+
+## 起動手順（ローカル開発）
+
+### 1. 最初に 1 回だけやること
+
+```bash
+composer install
+npm install --ignore-scripts
+```
+
+```bash
+copy .env.example .env
+php artisan key:generate
+```
+
+`.env` には各自の PostgreSQL 情報を入れてください。
+
+- `DB_CONNECTION=pgsql`
+- `DB_HOST=127.0.0.1`
+- `DB_PORT=5433`
+- `DB_DATABASE=gakuseisien`（必要に応じて変更）
+- `DB_USERNAME=postgres`（各自のユーザー名に変更）
+- `DB_PASSWORD=`（各自のパスワードを設定）
+
+```bash
+php artisan migrate
+```
+
+### 2. 毎回の起動方法
+
+まずはリポジトリ直下の `start-dev.cmd` を実行してください。これが通常の起動入口です。
+
+- VS Code から起動する場合: ワークスペースを開くと自動で `start-dev.cmd` 相当の処理が動きます。
+- VS Code 以外から起動する場合: エクスプローラーやターミナルから `start-dev.cmd` を実行します。
+
+`start-dev.cmd` は次をまとめて行います。
+
+1. Laravel サーバーを起動する
+2. Laravel の `http://127.0.0.1:8000` と Vite の `http://127.0.0.1:5173` が両方応答するまで待つ
+3. ブラウザを自動で開く
+
+### 3. 手動で直接起動したい場合
+
+```bash
+composer run dev
+```
+
+そのあとブラウザで `http://127.0.0.1:8000` を開いてください。
+
+もし見た目が崩れる場合は、`start-dev.cmd` を使って起動してください。Laravel だけ先に開くのではなく、Vite の準備が終わってからページを表示するためです。
+
+### 4. 補足
+
+- Windows では `pcntl` が使えないため、既定の起動スクリプトから `php artisan pail` は外しています。
+- `.env` は `.gitignore` 済みのため、DBパスワードは `.env` にのみ記載してください。
+- `.env.example` にはパスワードを記載しないでください（空欄のまま運用）。
 
 # Git ブランチ運用ルール
 
@@ -165,3 +229,4 @@ VSCode なら衝突箇所が色分け表示され、
 | 自分のブランチに develop の最新が入っていない | 手順1のマージを実行したか |
 | マージしても変わらない | 自分の feature ブランチにいる状態で実行したか |
 | push できない | 自分のブランチにいるか、コミット済みか |
+

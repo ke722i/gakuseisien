@@ -10,17 +10,26 @@ body {
 }
 
 .app-layout {
-    display: flex;
     min-height: 100vh;
 }
 
 /* 左サイドバー */
 .sidebar {
-    width: 240px;
+    position: fixed;
+    top: 0;
+    left: -260px;
+    width: 260px;
+    height: 100vh;
     background: linear-gradient(180deg, #1d4ed8, #2563eb);
     color: white;
     display: flex;
     flex-direction: column;
+    z-index: 1000;
+    transition: left 0.3s ease;
+}
+
+.sidebar.open {
+    left: 0;
 }
 
 .sidebar-logo {
@@ -68,12 +77,41 @@ body {
 
 /* メイン部分 */
 .content {
-    flex: 1;
+    min-height: 100vh;
     background-color: white;
-    margin: 0;
-    padding: 70px 70px;
+    padding: 40px 70px 70px;
 }
 
+/* 上のハンバーガーメニュー */
+.top-header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-bottom: 35px;
+}
+
+.menu-button {
+    border: none;
+    background-color: white;
+    font-size: 30px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* メニューを開いた時の背景 */
+.overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.25);
+    z-index: 900;
+}
+
+.overlay.show {
+    display: block;
+}
+
+/* タイトル部分 */
 .content-header {
     display: flex;
     justify-content: space-between;
@@ -207,6 +245,16 @@ body {
     margin-top: 12px;
 }
 
+/* 本文は最初は非表示 */
+.news-detail {
+    display: none;
+}
+
+/* open が付いたカードだけ本文を表示 */
+.news-card.open .news-detail {
+    display: block;
+}
+
 .circle-button {
     width: 28px;
     height: 28px;
@@ -217,22 +265,129 @@ body {
     font-size: 17px;
 }
 
-/* 画面が狭いとき */
-@media (max-width: 900px) {
-    .app-layout {
-        flex-direction: column;
+/* スマホ画面 */
+@media (max-width: 600px) {
+    body {
+        background-color: white;
     }
 
-    .sidebar {
-        width: 100%;
+    .app-layout {
+        display: block;
+        min-height: 100vh;
+    }
+
+    .sidebar-logo {
+        padding: 36px 20px 24px;
+    }
+
+    .sidebar-logo h2 {
+        font-size: 22px;
+    }
+
+    .sidebar-menu a,
+    .logout a {
+        padding: 14px 28px;
+        font-size: 14px;
     }
 
     .content {
-        padding: 40px 24px;
+        padding: 18px 14px 32px;
+        margin: 0;
+        width: 100%;
+    }
+
+    .top-header {
+        margin-bottom: 16px;
+    }
+
+    .menu-button {
+        font-size: 22px;
+    }
+
+    .content-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 16px;
+    }
+
+    .content-header h1 {
+        font-size: 20px;
+        letter-spacing: 1px;
+    }
+
+    .content-header p {
+        font-size: 11px;
+        margin-top: 8px;
+    }
+
+    .history-button {
+        padding: 5px 10px;
+        font-size: 10px;
+        flex-shrink: 0;
     }
 
     .category-tabs {
         justify-content: flex-start;
-        flex-wrap: wrap;
+        gap: 8px;
+        margin: 12px 0 18px;
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: 6px;
+    }
+
+    .category-tabs button {
+        padding: 6px 12px;
+        font-size: 11px;
+        flex-shrink: 0;
+    }
+
+    .news-list {
+        max-width: none;
+        width: 100%;
+    }
+
+    .news-card {
+        padding: 10px 12px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+    }
+
+    .news-card.open {
+        padding-bottom: 14px;
+    }
+
+    .news-meta {
+        gap: 6px;
+        font-size: 9px;
+        margin-bottom: 6px;
+    }
+
+    .tag {
+        padding: 3px 7px;
+        font-size: 9px;
+    }
+
+    .news-card h2 {
+        font-size: 12px;
+        line-height: 1.4;
+    }
+
+    .news-summary {
+        font-size: 10px;
+        line-height: 1.6;
+        margin-top: 8px;
+    }
+
+    .read-more {
+        font-size: 10px;
+        margin-top: 8px;
+    }
+
+    .circle-button {
+        width: 22px;
+        height: 22px;
+        font-size: 13px;
+        flex-shrink: 0;
     }
 }
