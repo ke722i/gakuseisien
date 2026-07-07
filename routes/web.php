@@ -13,9 +13,9 @@ Route::get('/classroom-reservation', function () {
 })->name('classroom.reservation');
 
 // 掲示板ページのルート設定 
-Route::get('/', function () { //担当者へ、ファイル名違ったら修正してください
-    return view('');
-})->name('');
+Route::get('/bulletin-board', function () { //担当者へ、ファイル名違ったら修正してください
+    return view('bulletinBoard');
+})->name('bulletin.board');
 
 // 学内Q&Aページのルート設定
 Route::get('/gakunai-qna', function () {
@@ -35,7 +35,7 @@ Route::get('/notification', function () {
 // 時事ニュースページのルート設定
 Route::get('/recentnews', function() { //担当者へ、ファイル名違ったら修正してください
     return view('welcome'); // recentNews.blade.php を呼び出す 
-})->name('recentnews');
+})->name('recent.news');
 
 // 近辺店舗ページのルート設定
 Route::get('/nearby-shop', function () { //担当者へ、ファイル名違ったら修正してください

@@ -21,13 +21,13 @@
 
             <nav class="sidebar-menu">
                 <a href="{{ url('/') }}">ホーム</a>
-                <a href="#">空き教室予約</a>
-                <a href="#">掲示板</a>
+                <a href="{{ route('classroom.reservation') }}" class="active">空き教室予約</a>
+                <a href="{{ route('bulletin.board') }}" class="active"">掲示板</a>
                 <a href="{{ route('gakunai.qna') }}" class="active">学内Q＆A</a>
-                <a href="#">イベント・締切カレンダー</a>
-                <a href="#">欠席・遅刻届</a>
-                <a href="#">時事ニュースまとめ</a>
-                <a href="#">近辺店舗情報マップ</a>
+                <a href="{{ route('event.calendar') }}" class="active"">イベント・締切カレンダー</a>
+                <a href="{{ route('notification') }}" class="active"">欠席・遅刻届</a>
+                <a href="{{ route('recent.news') }}" class="active"">時事ニュースまとめ</a>
+                <a href="{{ route('nearby.shop') }}" class="active"">近辺店舗情報マップ</a>
             </nav>
 
             <div class="logout">
