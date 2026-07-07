@@ -24,10 +24,10 @@ Route::get('/', function () {
 
     // top-headlinesで取れなかった時の予備検索キーワード
     $keywordMap = [
-        'business' => '経済 OR 物価 OR 円安 OR 株価',
-        'sports' => 'スポーツ OR 野球 OR サッカー OR 五輪',
-        'politics' => '政治 OR 政府 OR 国会 OR 選挙',
-        'technology' => 'IT OR AI OR 生成AI OR 技術',
+        'business' => '経済',
+        'sports' => '野球',
+        'politics' => '政治',
+        'technology' => '生成AI',
     ];
 
     // ニュース取得用の関数
@@ -88,21 +88,12 @@ Route::get('/', function () {
         $articles = $fetchArticles($category, 10);
     }
 
-    // 投稿日時の新しい順に並び替え
-    usort($articles, function ($a, $b) {
-        return strtotime($b['publishedAt'] ?? '') <=> strtotime($a['publishedAt'] ?? '');
-    });
-
     return view('news.news', [
         'articles' => $articles,
         'currentCategory' => $category,
     ]);
 });
 
-// 学内Q&Aページのルート設定
-Route::get('/gakunai-qna', function () {
-    return view('qna'); // qna.blade.php を呼び出す
-})->name('gakunai.qna');
 Route::get('/history', function () {
     return view('news.history');
 });

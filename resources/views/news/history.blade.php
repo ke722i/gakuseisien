@@ -53,15 +53,7 @@
                 <a href="/" class="history-button">戻る</a>
             </div>
 
-            <!-- カテゴリー -->
-            <div class="category-tabs">
-                <a class="selected" href="/history">すべて</a>
-                <a href="#">経済</a>
-                <a href="#">スポーツ</a>
-                <a href="#">政治</a>
-                <a href="#">IT</a>
-            </div>
-
+            
             <!-- 履歴一覧 -->
             <section class="news-list" id="historyList">
                 <p>閲覧履歴を読み込み中です。</p>
