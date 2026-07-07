@@ -36,7 +36,6 @@
         <!-- メイン画面 -->
         <main class="content">
             <div class="center-panel">
-                <h1 style="font-size:40px; margin:0;">空き教室予約</h1>
 
                 <a href="#" class="big-button">空き教室予約</a>
 
