@@ -10,6 +10,7 @@ export default defineConfig({
                 'resources/css/app.css', 
                 'resources/js/app.js',
                 'resources/css/qna.css',
+                'resources/css/forum/forum-top.css',
             ],
             refresh: true,
             fonts: [
