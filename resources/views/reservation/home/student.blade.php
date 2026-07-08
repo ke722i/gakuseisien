@@ -5,7 +5,7 @@
     <title>空き教室予約</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    @vite(['resources/css/app.css', 'resources/css/reservation/home/student.css', 'resources/js/app.js'])
+    @vite(['resources/css/home/student.css', 'resources/css/reservation/home/student.css',])
 </head>
 <body>
     <div class="app-layout">
