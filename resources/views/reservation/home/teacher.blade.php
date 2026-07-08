@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <title>空き教室予約</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    @vite(['resources/css/home/teacher.css', 'resources/css/reservation/home/teacher.css',])
+    @vite(['resources/css/app.css','resources/css/reservation/home/teacher.css','resources/js/app.js'])
 </head>
+
 <body>
     <div class="app-layout">
 
