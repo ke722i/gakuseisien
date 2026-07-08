@@ -271,7 +271,8 @@ body {
    Floating Action Button (FAB)
    ========================================= */
 .fab-button {
-    position: fixed;
+    /* top: 0; ← 削除します */
+    position: fixed; /* sticky から fixed に変更 */
     bottom: 2rem;
     right: 2rem;
     width: 4rem;
@@ -298,9 +299,13 @@ body {
     height: 2rem;
 }
 
-/* PC画面など枠がある程度大きい場合は絶対配置にする */
-@media (min-width: 768px) {
+/* PC画面でも常に右下に固定したい場合は、
+  以下のメディアクエリは不要になるため削除（またはコメントアウト）します。
+  absolute だとスクロールと一緒にボタンも移動してしまいます。
+*/
+/* @media (min-width: 768px) {
     .fab-button {
         position: absolute;
     }
 }
+*/
