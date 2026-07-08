@@ -14,6 +14,7 @@ overlay?.addEventListener('click', () => {
     sidebar?.classList.remove('open');
     overlay?.classList.remove('show');
 });
+// サイドバーの開閉は resources/views/partials/sidebar.blade.php 内のスクリプトで処理する。
 
 
 // =======================

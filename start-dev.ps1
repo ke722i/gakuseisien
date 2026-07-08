@@ -31,6 +31,6 @@ while ($true) {
         Start-Process cmd.exe -ArgumentList '/c', 'start', '""', $appUrl
         break
     } else {
-        Start-Sleep -Seconds 1
+        Start-Sleep -Milliseconds 200
     }
 }
