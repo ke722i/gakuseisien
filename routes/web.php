@@ -4,9 +4,9 @@ use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
 // ホームページのルート設定
-// 未ログインで開くとログイン画面へ。ログイン済みならホーム(welcome)を表示する。
+// 未ログインで開くとログイン画面へ。ログイン済みならホームダッシュボードを表示する。
 Route::get('/', function () {
-    return view('welcome');
+    return view('home');
 })->middleware('auth');
 
 // ログイン・新規登録画面のルート設定

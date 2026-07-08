@@ -11,6 +11,7 @@ export default defineConfig({
                 'resources/js/app.js',
                 'resources/css/qna.css',
                 'resources/css/auth.css',
+                'resources/css/home.css',
             ],
             refresh: true,
             fonts: [
