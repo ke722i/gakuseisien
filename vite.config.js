@@ -11,6 +11,9 @@ export default defineConfig({
                 'resources/js/app.js',
                 'resources/css/qna.css',
                 'resources/css/auth.css',
+                'resources/css/reservation/home/student.css',
+                'resources/css/reservation/home/teacher.css',
+                'resources/css/reservation/room/bulk-reservation.css',
             ],
             refresh: true,
             fonts: [
