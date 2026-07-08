@@ -31,8 +31,20 @@ Route::get('/classroom-reservation', function () {
 
 // 学内Q&Aページのルート設定
 Route::get('/gakunai-qna', function () {
-    return view('qna'); // qna.blade.php を呼び出す
+    return view('qna.qna'); // qna.blade.php を呼び出す
 })->name('gakunai.qna');
+
+Route::get('/gakunai-qna/create', function () {
+    return view('qna.create'); 
+})->name('qna.create');
+
+Route::get('/gakunai-qna/detail', function () {
+    return view('qna.detail'); 
+})->name('qna.detail');
+
+Route::get('/gakunai-qna/history', function () {
+    return view('qna.history'); 
+})->name('qna.history');
 
 // イベント・締め切りカレンダーページのルート設定
 Route::get('/event-calendar', function () {
