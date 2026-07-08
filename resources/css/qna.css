@@ -2,30 +2,31 @@
    学内Q&A 専用パーツスタイル（レイアウト完全一致版）
    ========================================================================== */
 
-/* 1. ヘッダーエリア（タイトル・検索バー・プロフの横並び） */
+/* 1. ヘッダーまわり（横並び） */
 .qna-header-container {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 35px; /* app.css の .category-tabs などの余白と統一 */
+    margin-bottom: 35px;
     width: 100%;
-    max-width: 930px;    /* app.css の .news-list (max-width: 930px) と完全一致 */
+    max-width: 930px;    /* カードの横幅とぴったり合わせる */
     margin-left: auto;
     margin-right: auto;
+    gap: 15px;           /* 要素同士の適度な隙間 */
 }
 
 .qna-title {
-    font-size: 30px;      /* app.css の h1 (30px) と統一 */
+    font-size: 30px;
     font-weight: bold;
-    letter-spacing: 2px;  /* app.css の letter-spacing と統一 */
+    letter-spacing: 2px;
     margin: 0;
-    color: #111111;       /* app.css の基本テキスト色と統一 */
+    color: #111111;
+    flex-shrink: 0;      /* タイトルが潰れないように固定 */
 }
 
 .qna-search-box {
-    flex: 1;
-    max-width: 500px;
-    margin: 0 30px;
+    flex: 1;             /* 検索バーが真ん中で広がるようにする */
+    max-width: 550px;    /* 広がりすぎないように上限を設定 */
 }
 
 .qna-search-input {
@@ -40,13 +41,13 @@
 }
 
 .qna-profile-btn {
-    width: 32px; /* app.css の丸ボタン系とバランスを統一 */
-    height: 32px;
+    width: 36px;         /* 丸ボタンのサイズ */
+    height: 36px;
     border: 2px solid #111111;
     border-radius: 50%;
-    background-color: #f1f1f1;
+    background-color: #ffffff;
     cursor: pointer;
-    flex-shrink: 0;
+    flex-shrink: 0;      /* ボタンの形が丸から歪まないように固定 */
 }
 
 /* 2. 質問カードリスト（枠線の幅・位置の固定） */
