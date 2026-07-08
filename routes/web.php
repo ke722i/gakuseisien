@@ -15,3 +15,5 @@ Route::get('/gakunai-qna', function () {
 
 // 掲示板画面ルート設定(miyata)
 Route::get('/forum-top', [ForumController::class, 'index'])->name('forum.top');
+Route::get('/forum/create', [ForumController::class, 'create'])->name('forum.create');
+Route::post('/forum', [ForumController::class, 'store'])->name('forum.store');
