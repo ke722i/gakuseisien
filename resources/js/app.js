@@ -1,16 +1,4 @@
-const menuButton = document.getElementById('menuButton');
-const sidebar = document.getElementById('sidebar');
-const overlay = document.getElementById('overlay');
-
-menuButton?.addEventListener('click', () => {
-    sidebar?.classList.add('open');
-    overlay?.classList.add('show');
-});
-
-overlay?.addEventListener('click', () => {
-    sidebar?.classList.remove('open');
-    overlay?.classList.remove('show');
-});
+// サイドバーの開閉は resources/views/partials/sidebar.blade.php 内のスクリプトで処理する。
 
 const circleButtons = document.querySelectorAll('.circle-button');
 

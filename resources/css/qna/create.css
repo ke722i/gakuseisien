@@ -1,0 +1,82 @@
+@import "./qna.css";
+
+/* ==========================================================================
+   投稿画面（create）専用のスタイル
+   ========================================================================== */
+
+/* フォーム内側の余白を確保 */
+.qna-form-padding {
+    padding: 30px !important;
+    cursor: default !important; /* カード全体のクリック判定をフォームでは無効に */
+}
+
+/* フォームのラベリングと入力欄の縦並び */
+.qna-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.qna-form-label {
+    font-size: 16px;
+    font-weight: bold;
+    color: #111111;
+}
+
+/* 入力欄を確実に左寄せに・リサイズ可能に調整 */
+.qna-form-input-align {
+    text-align: left !important;
+}
+
+/* プレースホルダー（薄い文字）も確実に左寄せ */
+.qna-form-input-align::placeholder {
+    text-align: left !important;
+}
+
+.qna-form-textarea {
+    resize: none; 
+    overflow-y: hidden; 
+    min-height: 140px; 
+}
+
+/* 画像アップロード用の点線枠 */
+.qna-file-upload-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 30px;
+    border: 2px dashed #111111;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #ffffff;
+    transition: background-color 0.2s;
+}
+
+.qna-file-upload-box:hover {
+    background-color: #f9f9f9;
+}
+
+.qna-upload-text {
+    font-size: 14px;
+    font-weight: bold;
+    color: #555555;
+}
+
+/* 投稿するボタンのエリア（右寄せ・黒背景に反転） */
+.qna-form-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.qna-btn-submit {
+    background-color: #111111 !important;
+    color: #ffffff !important;
+    padding: 10px 32px !important;
+}
+
+.qna-btn-submit:hover {
+    opacity: 0.8;
+}
