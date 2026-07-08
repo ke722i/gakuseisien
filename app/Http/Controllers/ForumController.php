@@ -31,4 +31,39 @@ class ForumController extends Controller
 
         return view('forum.forum-top', compact('posts', 'categories', 'selectedCategory', 'searchQuery'));
     }
+
+    public function create()
+    {
+        return view('forum.create');
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'category' => 'required|string|max:255',
+            'title' => 'required|string|max:300',
+            'content' => 'nullable|string',
+            'media.*' => 'nullable|file|mimes:jpg,jpeg,png,gif,mp4,mov|max:10240',
+        ]);
+
+        $post = Post::create([
+            'category' => $validated['category'],
+            'title' => $validated['title'],
+            'content' => $validated['content'] ?? null,
+            'posted_by' => '匿名',
+            'image_url' => null,
+            'published_at' => now(),
+        ]);
+
+        if ($request->hasFile('media')) {
+            $files = $request->file('media');
+            if (is_array($files) && count($files) > 0) {
+                $firstFile = $files[0];
+                $path = $firstFile->store('forum_media', 'public');
+                $post->update(['image_url' => asset('storage/' . $path)]);
+            }
+        }
+
+        return redirect()->route('forum.top');
+    }
 }
