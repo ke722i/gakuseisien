@@ -12,35 +12,10 @@
 <body>
     <div class="app-layout">
 
-        <!-- 左サイドバー -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-logo">
-                <h2>学生支援.com</h2>
-                <p>学校便利掲示板システム</p>
-            </div>
-
-            <nav class="sidebar-menu">
-                <a href="{{ url('/') }}">ホーム</a>
-                <a href="{{ route('classroom.reservation') }}" class="active">空き教室予約</a>
-                <a href="{{ route('bulletin.board') }}" class="active"">掲示板</a>
-                <a href="{{ route('gakunai.qna') }}" class="active">学内Q＆A</a>
-                <a href="{{ route('event.calendar') }}" class="active"">イベント・締切カレンダー</a>
-                <a href="{{ route('notification') }}" class="active"">欠席・遅刻届</a>
-                <a href="{{ route('recent.news') }}" class="active"">時事ニュースまとめ</a>
-                <a href="{{ route('nearby.shop') }}" class="active"">近辺店舗情報マップ</a>
-            </nav>
-
-            <div class="logout">
-                <a href="#">ログアウト</a>
-            </div>
-        </aside>
+        <!-- 左サイドバー（共通部品） -->
+        @include('partials.sidebar', ['active' => 'qna'])
 
         <main class="content qna-page">
-
-            <div class="top-header">
-                <button class="menu-button" id="menuButton">☰</button>
-            </div>
-            <div class="overlay" id="overlay"></div>
 
             <div class="qna-header-container">
                 <h1 class="qna-title">学内Q&A</h1>
