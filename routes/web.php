@@ -57,7 +57,7 @@ Route::get('/event-calendar', function () {
 })->name('event.calendar');
 
 // 欠席・遅刻届ページのルート設定
-カテゴリRoute::get('/notification', function () {
+Route::get('/notification', function () {
     return view('notification.notification_tea'); //notification.blade.php を呼び出す
 })->name('notification');
 

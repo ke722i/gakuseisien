@@ -17,7 +17,8 @@ export default defineConfig({
                 'resources/css/qna/qna.css',
                 'resources/css/qna/create.css',
                 'resources/css/qna/detail.css',
-                'resources/css/qna/profile.css',
+                'resources/css/qna/history.css',
+                // 'resources/css/qna/profile.css', // ← ファイル未作成。作成してから有効化する（存在しないとビルド全体が失敗する）
             ],
             refresh: true,
             fonts: [
