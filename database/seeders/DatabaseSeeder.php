@@ -57,5 +57,11 @@ class DatabaseSeeder extends Seeder
             ['login_id' => 'teacher01'],
             ['password' => Hash::make('teacher1'), 'role' => 'teacher'],
         );
+
+        // 先生アカウント（ID: Teacher / PW: 123456）
+        User::firstOrCreate(
+            ['login_id' => 'Teacher'],
+            ['password' => Hash::make('123456'), 'role' => 'teacher'],
+        );
     }
 }
