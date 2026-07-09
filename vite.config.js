@@ -11,11 +11,21 @@ export default defineConfig({
                 'resources/js/app.js',
                 'resources/js/qna.js',
                 'resources/css/auth.css',
+<<<<<<< HEAD
                 'resources/css/home.css',
+=======
+                'resources/css/reservation/home/student.css',
+                'resources/css/reservation/home/teacher.css',
+                'resources/css/reservation/room/bulk-reservation.css',
+>>>>>>> develop
                 'resources/css/qna/qna.css',
                 'resources/css/qna/create.css',
                 'resources/css/qna/detail.css',
                 'resources/css/qna/history.css',
+<<<<<<< HEAD
+=======
+                // 'resources/css/qna/profile.css', // ← ファイル未作成。作成してから有効化する（存在しないとビルド全体が失敗する）
+>>>>>>> develop
             ],
             refresh: true,
             fonts: [

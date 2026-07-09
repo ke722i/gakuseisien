@@ -21,6 +21,11 @@ Route::get('/classroom-reservation', function () {
     return view('reservation.home.teacher');
 })->name('classroom.reservation');
 
+// 空き教室予約・詳細ページのルート設定
+Route::get('/classroom-reservation/bulk', function () {
+    return view('reservation.room.bulk-reservation');
+})->name('classroom.reservation.bulk');
+
 // 掲示板ページのルート設定
 // TODO(掲示板担当): view名が未定のため一旦コメントアウト。
 //   以前は '/' で登録されておりトップページ('/')を上書きして壊していたため、
@@ -53,7 +58,7 @@ Route::get('/event-calendar', function () {
 
 // 欠席・遅刻届ページのルート設定
 Route::get('/notification', function () {
-    return view('notofication'); //notofication.blade.php を呼び出す
+    return view('notification.notification_tea'); //notification.blade.php を呼び出す
 })->name('notification');
 
 // 時事ニュースページのルート設定

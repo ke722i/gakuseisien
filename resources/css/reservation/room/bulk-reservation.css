@@ -1,0 +1,165 @@
+/* 基本レイアウト */
+.app-layout {
+    display: flex;
+    height: 100vh;
+    background-color: #ffffff;
+}
+
+.content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 40px;
+    box-sizing: border-box;
+    background-color: #ffffff;
+}
+
+/* ヘッダー */
+.header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 40px;
+    gap: 20px;
+}
+
+.back-button {
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    text-decoration: none;
+    color: #333;
+    padding: 0;
+    line-height: 1;
+}
+
+.back-button:hover {
+    opacity: 0.6;
+}
+
+.header h1 {
+    font-size: 28px;
+    font-weight: 600;
+    margin: 0;
+    color: #333;
+}
+
+/* フィルターセクション */
+.filter-section {
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 100px;
+    margin-bottom: 40px;
+    background-color: white;
+    padding: 25px;
+    border-radius: 12px;
+    border: 2px solid #ddd;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.filter-group label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+}
+
+.filter-group input,
+.filter-group select {
+    width: 160px;
+    height: 42px;
+    padding: 0 12px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    background-color: #fff;
+    box-sizing: border-box;
+}
+
+.filter-button {
+    width: 40px;
+    height: 40px;
+    border: none;
+    border-radius: 50%;
+    background-color: #5da3d5;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.filter-button:hover {
+    background-color: #4a8fb5;
+}
+
+.select-box {
+    position: relative;
+    width: 160px;
+}
+
+.select-box .arrow {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    font-size: 12px;
+}
+
+.select-box select {
+    width: 100%;
+    height: 42px;
+    padding-left: 32px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background: #fff;
+    box-sizing: border-box;
+}
+
+/* 教室レイアウト */
+.room-layout {
+    background-color: white;
+    padding: 30px;
+    border-radius: 12px;
+    border: 2px solid #ddd;
+    display: flex;
+    justify-content: center;
+}
+
+.room-layout svg {
+    max-width: 100%;
+    height: auto;
+    max-height: 600px;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+
+    .filter-section {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: flex-end;
+        gap: 30px;
+    }
+
+    .filter-group {
+        width: 100px;
+    }
+
+    .select-box,
+    .filter-group input,
+    .filter-group select {
+        width: 100%;
+    }
+}
