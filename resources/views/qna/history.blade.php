@@ -12,10 +12,6 @@
 <body>
     <main class="content qna-page">
 
-        <div class="top-header">
-            <button class="menu-button" id="menuButton">☰</button>
-        </div>
-        <div class="overlay" id="overlay"></div>
 
         <div class="qna-header-container">
             <h1 class="qna-title">投稿履歴</h1>

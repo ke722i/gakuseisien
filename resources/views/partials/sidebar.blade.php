@@ -35,7 +35,7 @@
         <a href="{{ route('classroom.reservation') }}" class="{{ $active === 'reservation' ? 'active' : '' }}">
             <span class="menu-icon">🏫</span><span class="label">空き教室予約</span>
         </a>
-        <a href="#" class="{{ $active === 'board' ? 'active' : '' }}">
+        <a href="{{ route('forum.top') }}" class="{{ $active === 'forum' ? 'active' : '' }}">
             <span class="menu-icon">📋</span><span class="label">掲示板</span>
         </a>
         <a href="{{ route('gakunai.qna') }}" class="{{ $active === 'qna' ? 'active' : '' }}">
