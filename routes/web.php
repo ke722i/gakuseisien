@@ -5,9 +5,9 @@ use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Route;
 
 // ホームページのルート設定
-// 未ログインで開くとログイン画面へ。ログイン済みならホーム(welcome)を表示する。
+// 未ログインで開くとログイン画面へ。ログイン済みならホームダッシュボードを表示する。
 Route::get('/', function () {
-    return view('welcome');
+    return view('home');
 })->middleware('auth');
 
 // ログイン・新規登録画面のルート設定
@@ -37,16 +37,13 @@ Route::get('/classroom-reservation/bulk', function () {
 
 // 学内Q&Aページのルート設定
 Route::get('/gakunai-qna', function () {
-    return view('qna'); // qna.blade.php を呼び出す
+    return view('qna.qna'); // qna/qna.blade.php を呼び出す
 })->name('gakunai.qna');
-
 
 // 掲示板画面ルート設定(miyata)
 Route::get('/forum-top', [ForumController::class, 'index'])->name('forum.top');
 Route::get('/forum/create', [ForumController::class, 'create'])->name('forum.create');
 Route::post('/forum', [ForumController::class, 'store'])->name('forum.store');
-    return view('qna.qna'); // qna.blade.php を呼び出す
-})->name('gakunai.qna');
 
 Route::get('/gakunai-qna/create', function () {
     return view('qna.create'); 

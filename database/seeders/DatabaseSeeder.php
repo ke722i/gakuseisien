@@ -23,11 +23,6 @@ class DatabaseSeeder extends Seeder
             ['password' => Hash::make('student1'), 'role' => 'student'],
         );
 
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
-
         Post::create([
             'title' => '【新入生歓迎！】テニスサークル メンバー募集',
             'content' => 'テニスが好きな新入生を歓迎します。週2回の活動です。',

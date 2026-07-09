@@ -10,35 +10,10 @@
 
     <div class="app-layout">
 
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-logo">
-                <h2>学生支援.com</h2>
-                <p>学校便利掲示板システム</p>
-            </div>
-
-            <nav class="sidebar-menu">
-                <a href="{{ url('/') }}">ホーム</a>
-                <a href="#">空き教室予約</a>
-                <a href="{{ route('forum.top') }}" class="active">掲示板</a>
-                <a href="{{ route('gakunai.qna') }}">学内Q＆A</a>
-                <a href="#">イベント・締切カレンダー</a>
-                <a href="#">欠席・遅刻届</a>
-                <a href="#">時事ニュースまとめ</a>
-                <a href="#">近辺店舗情報マップ</a>
-            </nav>
-
-            <div class="logout">
-                <a href="#">ログアウト</a>
-            </div>
-        </aside>
-
-        <div class="overlay" id="overlay"></div>
+        <!-- 左サイドバー（共通部品） -->
+        @include('partials.sidebar', ['active' => 'forum'])
 
         <main class="content">
-            <div class="top-header">
-                <button class="menu-button" id="menuButton">☰</button>
-            </div>
-
             <header class="header">
                 <h1 class="header-title">掲示板</h1>
             </header>
