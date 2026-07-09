@@ -9,6 +9,8 @@ export default defineConfig({
             input: [
                 'resources/css/app.css',
                 'resources/js/app.js',
+                'resources/css/qna.css',
+                'resources/css/forum/forum-top.css',
                 'resources/js/qna.js',
                 'resources/css/auth.css',
 <<<<<<< HEAD
