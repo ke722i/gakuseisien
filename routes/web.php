@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ForumController;
 use App\Http\Controllers\AuthController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 // ホームページのルート設定
@@ -18,8 +19,10 @@ Route::post('/register', [AuthController::class, 'register'])->name('register.at
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // 空き教室予約ページのルート設定
+// 先生は先生用、学生（未ログイン含む）は学生用ページへ遷移する
 Route::get('/classroom-reservation', function () {
-    return view('reservation.home.teacher');
+    $view = Auth::user()?->isTeacher() ? 'reservation.home.teacher' : 'reservation.home.student';
+    return view($view);
 })->name('classroom.reservation');
 
 // 空き教室予約・詳細ページのルート設定

@@ -56,6 +56,13 @@
     </nav>
 
     <div class="logout">
+        @auth
+            {{-- ログイン中のID表示 --}}
+            <div class="current-user" title="ログイン中: {{ Auth::user()->login_id }}">
+                <span class="menu-icon">👤</span><span class="label">{{ Auth::user()->login_id }}</span>
+            </div>
+        @endauth
+
         <form method="POST" action="{{ route('logout') }}">
             @csrf
             <button type="submit" class="logout-btn">
