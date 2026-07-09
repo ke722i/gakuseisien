@@ -1,0 +1,123 @@
+/* 新規投稿ページ用スタイル */
+.create-header {
+    padding: 1.5rem;
+}
+
+.create-header h1 {
+    font-size: 1.5rem;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+}
+
+
+
+.forum-form {
+    padding: 0 1.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.group-label,
+.form-group label {
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.radio-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 9999px;
+    padding: 0.6rem 1rem;
+    background-color: var(--bg-surface);
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+.radio-label input {
+    accent-color: var(--primary-color);
+}
+
+.form-group input[type="text"],
+.form-group textarea,
+.file-upload input[type="file"] {
+    width: 100%;
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    padding: 0.9rem 1rem;
+    font-size: 0.95rem;
+    outline: none;
+    background-color: #fff;
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 10rem;
+}
+
+.file-upload {
+    border: 1px dashed var(--border-color);
+    border-radius: 1rem;
+    padding: 1rem;
+    background-color: #f8fafc;
+}
+
+.file-upload p {
+    margin-top: 0.75rem;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+.submit-button {
+    min-width: 240px;      /* ボタンの最小幅。好みに合わせて数値を変更してください */
+    align-self: center;    /* 親要素が flex-direction: column なので、これで中央寄せになります */
+    padding: 0.8rem 2rem;  /* 上下を少しスッキリさせ、左右に余白を持たせます */
+
+    /* 以下は元の設定のまま */
+    border: none;
+    border-radius: 9999px;
+    background-color: var(--primary-color);
+    color: white;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.submit-button:hover {
+    background-color: #2563eb;
+}
+
+.alert-box {
+    padding: 1rem;
+    border-radius: 1rem;
+    background-color: #fee2e2;
+    border: 1px solid #fecaca;
+    color: #991b1b;
+}
+
+.alert-box ul {
+    list-style: disc inside;
+    margin: 0;
+    padding: 0;
+}
+
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-radius: 9999px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-surface);
+    color: var(--text-main);
+    text-decoration: none;
+    margin: 1rem 1.5rem 0;
+}
