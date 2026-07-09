@@ -1,0 +1,288 @@
+/* ==========================================================================
+   学内Q&A 専用パーツスタイル（レイアウト完全一致版）
+   ========================================================================== */
+
+/* 画面全体 */
+.qna-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    position: relative;
+}
+
+/* 1. ヘッダーまわり（横並び） */
+.qna-header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    width: 100%;
+    max-width: 930px;
+    margin-left: auto;
+    margin-right: auto;
+    gap: 15px;
+}
+
+.app-layout {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 100;
+}
+
+.qna-title {
+    font-size: 30px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    margin: 0;
+    color: #111111;
+    flex-shrink: 0;
+}
+
+.qna-search-box {
+    flex: 1;
+    max-width: 480px;
+}
+
+.qna-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    /* ボタン同士の隙間 */
+    flex-shrink: 0;
+}
+
+.qna-search-input {
+    width: 100%;
+    padding: 10px 16px;
+    border: 2px solid #111111;
+    border-radius: 4px;
+    text-align: center;
+    font-size: 15px;
+    background-color: #ffffff;
+    outline: none;
+}
+
+.qna-history-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 16px;
+    border: 2px solid #111111;
+    border-radius: 4px;
+    background-color: #ffffff;
+    color: #111111;
+    font-size: 14px;
+    font-weight: bold;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.2s, opacity 0.2s;
+}
+
+.qna-history-btn:hover {
+    background-color: #f5f5f5;
+}
+
+.qna-btn-black {
+    background-color: #111111 !important;
+    color: #ffffff !important;
+}
+
+.qna-btn-black:hover {
+    opacity: 0.8;
+    background-color: #111111 !important; /* hover時に白くならないように固定 */
+}
+
+/* レスポンシブ用の調整（スマホ時） */
+@media (max-width: 600px) {
+    .qna-history-btn {
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+}
+
+/* 2. 質問カードリスト（枠線の幅・位置の固定） */
+.qna-card-list {
+    width: 100%;
+    max-width: 930px;
+    margin-top: 0;
+    /* 上の余白を強制ゼロに */
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* 質問カード本体（手書きワイヤーフレームの太黒枠） */
+.qna-custom-card {
+    position: relative;
+    background-color: #ffffff;
+    border: 3px solid #111111;
+    /* しっかり目立つ太い黒枠 */
+    border-radius: 8px;
+    /* app.css のカードの角丸と統一 */
+    padding: 20px;
+}
+
+/* 右上のゴミ箱ボタン */
+.qna-delete-icon {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 18px;
+    cursor: pointer;
+    z-index: 10;
+}
+
+/* カード上部のテキスト・サムネイルエリア */
+.qna-card-body {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 16px;
+    padding-right: 25px;
+    /* ゴミ箱と被らないように調整 */
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.qna-card-body:hover {
+    opacity: 0.8;
+}
+
+.qna-card-title {
+    margin: 0 0 10px 0;
+    font-size: 16px;
+    /* app.css のニュースタイトル (16px) と統一 */
+    font-weight: bold;
+    color: #111111;
+}
+
+.qna-card-desc {
+    font-size: 14px;
+    /* app.css の要約文 (14px) と統一 */
+    color: #444444;
+    margin: 0;
+    line-height: 1.8;
+    /* app.css の読みやすい行間に統一 */
+}
+
+/* 右側のグレーのサムネイル */
+.qna-thumb-box {
+    width: 140px;
+    height: 90px;
+    background-color: #dcdcdc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    color: #555555;
+    border-radius: 4px;
+    flex-shrink: 0;
+}
+
+/* 3. 下部のアクションボタン */
+.qna-card-footer {
+    display: flex;
+    gap: 10px;
+}
+
+.qna-icon-btn {
+    border: 1px solid #111111;
+    background-color: #ffffff;
+    padding: 6px 14px;
+    font-size: 13px;
+    border-radius: 20px;
+    /* 少し丸みを持たせてお洒落に */
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    transition: background-color 0.2s;
+}
+
+.qna-icon-btn:hover {
+    background-color: #f5f5f5;
+}
+
+/* 4. 巨大画像エリア（開いた時用） */
+.qna-image-large-box {
+    width: 100%;
+    height: 380px;
+    background-color: #dcdcdc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    font-weight: bold;
+    color: #555555;
+    border-radius: 6px;
+    margin-top: 15px;
+    margin-bottom: 20px;
+}
+
+/* ==========================================================================
+   レスポンシブ対応（スマホ画面用の調整：max-width: 600px）
+   ========================================================================== */
+@media (max-width: 600px) {
+    .qna-header-container {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .qna-title {
+        font-size: 20px;
+    }
+
+    .qna-search-box {
+        width: 100%;
+        margin: 0;
+        max-width: none;
+    }
+
+    .qna-search-input {
+        font-size: 13px;
+        padding: 8px 12px;
+    }
+
+    .qna-profile-btn {
+        display: none;
+        /* スマホでは一旦隠す */
+    }
+
+    .qna-custom-card {
+        padding: 14px;
+        border-width: 2px;
+        /* スマホでは枠線を少し細く */
+    }
+
+    .qna-card-body {
+        flex-direction: column-reverse;
+        /* スマホではサムネを上に、またはテキストを上に */
+        gap: 12px;
+    }
+
+    .qna-thumb-box {
+        width: 100%;
+        height: 120px;
+    }
+
+    .qna-card-title {
+        font-size: 14px;
+    }
+
+    .qna-card-desc {
+        font-size: 12px;
+    }
+
+    .qna-image-large-box {
+        height: 200px;
+        font-size: 24px;
+    }
+}
