@@ -9,11 +9,15 @@ export default defineConfig({
             input: [
                 'resources/css/app.css',
                 'resources/js/app.js',
-                'resources/css/qna.css',
+                'resources/js/qna.js',
                 'resources/css/auth.css',
                 'resources/css/reservation/home/student.css',
                 'resources/css/reservation/home/teacher.css',
                 'resources/css/reservation/room/bulk-reservation.css',
+                'resources/css/qna/qna.css',
+                'resources/css/qna/create.css',
+                'resources/css/qna/detail.css',
+                'resources/css/qna/profile.css',
             ],
             refresh: true,
             fonts: [
