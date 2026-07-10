@@ -328,8 +328,6 @@ Route::get('/', function () {
 Route::get('/history', function () {
     return view('news.history');
 });
-    return view('welcome');
-})->middleware('auth');
 
 // ログイン・新規登録画面のルート設定
 Route::get('/login', [AuthController::class, 'show'])->name('login');
