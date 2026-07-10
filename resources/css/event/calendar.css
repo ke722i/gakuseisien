@@ -1,0 +1,412 @@
+/* イベント・締め切りカレンダー */
+
+.cal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.cal-header h1 {
+    margin: 0;
+    font-size: 26px;
+    letter-spacing: 1px;
+}
+
+.cal-add-btn {
+    border: none;
+    background-color: #2563eb;
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.cal-add-btn:hover {
+    background-color: #1d4ed8;
+}
+
+/* 月移動 */
+.cal-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 18px;
+}
+
+.cal-nav-btn {
+    text-decoration: none;
+    color: #111;
+    font-size: 22px;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+}
+
+.cal-nav-btn:hover {
+    background-color: #f1f1f1;
+}
+
+.cal-nav-title {
+    font-size: 20px;
+    font-weight: bold;
+    min-width: 140px;
+    text-align: center;
+}
+
+/* カレンダーグリッド */
+.cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    border-top: 1px solid #e5e7eb;
+    border-left: 1px solid #e5e7eb;
+}
+
+.cal-weekday {
+    text-align: center;
+    padding: 8px 0;
+    font-size: 13px;
+    font-weight: bold;
+    color: #555;
+    background-color: #fafafa;
+    border-right: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.cal-weekday.sun {
+    color: #e11d48;
+}
+
+.cal-weekday.sat {
+    color: #2563eb;
+}
+
+/* 日セル */
+.cal-cell {
+    min-height: 96px;
+    padding: 6px;
+    border-right: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    text-decoration: none;
+    color: #111;
+    background-color: #fff;
+}
+
+.cal-cell:hover {
+    background-color: #f5f8ff;
+}
+
+.cal-cell.other-month {
+    background-color: #fafafa;
+    color: #bbb;
+}
+
+.cal-cell.other-month .cal-date {
+    color: #bbb;
+}
+
+.cal-cell.today {
+    background-color: #eef4ff;
+}
+
+.cal-date {
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.cal-date.sun {
+    color: #e11d48;
+}
+
+.cal-date.sat {
+    color: #2563eb;
+}
+
+.cal-cell.today .cal-date {
+    background-color: #2563eb;
+    color: #fff;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cal-dots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-content: flex-start;
+}
+
+.cal-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background-color: #6b7280;
+}
+
+/* カテゴリ色 */
+.cal-dot.event,
+.day-event.event {
+    background-color: #22a447;
+}
+
+.cal-dot.deadline,
+.day-event.deadline {
+    background-color: #e11d48;
+}
+
+.cal-dot.class,
+.day-event.class {
+    background-color: #2563eb;
+}
+
+.cal-dot.other,
+.day-event.other {
+    background-color: #6b7280;
+}
+
+/* ===== モーダル ===== */
+.cal-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.cal-modal.open {
+    display: flex;
+}
+
+.cal-modal-box {
+    background-color: #fff;
+    width: 100%;
+    max-width: 460px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 14px;
+    padding: 22px 24px 24px;
+}
+
+.cal-modal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.cal-modal-head h2 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.cal-modal-close {
+    border: none;
+    background: none;
+    font-size: 24px;
+    cursor: pointer;
+    line-height: 1;
+    color: #666;
+}
+
+.cal-errors {
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 14px;
+}
+
+.cal-errors p {
+    margin: 2px 0;
+    color: #dc2626;
+    font-size: 13px;
+}
+
+.cal-field {
+    margin-bottom: 14px;
+}
+
+.cal-field-row {
+    display: flex;
+    gap: 12px;
+}
+
+.cal-field-row .cal-field {
+    flex: 1;
+}
+
+.cal-field label {
+    display: block;
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+.cal-field input[type="text"],
+.cal-field input[type="datetime-local"],
+.cal-field select,
+.cal-field textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.cal-field.cal-check label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: normal;
+}
+
+.cal-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.cal-btn-cancel {
+    border: 1px solid #d1d5db;
+    background-color: #fff;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.cal-btn-submit {
+    border: none;
+    background-color: #2563eb;
+    color: #fff;
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+/* ===== 日別予定ページ ===== */
+.day-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #eee;
+}
+
+.day-label {
+    font-size: 20px;
+    font-weight: bold;
+    margin-right: 16px;
+}
+
+.day-date {
+    font-size: 18px;
+    color: #555;
+}
+
+.day-back {
+    text-decoration: none;
+    color: #111;
+    border: 1px solid #ddd;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.day-back:hover {
+    background-color: #f1f1f1;
+}
+
+.day-list {
+    max-width: 640px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.day-event {
+    border: 1px solid #e5e7eb;
+    border-left-width: 5px;
+    border-radius: 8px;
+    padding: 14px 18px;
+    background-color: #fff;
+}
+
+.day-event-title {
+    margin: 0 0 6px;
+    font-size: 16px;
+}
+
+.day-event-meta {
+    margin: 0;
+    font-size: 13px;
+    color: #666;
+}
+
+.day-event-cat {
+    font-weight: bold;
+}
+
+.day-event-desc {
+    margin: 8px 0 0;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #333;
+}
+
+.day-empty {
+    text-align: center;
+    color: #999;
+    font-size: 20px;
+    margin-top: 60px;
+}
+
+/* スマホ */
+@media (max-width: 600px) {
+    .cal-cell {
+        min-height: 64px;
+        padding: 4px;
+    }
+
+    .cal-date {
+        font-size: 12px;
+    }
+
+    .cal-dot {
+        width: 7px;
+        height: 7px;
+    }
+
+    .cal-header h1 {
+        font-size: 20px;
+    }
+
+    .day-header {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+}
