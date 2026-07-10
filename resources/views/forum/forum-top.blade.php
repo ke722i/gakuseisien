@@ -43,11 +43,12 @@
 
             <section class="post-list">
                 @forelse ($posts as $post)
-                    <article class="post-card">
-                        <div class="post-thumbnail">
-                            <img src="{{ $post->image_url ?? 'https://via.placeholder.com/150' }}" alt="{{ $post->title }}">
-                        </div>
-                        <div class="post-content">
+                    <a href="{{ route('forum.show', $post) }}" style="text-decoration:none;color:inherit;display:flex;width:100%;">
+                        <article class="post-card" style="width:100%;">
+                            <div class="post-thumbnail">
+                                <img src="{{ $post->image_url ?? 'https://via.placeholder.com/150' }}" alt="{{ $post->title }}">
+                            </div>
+                            <div class="post-content">
                             <div class="post-author">
                                 <svg class="icon-user" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                                 <span>{{ $post->posted_by ?? '投稿者不明' }}</span>
@@ -57,20 +58,25 @@
                                 <time class="post-date">{{ $post->published_at?->format('Y-m-d H:i') ?? $post->created_at->format('Y-m-d H:i') }}</time>
                             </div>
                             <h2 class="post-title">{{ $post->title }}</h2>
-                            @if ($post->location)
-                                <div class="post-location">
-                                    <svg class="icon-location" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
-                                    <span>{{ $post->location }}</span>
-                                </div>
-                            @endif
-                        </div>
-                    </article>
+                                @if ($post->location)
+                                    <div class="post-location">
+                                        <svg class="icon-location" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path></svg>
+                                        <span>{{ $post->location }}</span>
+                                    </div>
+                                @endif
+                            </div>
+                        </article>
+                    </a>
                 @empty
                     <div class="post-empty">
                         <p>投稿が見つかりませんでした。キーワードやカテゴリを変更してみてください。</p>
                     </div>
                 @endforelse
             </section>
+
+            <div style="margin-top:1rem;">
+                {{ $posts->links() }}
+            </div>
 
             <a href="{{ route('forum.create') }}" class="fab-button" aria-label="投稿を作成する">
                 <svg class="fab-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
