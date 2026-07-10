@@ -25,7 +25,7 @@
 
                 <a href="{{ route('classroom.reservation.manage') }}" class="big-button">予約管理</a>
 
-                <a href="{{ route('classroom.reservation.bulk') }}" class="big-button">教室一覧予約</a>
+                <a href="{{ route('classroom.reservation.bulk') }}" class="big-button">教室一括予約</a>
             </div>
         </main>
     </div>
