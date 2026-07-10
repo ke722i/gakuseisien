@@ -111,6 +111,16 @@ body {
     background-color: rgba(255, 255, 255, 0.15);
 }
 
+/* ログイン中のID表示（ログアウトの上） */
+.logout .current-user {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 10px 20px 4px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.85);
+}
+
 /* アイコン枠（画像に差し替えてもレイアウトが崩れないよう幅を固定） */
 .menu-icon {
     width: 28px;
