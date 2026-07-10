@@ -26,6 +26,7 @@ export default defineConfig({
                 'resources/css/store/home.css',
                 'resources/css/store/more.css',
                 'resources/css/store/request.css',
+                'resources/css/event/calendar.css',
             ],
             refresh: true,
             fonts: [

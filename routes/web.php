@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ForumController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\EventController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -61,9 +62,9 @@ Route::get('/gakunai-qna/history', function () {
 })->name('qna.history');
 
 // イベント・締め切りカレンダーページのルート設定
-Route::get('/event-calendar', function () {
-    return view('eventCalendar'); //eventCalendar.blade.php を呼び出す
-})->name('event.calendar');
+Route::get('/event-calendar', [EventController::class, 'index'])->name('event.calendar');
+Route::get('/event-calendar/day/{date}', [EventController::class, 'day'])->name('event.day');
+Route::post('/event-calendar', [EventController::class, 'store'])->name('event.store');
 
 // 欠席・遅刻届ページのルート設定
 Route::get('/notification', function () {
