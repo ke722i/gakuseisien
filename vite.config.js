@@ -23,6 +23,9 @@ export default defineConfig({
                 'resources/css/qna/create.css',
                 'resources/css/qna/detail.css',
                 'resources/css/qna/history.css',
+                'resources/css/store/home.css',
+                'resources/css/store/more.css',
+                'resources/css/store/request.css',
             ],
             refresh: true,
             fonts: [
