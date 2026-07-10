@@ -125,18 +125,6 @@
     padding: 20px;
 }
 
-/* 右上のゴミ箱ボタン */
-.qna-delete-icon {
-    position: absolute;
-    top: 15px;
-    right: 15px;
-    background: none;
-    border: none;
-    font-size: 18px;
-    cursor: pointer;
-    z-index: 10;
-}
-
 /* カード上部のテキスト・サムネイルエリア */
 .qna-card-body {
     display: flex;
@@ -285,4 +273,95 @@
         height: 200px;
         font-size: 24px;
     }
+}
+
+/* ==========================================================================
+   一覧画面用：削除ボタン＆ポップアップの共通配置
+   ========================================================================== */
+
+/* カードを基準点にする */
+.qna-custom-card {
+    position: relative !important;
+}
+
+/* 右上の🗑️ボタン */
+.qna-delete-top-right {
+    position: absolute !important;
+    top: 15px !important;
+    right: 20px !important;
+    background: none !important;
+    border: none !important;
+    color: #cc3333 !important;
+    font-size: 18px !important;
+    cursor: pointer !important;
+    padding: 5px !important;
+    z-index: 10 !important;
+}
+
+.qna-delete-top-right:hover {
+    background-color: #fff5f5 !important;
+}
+
+/* ポップアップの表示・非表示（履歴画面と同じもの） */
+.qna-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.qna-modal-overlay.is-open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.qna-modal-box {
+    background-color: #ffffff;
+    padding: 30px !important;
+    width: 90%;
+    max-width: 400px;
+    text-align: center;
+}
+
+.qna-modal-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #111111;
+    margin-top: 0;
+    margin-bottom: 15px;
+}
+
+.qna-modal-text {
+    font-size: 15px;
+    color: #555555;
+    line-height: 1.6;
+    margin-bottom: 25px;
+}
+
+.qna-modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.qna-modal-btn-cancel {
+    background-color: #ffffff !important;
+    color: #111111 !important;
+    padding: 8px 20px !important;
+}
+
+.qna-modal-btn-delete {
+    background-color: #cc3333 !important;
+    color: #ffffff !important;
+    border-color: #111111 !important;
+    padding: 8px 20px !important;
 }
