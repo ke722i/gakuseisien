@@ -20,7 +20,7 @@
 
 <aside class="sidebar" id="sidebar">
     {{-- サイト名。クリックでホームへ --}}
-    <a href="{{ url('/') }}" class="sidebar-logo" aria-label="ホームへ">
+    <a href="{{ route('home') }}" class="sidebar-logo" aria-label="ホームへ">
         <span class="logo-mark">学</span>
         <span class="logo-full">
             <span class="logo-title">学生支援.com</span>
@@ -29,7 +29,7 @@
     </a>
 
     <nav class="sidebar-menu">
-        <a href="{{ url('/') }}" class="{{ $active === 'home' ? 'active' : '' }}">
+        <a href="{{ route('home') }}" class="{{ $active === 'home' ? 'active' : '' }}">
             <span class="menu-icon">🏠</span><span class="label">ホーム</span>
         </a>
         <a href="{{ route('classroom.reservation') }}" class="{{ $active === 'reservation' ? 'active' : '' }}">

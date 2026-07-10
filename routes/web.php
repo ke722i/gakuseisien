@@ -325,6 +325,11 @@ Route::get('/', function () {
     ]);
 });
 
+// ホームダッシュボード
+Route::get('/home', function () {
+    return view('home');
+})->name('home');
+
 Route::get('/history', function () {
     return view('news.history');
 });
