@@ -356,27 +356,25 @@ Route::get('/classroom-reservation/bulk', function () {
 //     return view('board'); // 例: board.blade.php
 // })->name('board');
 
-// 学内Q&Aページのルート設定
-Route::get('/gakunai-qna', function () {
-    return view('qna.qna'); // qna/qna.blade.php を呼び出す
-})->name('gakunai.qna');
-
 // 掲示板画面ルート設定(miyata)
 Route::get('/forum-top', [ForumController::class, 'index'])->name('forum.top');
 Route::get('/forum/create', [ForumController::class, 'create'])->name('forum.create');
 Route::post('/forum', [ForumController::class, 'store'])->name('forum.store');
 
+// 学内Q&Aページのルート設定
+use App\Http\Controllers\QnaController;
+
+Route::delete('/gakunai-qna/{id}', [QnaController::class, 'destroy'])->name('qna.destroy');
+Route::get('/gakunai-qna', [QnaController::class, 'index'])->name('gakunai.qna');
+Route::get('/gakunai-qna/create', [QnaController::class, 'create'])->name('qna.create');
+Route::post('/gakunai-qna/store', [QnaController::class, 'store'])->name('qna.store');
+Route::get('/gakunai-qna/history', [QnaController::class, 'history'])->name('qna.history');
+Route::get('/gakunai-qna/{id}', [QnaController::class, 'show'])->name('qna.detail');
+Route::post('/gakunai-qna/{id}/answers', [QnaController::class, 'storeAnswer'])->name('qna.storeAnswer');
+
 Route::get('/gakunai-qna/create', function () {
     return view('qna.create'); 
 })->name('qna.create');
-
-Route::get('/gakunai-qna/detail', function () {
-    return view('qna.detail'); 
-})->name('qna.detail');
-
-Route::get('/gakunai-qna/history', function () {
-    return view('qna.history'); 
-})->name('qna.history');
 
 // イベント・締め切りカレンダーページのルート設定
 Route::get('/event-calendar', [EventController::class, 'index'])->name('event.calendar');
