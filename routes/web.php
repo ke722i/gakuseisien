@@ -79,15 +79,23 @@ Route::get('/nearby-shop', function () {
     return view('store.home');
 })->name('nearby.shop');
 
-// 店舗詳細
 Route::get('/nearby-shop/store/{id}', function ($id) {
     return view('store.more', ['id' => $id]);
 })->name('store.more');
 
-// 店舗申請
 Route::get('/nearby-shop/request', function () {
     return view('store.request');
 })->name('store.request');
+
+Route::get('/nearby-shop/admin', function () {
+    return view('store.admin');
+})->name('store.admin');
+
+
+
+
+
+
 
 // 時事ニュース関連のルート（/recentnews, /history）を読み込む
 require __DIR__.'/news.php';

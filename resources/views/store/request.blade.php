@@ -12,20 +12,7 @@
 
 <div class="container">
 
-    <!-- サイドバー -->
-    <aside class="sidebar">
-
-        <h2>MENU</h2>
-
-        <ul>
-            <li><a href="{{ url('/') }}">ホーム</a></li>
-            <li><a href="{{ route('nearby.shop') }}">近辺店舗情報マップ</a></li>
-            <li><a href="{{ route('store.request') }}">店舗申請</a></li>
-            <li><a href="#">承認画面</a></li>
-            <li><a href="#">ログアウト</a></li>
-        </ul>
-
-    </aside>
+    @include('partials.sidebar', ['active' => 'nearby-shop'])
 
     <!-- メイン -->
     <main class="main-content">
