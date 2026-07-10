@@ -52,10 +52,35 @@ class EventController extends Controller
             $days[] = $d->copy();
         }
 
+        // JS用: 日付ごとの予定データ（クリックで「今日の予定」パネル更新に使う）
+        $eventsData = [];
+        foreach ($eventsByDate as $date => $list) {
+            $eventsData[$date] = array_map(fn (Event $e) => [
+                'title' => $e->title,
+                'time' => $e->all_day
+                    ? '終日'
+                    : $e->start_at->format('H:i') . ($e->end_at ? '〜' . $e->end_at->format('H:i') : ''),
+                'location' => $e->location,
+                'cat' => $e->categoryClass(),
+            ], $list);
+        }
+
+        // 「今日の予定」パネル用（表示中の月に関係なく today）
+        $today = Carbon::today();
+        $todayEvents = Event::orderBy('start_at')->get()->filter(function (Event $e) use ($today) {
+            $s = $e->start_at->copy()->startOfDay();
+            $en = ($e->end_at ?? $e->start_at)->copy()->startOfDay();
+
+            return $today->gte($s) && $today->lte($en);
+        })->values();
+
         return view('event.calendar', [
             'current' => $current,
             'days' => $days,
             'eventsByDate' => $eventsByDate,
+            'eventsData' => $eventsData,
+            'today' => $today,
+            'todayEvents' => $todayEvents,
             'prev' => $current->copy()->subMonthNoOverflow(),
             'next' => $current->copy()->addMonthNoOverflow(),
             'categories' => array_keys(Event::CATEGORY_CLASSES),

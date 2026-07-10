@@ -27,8 +27,9 @@ class Event extends Model
      */
     public const CATEGORY_CLASSES = [
         'イベント' => 'event',
-        '締め切り' => 'deadline',
-        '授業' => 'class',
+        '行事' => 'gyoji',
+        '休校' => 'kyuko',
+        '試験日' => 'exam',
         'その他' => 'other',
     ];
 
