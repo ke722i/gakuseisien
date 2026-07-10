@@ -15,8 +15,8 @@
 .header {
     display: flex;
     align-items: center;
-    gap: 18px;
-    margin-bottom: 28px;
+    margin-bottom: 40px;
+    gap: 20px;
 }
 
 .back-button {
@@ -40,6 +40,7 @@
     font-weight: 700;
     color: #222;
 }
+
 .reservation-list {
     display: grid;
     gap: 20px;

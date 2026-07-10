@@ -19,6 +19,7 @@ export default defineConfig({
                 'resources/css/reservation/home/student.css',
                 'resources/css/reservation/home/teacher.css',
                 'resources/css/reservation/room/bulk-reservation.css',
+                'resources/css/reservation/room/reservation-list.css',
                 'resources/css/qna/qna.css',
                 'resources/css/qna/create.css',
                 'resources/css/qna/detail.css',

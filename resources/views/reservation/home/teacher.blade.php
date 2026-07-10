@@ -19,13 +19,13 @@
         <main class="content">
             <div class="center-panel">
 
-                <a href="{{ route('classroom.reservation.bulk') }}" class="big-button">空き教室予約</a>
+                <a href="{{ route('classroom.reservation.room') }}" class="big-button">空き教室予約</a>
 
-                <a href="#" class="big-button">予約一覧</a>
+                <a href="{{ route('classroom.reservation.list') }}" class="big-button">予約一覧</a>
 
-                <a href="#" class="big-button">予約管理</a>
+                <a href="{{ route('classroom.reservation.manage') }}" class="big-button">予約管理</a>
 
-                <a href="#" class="big-button">教室一覧予約</a>
+                <a href="{{ route('classroom.reservation.bulk') }}" class="big-button">教室一覧予約</a>
             </div>
         </main>
     </div>
