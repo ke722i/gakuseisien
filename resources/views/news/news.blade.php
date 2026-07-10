@@ -73,7 +73,7 @@
                         data-description="{{ $article['description'] ?? '概要はありません。' }}"
                         data-url="{{ $article['url'] ?? '#' }}"
                         data-source="{{ $article['source']['name'] ?? '提供元不明' }}"
-                        data-date="{{ substr($article['publishedAt'] ?? '', 0, 10) }}"
+                        data-date="{{ str_replace('T', ' ', substr($article['publishedAt'] ?? '', 0, 16)) }}"
                         data-category="{{ $article['app_category'] ?? 'all' }}"
                         data-category-label="{{ $article['app_category_label'] ?? 'ニュース' }}"
                     >
@@ -85,7 +85,7 @@
                                     </span>
 
                                     <span>
-                                        {{ substr($article['publishedAt'] ?? '', 0, 10) }}
+                                        {{ str_replace('T', ' ', substr($article['publishedAt'] ?? '', 0, 16)) }}
                                         ・
                                         {{ $article['source']['name'] ?? '提供元不明' }}
                                     </span>

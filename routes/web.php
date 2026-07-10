@@ -2,11 +2,18 @@
 
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Carbon;
 
 Route::get('/', function () {
     $category = request('category', 'all');
 
-    // 画面側のカテゴリー
+    // 存在しないカテゴリーが来たら「すべて」に戻す
+    if (!in_array($category, ['all', 'business', 'sports', 'politics', 'technology'])) {
+        $category = 'all';
+    }
+
+    // GNewsのカテゴリー対応
     $categoryMap = [
         'business' => 'business',
         'sports' => 'sports',
@@ -14,7 +21,7 @@ Route::get('/', function () {
         'technology' => 'technology',
     ];
 
-    // 表示する日本語カテゴリー名
+    // 画面に表示するカテゴリー名
     $categoryLabelMap = [
         'business' => '経済',
         'sports' => 'スポーツ',
@@ -22,19 +29,165 @@ Route::get('/', function () {
         'technology' => 'IT',
     ];
 
-    // top-headlinesで取れなかった時の予備検索キーワード
+    // top-headlinesで取得できなかった時の検索キーワード
     $keywordMap = [
         'business' => '経済',
-        'sports' => '野球',
+        'sports' => 'スポーツ',
         'politics' => '政治',
         'technology' => '生成AI',
     ];
 
-    // ニュース取得用の関数
-    $fetchArticles = function ($categoryKey, $limit = 5) use ($categoryMap, $categoryLabelMap, $keywordMap) {
+    // エンタメ系の記事を除外する関数
+    $isEntertainment = function ($article) {
+        $title = $article['title'] ?? '';
+        $description = $article['description'] ?? '';
+        $source = $article['source']['name'] ?? '';
+        $content = $title . ' ' . $description . ' ' . $source;
+
+        $entertainmentWords = [
+            'アニメ', '漫画', 'マンガ', '映画', 'ドラマ', '俳優', '女優',
+            '声優', 'アイドル', '芸能', 'タレント', '歌手', '音楽',
+            'ライブ', '舞台', 'キャスト', 'グッズ', '特装版', '付録',
+            'CD', 'ブルーロック', 'ゲーム', 'Switch', 'PS5', 'XBOX',
+            'PlayStation', '任天堂', 'ポケモン', 'ファミ通', 'Game',
+            'Game*Spark', 'オリコン', 'ORICON', 'ちいかわ', 'コラボ限定',
+            'リップ', 'スリーピングマスク', 'キャラクター'
+        ];
+
+        foreach ($entertainmentWords as $word) {
+            if (mb_stripos($content, $word) !== false) {
+                return true;
+            }
+        }
+
+        return false;
+    };
+
+    // 記事内容からカテゴリーを判定する関数
+    $detectCategory = function ($article) use ($isEntertainment) {
+        if ($isEntertainment($article)) {
+            return [null, null];
+        }
+
+        $title = $article['title'] ?? '';
+        $description = $article['description'] ?? '';
+        $source = $article['source']['name'] ?? '';
+        $content = $title . ' ' . $description . ' ' . $source;
+
+        // 政治系
+        $politicsWords = [
+            '政治', '政府', '国会', '選挙', '首相', '大臣',
+            '知事', '法案', '政策', '与党', '野党', '議員',
+            '自民', '立憲', '維新', '公明', '参院', '衆院',
+            '自治体', '行政', '補助金', '制度', '内閣',
+            '外交', '防衛', '予算', '条例', '皇室', '天皇'
+        ];
+
+        // 経済系
+        $businessWords = [
+            '経済', '企業', '株', '株価', '為替', '円安', '円高',
+            '物価', '賃上げ', '決算', '市場', '投資', '銀行',
+            '日経平均', '金利', '買収', '売上', '利益', '事業',
+            'Amazon', 'PayPay', '価格', '値上げ', '消費', '雇用',
+            '給付金', '税', '自動車', 'EV', '半導体', 'マクドナルド',
+            'クレジットカード', '決済', '破産', '製造', '給与',
+            '資産', '仮想通貨', '暗号資産', '好悪材料', '開示情報',
+            '三菱', 'ソニー', 'ファミマ', 'コンビニ', 'インフレ'
+        ];
+
+        // IT系
+        $technologyWords = [
+            'IT', 'AI', '生成AI', '人工知能', 'テクノロジー',
+            'アプリ', 'SNS', 'スマホ', 'iPhone', 'Android',
+            'セキュリティ', 'クラウド', 'システム', 'ソフトウェア',
+            'データ', 'ロボット', '半導体', '宇宙', 'ウェブ',
+            'Web', 'Google', 'Microsoft', 'Meta', 'SEO',
+            'マーケティング', 'AEO', 'スタートアップ', 'DX',
+            'プログラム', 'デジタル'
+        ];
+
+        // スポーツ系
+        $sportsWords = [
+            '野球', 'サッカー', 'バスケット', 'バスケ', 'バレー',
+            'バレーボール', 'テニス', 'ゴルフ', '五輪', 'オリンピック',
+            '試合', '選手', '監督', '阪神', '巨人', '大谷',
+            'ヤクルト', 'Jリーグ', 'W杯', '高校野球', '球団',
+            '日本代表', 'リーグ', 'スポーツ', '決勝', '勝利',
+            '敗戦', '得点', 'サーブ', 'ブラジル戦'
+        ];
+
+        foreach ($politicsWords as $word) {
+            if (mb_stripos($content, $word) !== false) {
+                return ['politics', '政治'];
+            }
+        }
+
+        foreach ($businessWords as $word) {
+            if (mb_stripos($content, $word) !== false) {
+                return ['business', '経済'];
+            }
+        }
+
+        foreach ($technologyWords as $word) {
+            if (mb_stripos($content, $word) !== false) {
+                return ['technology', 'IT'];
+            }
+        }
+
+        foreach ($sportsWords as $word) {
+            if (mb_stripos($content, $word) !== false) {
+                return ['sports', 'スポーツ'];
+            }
+        }
+
+        // どれにも分類できない記事は表示しない
+        return [null, null];
+    };
+
+    // 並び替え用の関数
+    $sortArticles = function (&$articles) {
+        usort($articles, function ($a, $b) {
+            $timeA = strtotime($a['publishedAt'] ?? '');
+            $timeB = strtotime($b['publishedAt'] ?? '');
+
+            $dateA = date('Y-m-d', $timeA);
+            $dateB = date('Y-m-d', $timeB);
+
+            // 日付が違う場合は、新しい日付を上にする
+            if ($dateA !== $dateB) {
+                return strtotime($dateB) <=> strtotime($dateA);
+            }
+
+            // 同じ日付なら、時間が遅い記事を上にする
+            if ($timeA !== $timeB) {
+                return $timeB <=> $timeA;
+            }
+
+            // 日付も時間も同じ場合は、タイトル順
+            return strcmp($a['title'] ?? '', $b['title'] ?? '');
+        });
+    };
+
+    // タイトル先頭10文字で重複削除する関数
+    $removeDuplicateArticles = function ($articles) {
+        return collect($articles)
+            ->unique(function ($article) {
+                $title = $article['title'] ?? '';
+
+                // 半角・全角スペースを削除
+                $titleKey = str_replace([' ', '　'], '', $title);
+
+                // 先頭10文字を重複判定キーにする
+                return mb_substr($titleKey, 0, 10);
+            })
+            ->values()
+            ->all();
+    };
+
+    // GNewsから記事を取得する関数
+    $fetchArticles = function ($categoryKey, $limit = 5) use ($categoryMap, $keywordMap) {
         $gnewsCategory = $categoryMap[$categoryKey] ?? 'general';
 
-        // ① まずカテゴリーで取得
         $response = Http::withoutVerifying()
             ->get('https://gnews.io/api/v4/top-headlines', [
                 'category' => $gnewsCategory,
@@ -50,7 +203,7 @@ Route::get('/', function () {
             $articles = $response->json('articles') ?? [];
         }
 
-        // ② カテゴリーで0件ならキーワード検索
+        // 取得できなかった場合だけ検索APIを使う
         if (count($articles) === 0) {
             $searchResponse = Http::withoutVerifying()
                 ->get('https://gnews.io/api/v4/search', [
@@ -66,26 +219,98 @@ Route::get('/', function () {
             }
         }
 
-        // アプリ側で使うカテゴリー情報を追加
-        foreach ($articles as &$article) {
-            $article['app_category'] = $categoryKey;
-            $article['app_category_label'] = $categoryLabelMap[$categoryKey] ?? 'ニュース';
-        }
-
         return $articles;
     };
 
+    // 指定日のニュースを取得・保存する関数
+    $getDailyArticles = function ($date) use (
+        $fetchArticles,
+        $detectCategory,
+        $removeDuplicateArticles,
+        $sortArticles
+    ) {
+        $cacheKey = 'daily_news_' . $date;
+
+        return Cache::remember($cacheKey, now()->addWeek(), function () use (
+            $fetchArticles,
+            $detectCategory,
+            $removeDuplicateArticles,
+            $sortArticles
+        ) {
+            $articles = [];
+
+            // 4カテゴリーから取得
+            foreach (['business', 'sports', 'politics', 'technology'] as $categoryKey) {
+                // 各カテゴリー5件ずつ取得
+                // GNews側の制限がある場合は、実際には指定数より少ない場合もある
+                $categoryArticles = $fetchArticles($categoryKey, 5);
+
+                foreach ($categoryArticles as $article) {
+                    // 取得元カテゴリーではなく、記事内容で再分類する
+                    [$detectedCategory, $detectedLabel] = $detectCategory($article);
+
+                    if ($detectedCategory === null) {
+                        continue;
+                    }
+
+                    $article['app_category'] = $detectedCategory;
+                    $article['app_category_label'] = $detectedLabel;
+
+                    $articles[] = $article;
+                }
+            }
+
+            // 重複削除
+            $articles = $removeDuplicateArticles($articles);
+
+            // 最新順に並び替え
+            $sortArticles($articles);
+
+            // 1日分として最大10件保存
+            return array_slice($articles, 0, 10);
+        });
+    };
+
+    $today = now()->format('Y-m-d');
+
+    // 今日のニュースを取得
+    // 今日すでに保存済みならAPIは呼ばず、キャッシュから取る
+    $todayArticles = $getDailyArticles($today);
+
     $articles = [];
 
-    // すべての場合：各カテゴリーから取得して混ぜる
     if ($category === 'all') {
-        foreach (array_keys($categoryMap) as $categoryKey) {
-            $categoryArticles = $fetchArticles($categoryKey, 3);
-            $articles = array_merge($articles, $categoryArticles);
-        }
+        // すべて：今日保存したニュースだけ最大10件表示
+        $articles = $todayArticles;
     } else {
-        // 個別カテゴリーの場合
-        $articles = $fetchArticles($category, 10);
+        // カテゴリー別：今日から過去6日分、合計1週間分から同カテゴリーだけ集める
+        for ($i = 0; $i < 7; $i++) {
+            $date = Carbon::now()->subDays($i)->format('Y-m-d');
+            $cacheKey = 'daily_news_' . $date;
+
+            // 今日だけは、上で取得した $todayArticles を使う
+            // 過去の日付は、保存済みキャッシュがあれば使う
+            if ($date === $today) {
+                $dailyArticles = $todayArticles;
+            } else {
+                $dailyArticles = Cache::get($cacheKey, []);
+            }
+
+            foreach ($dailyArticles as $article) {
+                if (($article['app_category'] ?? '') === $category) {
+                    $articles[] = $article;
+                }
+            }
+        }
+
+        // 重複削除
+        $articles = $removeDuplicateArticles($articles);
+
+        // 最新順に並び替え
+        $sortArticles($articles);
+
+        // カテゴリー別は過去1週間分から最大10件表示
+        $articles = array_slice($articles, 0, 10);
     }
 
     return view('news.news', [
