@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ForumController;
+use App\Http\Controllers\AttendanceNotificationController;
 use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -67,8 +68,13 @@ Route::get('/event-calendar', function () {
 
 // 欠席・遅刻届ページのルート設定
 Route::get('/notification', function () {
-    return view('notification.notification_tea'); //notification.blade.php を呼び出す
+    $view = Auth::user()?->isTeacher() ? 'notification.notification_tea' : 'notification.notification_stu';
+    return view($view);
 })->name('notification');
+
+// 欠席・遅刻届フォームの送信（POSTリクエスト）を受け付けるURLとコントローラーの紐付け
+Route::post('/notification/store', [AttendanceNotificationController::class, 'storeNotification'])
+    ->name('notification.store');
 
 // 時事ニュースページのルート設定
 Route::get('/recentnews', function() { //担当者へ、ファイル名違ったら修正してください

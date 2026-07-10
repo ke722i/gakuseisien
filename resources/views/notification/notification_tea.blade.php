@@ -110,9 +110,9 @@
                     <!-- 理由チェックボックス -->
                     <div class="reason-checkboxes">
                         <div class="checkbox-group">
-                            <label><input type="radio" name="reason_approval" value="sick"> 病気</label>
-                            <label><input type="radio" name="reason_approval" value="late"> 遅刻</label>
-                            <label><input type="radio" name="reason_approval" value="absent"> 欠席</label>
+                            <label><input type="radio" name="reason_approval" value="sick"> 遅刻</label>
+                            <label><input type="radio" name="reason_approval" value="late"> 早退</label>
+                            <label><input type="radio" name="reason_approval" value="absent">欠課</label>
                             <label><input type="radio" name="reason_approval" value="other"> その他</label>
                         </div>
                     </div>
