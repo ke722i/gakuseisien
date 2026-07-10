@@ -13,51 +13,121 @@ body {
     min-height: 100vh;
 }
 
-/* 左サイドバー */
+/* 左サイドバー（PC: アイコンのみの細いレール。ホバーで広がる） */
 .sidebar {
     position: fixed;
     top: 0;
-    left: -260px;
-    width: 260px;
+    left: 0;
+    width: 68px;              /* 通常はアイコンだけ見える幅 */
     height: 100vh;
     background: linear-gradient(180deg, #1d4ed8, #2563eb);
     color: white;
     display: flex;
     flex-direction: column;
+    overflow-x: hidden;
+    white-space: nowrap;
     z-index: 1000;
-    transition: left 0.3s ease;
+    transition: width 0.25s ease;
 }
 
-.sidebar.open {
-    left: 0;
+/* ホバーで展開（本文の上に重なる。本文レイアウトは動かさない） */
+.sidebar:hover {
+    width: 260px;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25);
 }
 
+/* サイト名（ホームへのリンク） */
 .sidebar-logo {
-    padding: 32px 20px 24px;
+    display: flex;
+    align-items: center;
+    height: 72px;
+    padding: 0 18px;
+    color: white;
+    text-decoration: none;
     border-bottom: 1px solid rgba(255, 255, 255, 0.25);
 }
 
-.sidebar-logo h2 {
-    margin: 0;
+/* 折りたたみ時に見せる短いマーク */
+.logo-mark {
     font-size: 22px;
+    font-weight: 800;
+    width: 32px;
+    text-align: center;
+    flex-shrink: 0;
 }
 
-.sidebar-logo p {
-    margin: 6px 0 0;
-    font-size: 13px;
+/* 展開時に見せるフルのサイト名（通常は隠す） */
+.logo-full {
+    display: none;
+    flex-direction: column;
+    margin-left: 10px;
+}
+
+.logo-title {
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.logo-sub {
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.sidebar:hover .logo-mark {
+    display: none;
+}
+
+.sidebar:hover .logo-full {
+    display: flex;
 }
 
 .sidebar-menu {
     display: flex;
     flex-direction: column;
+    margin-top: 8px;
 }
 
 .sidebar-menu a,
-.logout a {
+.logout .logout-btn {
+    display: flex;
+    align-items: center;
+    gap: 16px;
     color: white;
     text-decoration: none;
-    padding: 15px 28px;
+    padding: 14px 20px;
     font-size: 15px;
+}
+
+/* ログアウトはフォームのボタンなので見た目をリンクに揃える */
+.logout .logout-btn {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.logout .logout-btn:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* アイコン枠（画像に差し替えてもレイアウトが崩れないよう幅を固定） */
+.menu-icon {
+    width: 28px;
+    flex-shrink: 0;
+    font-size: 20px;
+    text-align: center;
+    line-height: 1;
+}
+
+/* ラベルは通常は隠し、ホバー展開時にフェード表示 */
+.label {
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.sidebar:hover .label {
+    opacity: 1;
 }
 
 .sidebar-menu a:hover {
@@ -71,31 +141,42 @@ body {
 
 .logout {
     margin-top: auto;
-    padding-bottom: 28px;
-    text-align: center;
+    padding-bottom: 20px;
 }
 
-/* メイン部分 */
+/* メイン部分（レールの分だけ左に余白） */
 .content {
     min-height: 100vh;
+    margin-left: 68px;
     background-color: white;
     padding: 40px 70px 70px;
 }
 
-/* 上のハンバーガーメニュー */
+/* スマホ用の開くボタン（PCでは非表示） */
+.menu-button {
+    display: none;
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 1100;
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 10px;
+    background-color: #2563eb;
+    color: white;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+/* 旧レイアウト互換用（未使用ページ向けに残す） */
 .top-header {
     display: flex;
     align-items: center;
     justify-content: flex-start;
     margin-bottom: 35px;
-}
-
-.menu-button {
-    border: none;
-    background-color: white;
-    font-size: 30px;
-    font-weight: bold;
-    cursor: pointer;
 }
 
 /* メニューを開いた時の背景 */
@@ -290,23 +371,51 @@ body {
         min-height: 100vh;
     }
 
-    .sidebar-logo {
-        padding: 36px 20px 24px;
+    /* スマホは従来どおりのハンバーガー（画面外→☰で開く） */
+    .sidebar {
+        left: -260px;
+        width: 260px;
+        transition: left 0.3s ease;
     }
 
-    .sidebar-logo h2 {
-        font-size: 22px;
+    .sidebar:hover {
+        width: 260px;
+        box-shadow: none;
+    }
+
+    .sidebar.open {
+        left: 0;
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25);
+    }
+
+    /* 開いたときはラベル・サイト名フルを常に表示 */
+    .sidebar .label {
+        opacity: 1;
+    }
+
+    .sidebar-logo {
+        height: auto;
+        padding: 32px 20px 24px;
+    }
+
+    .logo-mark {
+        display: none;
+    }
+
+    .logo-full {
+        display: flex;
+        margin-left: 0;
     }
 
     .sidebar-menu a,
-    .logout a {
-        padding: 14px 28px;
+    .logout .logout-btn {
+        padding: 14px 22px;
         font-size: 14px;
     }
 
     .content {
         padding: 18px 14px 32px;
-        margin: 0;
+        margin-left: 0;
         width: 100%;
     }
 
@@ -314,8 +423,9 @@ body {
         margin-bottom: 16px;
     }
 
+    /* ☰ ボタンを表示 */
     .menu-button {
-        font-size: 22px;
+        display: flex;
     }
 
     .content-header {
