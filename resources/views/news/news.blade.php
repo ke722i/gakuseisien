@@ -10,39 +10,11 @@
 <body>
     <div class="app-layout">
 
-        <!-- ハンバーガーメニューで開くサイドバー -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-logo">
-                <h2>学生支援.com</h2>
-                <p>学校便利掲示板システム</p>
-            </div>
-
-            <nav class="sidebar-menu">
-                <a href="/">ホーム</a>
-                <a href="#">空き教室予約</a>
-                <a href="#">掲示板</a>
-                <a href="#">学内Q＆A</a>
-                <a href="#">イベント・締切カレンダー</a>
-                <a href="#">欠席・遅刻届</a>
-                <a href="/" class="active">時事ニュースまとめ</a>
-                <a href="#">近辺店舗情報マップ</a>
-            </nav>
-
-            <div class="logout">
-                <a href="#">ログアウト</a>
-            </div>
-        </aside>
-
-        <!-- メニューを開いた時の背景 -->
-        <div class="overlay" id="overlay"></div>
+        <!-- 左サイドバー（共通部品） -->
+        @include('partials.sidebar', ['active' => 'news'])
 
         <!-- メイン画面 -->
         <main class="content">
-
-            <!-- 上のハンバーガーメニュー -->
-            <div class="top-header">
-                <button class="menu-button" id="menuButton">☰</button>
-            </div>
 
             <!-- タイトル部分 -->
             <div class="content-header">
@@ -56,11 +28,11 @@
 
             <!-- カテゴリー -->
             <div class="category-tabs">
-                <a class="{{ $currentCategory === 'all' ? 'selected' : '' }}" href="/">すべて</a>
-                <a class="{{ $currentCategory === 'business' ? 'selected' : '' }}" href="/?category=business">経済</a>
-                <a class="{{ $currentCategory === 'sports' ? 'selected' : '' }}" href="/?category=sports">スポーツ</a>
-                <a class="{{ $currentCategory === 'politics' ? 'selected' : '' }}" href="/?category=politics">政治</a>
-                <a class="{{ $currentCategory === 'technology' ? 'selected' : '' }}" href="/?category=technology">IT</a>
+                <a class="{{ $currentCategory === 'all' ? 'selected' : '' }}" href="/recentnews">すべて</a>
+                <a class="{{ $currentCategory === 'business' ? 'selected' : '' }}" href="/recentnews?category=business">経済</a>
+                <a class="{{ $currentCategory === 'sports' ? 'selected' : '' }}" href="/recentnews?category=sports">スポーツ</a>
+                <a class="{{ $currentCategory === 'politics' ? 'selected' : '' }}" href="/recentnews?category=politics">政治</a>
+                <a class="{{ $currentCategory === 'technology' ? 'selected' : '' }}" href="/recentnews?category=technology">IT</a>
             </div>
 
             <!-- ニュース一覧 -->
