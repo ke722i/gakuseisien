@@ -12,7 +12,6 @@
 <body>
     <main class="content qna-page">
 
-
         <div class="qna-header-container">
             <h1 class="qna-title">投稿履歴</h1>
 
@@ -27,46 +26,46 @@
 
         <div class="qna-card-list">
 
+            @forelse ($posts as $post)
             <div class="qna-custom-card">
                 <div class="qna-card-header">
-                    <span class="qna-badge qna-badge-unresolved">未解決</span>
-                    <span class="qna-post-time">2026/07/08 10:00</span>
+                    @if (!empty($post->best_answer_id))
+                        <span class="qna-badge qna-badge-resolved">解決済</span>
+                    @else
+                        <span class="qna-badge qna-badge-unresolved">未解決</span>
+                    @endif
+                    <span class="qna-post-time">{{ $post->created_at->format('Y/m/d H:i') }}</span>
                 </div>
-                <h2 class="qna-card-title">学食の発券機は新紙幣に対応していますか？</h2>
+                
+                <h2 class="qna-card-title">{{ $post->title }}</h2>
+                
                 <p class="qna-card-body">
-                    お昼休みに学食を利用したいのですが、最近発行された新一万円札や新千円札は券売機でそのまま使えますでしょうか？...
+                    {{ Str::limit($post->content, 100, '...') }}
                 </p>
+                
                 <div class="qna-card-footer">
-                    <span class="qna-comment-count">💬 コメント 2件</span>
+                    <span class="qna-comment-count">💬 コメント 0件</span>
+                    
                     <div class="qna-footer-right">
-                        <button class="qna-delete-trigger-btn">🗑️ 削除</button>
-                        <a href="{{ route('qna.detail') }}" class="qna-read-more">詳細を見る</a>
+                        <button type="button" class="qna-delete-top-right" style="background: none; border: none; cursor: pointer; font-size: 14px; position: relative; z-index: 9999; color: #cc3333;" 
+                                onclick="event.preventDefault(); event.stopPropagation(); document.getElementById('global-delete-form').action = '/gakunai-qna/{{ $post->id }}'; document.getElementById('deleteModal').classList.add('is-open');">
+                            🗑️ 削除
+                        </button>
+                        <a href="{{ route('qna.detail', $post->id) }}" class="qna-read-more" style="margin-left: auto;">詳細を見る</a>
                     </div>
                 </div>
             </div>
-
-            <div class="qna-custom-card">
-                <div class="qna-card-header">
-                    <span class="qna-badge qna-badge-resolved">解決済</span>
-                    <span class="qna-post-time">2026/04/15 14:20</span>
-                </div>
-                <h2 class="qna-card-title">新入生向けのMacBook相談会はどこで行われますか？</h2>
-                <p class="qna-card-body">
-                    大学推奨のMacの初期設定や、必須アプリのインストールについて聞きたいのですが、今週相談会などはありますか？...
-                </p>
-                <div class="qna-card-footer">
-                    <span class="qna-comment-count">💬 コメント 5件</span>
-                    <div class="qna-footer-right">
-                        <button class="qna-delete-trigger-btn">🗑️ 削除</button>
-                        <a href="{{ route('qna.detail') }}" class="qna-read-more">詳細を見る</a>
-                    </div>
-                </div>
+            @empty
+            <div class="qna-custom-card" style="text-align: center; padding: 40px; color: #666666;">
+                <p style="font-size: 16px; font-weight: bold;">まだ質問を投稿していません。</p>
             </div>
+            @endforelse
 
         </div>
 
     </main>
-    <div id="deleteModal" class="qna-modal-overlay">
+
+    <div id="deleteModal" class="qna-modal-overlay" onclick="if(event.target === this) { this.classList.remove('is-open'); }">
         <div class="qna-custom-card qna-modal-box">
             <h3 class="qna-modal-title">投稿の削除</h3>
             <p class="qna-modal-text">
@@ -74,8 +73,9 @@
                 <span style="color: #cc3333; font-size: 13px;">※この操作は取り消せません。</span>
             </p>
             <div class="qna-modal-actions">
-                <button id="modalCancelBtn" class="qna-history-btn qna-modal-btn-cancel">キャンセル</button>
-                <form action="#" method="POST" style="display: inline;">
+                <button type="button" id="modalCancelBtn" class="qna-history-btn qna-modal-btn-cancel" onclick="event.preventDefault(); document.getElementById('deleteModal').classList.remove('is-open');">キャンセル</button>
+                
+                <form id="global-delete-form" action="" method="POST" style="display: inline;">
                     @csrf
                     @method('DELETE')
                     <button type="submit" class="qna-history-btn qna-btn-submit qna-modal-btn-delete">削除する</button>

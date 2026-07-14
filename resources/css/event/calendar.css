@@ -1,0 +1,483 @@
+/* イベント・締め切りカレンダー */
+
+.content.cal-page {
+    padding: 22px 26px 40px;
+}
+
+.cal-page-title {
+    margin: 0 0 14px;
+    font-size: 22px;
+    letter-spacing: 1px;
+}
+
+/* 検索 */
+.cal-searchbar {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
+.cal-searchbar input {
+    width: 340px;
+    max-width: 100%;
+    padding: 8px 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+/* 3カラム: 凡例 / カレンダー / 右パネル */
+.cal-layout {
+    display: grid;
+    grid-template-columns: 140px minmax(0, 1fr) 240px;
+    gap: 20px;
+    align-items: start;
+}
+
+/* ===== 凡例 / フィルタ ===== */
+.cal-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.leg-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.leg-box {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #999;
+    border-radius: 3px;
+    flex-shrink: 0;
+}
+
+.leg-box.event { border-color: #22a447; }
+.leg-box.gyoji { border-color: #2563eb; }
+.leg-box.kyuko { border-color: #e11d48; }
+.leg-box.exam  { border-color: #ec4899; }
+.leg-box.other { border-color: #eab308; }
+
+.cal-add-btn {
+    margin-top: 8px;
+    border: none;
+    background-color: #2563eb;
+    color: #fff;
+    padding: 9px 12px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.cal-add-btn:hover { background-color: #1d4ed8; }
+
+/* ===== メインカレンダー ===== */
+.cal-nav {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 12px;
+}
+
+.cal-nav-btn {
+    text-decoration: none;
+    color: #111;
+    font-size: 20px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+}
+
+.cal-nav-btn:hover { background-color: #f1f1f1; }
+
+.cal-nav-title {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    border-top: 1px solid #d7d7d7;
+    border-left: 1px solid #d7d7d7;
+}
+
+.cal-weekday {
+    text-align: center;
+    padding: 6px 0;
+    font-size: 12px;
+    font-weight: bold;
+    color: #555;
+    background-color: #fafafa;
+    border-right: 1px solid #d7d7d7;
+    border-bottom: 1px solid #d7d7d7;
+}
+
+.cal-weekday.sun { color: #e11d48; }
+.cal-weekday.sat { color: #2563eb; }
+
+.cal-cell {
+    min-height: 92px;
+    padding: 4px 5px;
+    border-right: 1px solid #d7d7d7;
+    border-bottom: 1px solid #d7d7d7;
+    background-color: #fff;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.cal-cell:hover { background-color: #f7faff; }
+
+.cal-cell.other-month { background-color: #fafafa; }
+.cal-cell.other-month .cal-date { color: #bbb; }
+
+.cal-date {
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.cal-date.sun { color: #e11d48; }
+.cal-date.sat { color: #2563eb; }
+
+.cal-cell.today .cal-date {
+    background-color: #e11d48;
+    color: #fff;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cal-events {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    margin-top: 3px;
+}
+
+/* 予定ボックス（色枠＋タイトル＋時間） */
+.cal-event {
+    font-size: 10px;
+    line-height: 1.25;
+    border: 1px solid #999;
+    border-radius: 3px;
+    padding: 2px 4px;
+    background-color: #fff;
+    overflow: hidden;
+}
+
+.cal-event-title { display: block; font-weight: bold; }
+.cal-event-time { display: block; color: #444; }
+
+.cal-event.event { border-color: #22a447; color: #166534; }
+.cal-event.gyoji { border-color: #2563eb; color: #1e40af; }
+.cal-event.kyuko { border-color: #e11d48; background-color: #fee2e2; color: #b91c1c; }
+.cal-event.exam  { border-color: #ec4899; background-color: #fce7f3; color: #be185d; }
+.cal-event.other { border-color: #eab308; color: #a16207; }
+
+/* ===== 右カラム ===== */
+.mini-cal {
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 12px;
+}
+
+.mini-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.mini-head a {
+    text-decoration: none;
+    color: #333;
+    padding: 0 6px;
+}
+
+.mini-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1px;
+    text-align: center;
+}
+
+.mini-wd {
+    font-size: 10px;
+    color: #999;
+    padding: 3px 0;
+}
+
+.mini-day {
+    font-size: 11px;
+    padding: 4px 0;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.mini-day:hover { background-color: #f1f1f1; }
+.mini-day.other-month { color: #ccc; }
+
+.mini-day.today {
+    background-color: #e11d48;
+    color: #fff;
+}
+
+/* 今日の予定パネル */
+.today-panel {
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    margin-top: 16px;
+    overflow: hidden;
+}
+
+.today-panel-head {
+    background-color: #f7f7f7;
+    padding: 10px 14px;
+    font-weight: bold;
+    font-size: 14px;
+    text-align: center;
+    border-bottom: 1px solid #eee;
+}
+
+.today-panel-body {
+    padding: 16px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-height: 120px;
+}
+
+.tp-item { text-align: center; }
+
+.tp-title {
+    font-size: 14px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.tp-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    background-color: #6b7280;
+}
+
+.tp-dot.event { background-color: #22a447; }
+.tp-dot.gyoji { background-color: #2563eb; }
+.tp-dot.kyuko { background-color: #e11d48; }
+.tp-dot.exam  { background-color: #ec4899; }
+.tp-dot.other { background-color: #eab308; }
+
+.tp-time, .tp-loc {
+    font-size: 13px;
+    color: #555;
+    margin-top: 2px;
+}
+
+.tp-empty {
+    text-align: center;
+    color: #999;
+    margin: 30px 0;
+}
+
+/* ===== 追加モーダル ===== */
+.cal-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.4);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.cal-modal.open { display: flex; }
+
+.cal-modal-box {
+    background-color: #fff;
+    width: 100%;
+    max-width: 460px;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 14px;
+    padding: 22px 24px 24px;
+}
+
+.cal-modal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.cal-modal-head h2 { margin: 0; font-size: 18px; }
+
+.cal-modal-close {
+    border: none;
+    background: none;
+    font-size: 24px;
+    cursor: pointer;
+    line-height: 1;
+    color: #666;
+}
+
+.cal-errors {
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 14px;
+}
+
+.cal-errors p { margin: 2px 0; color: #dc2626; font-size: 13px; }
+
+.cal-field { margin-bottom: 14px; }
+.cal-field-row { display: flex; gap: 12px; }
+.cal-field-row .cal-field { flex: 1; }
+
+.cal-field label {
+    display: block;
+    font-size: 13px;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+.cal-field input[type="text"],
+.cal-field input[type="datetime-local"],
+.cal-field select,
+.cal-field textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.cal-field.cal-check label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: normal;
+}
+
+.cal-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.cal-btn-cancel {
+    border: 1px solid #d1d5db;
+    background-color: #fff;
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.cal-btn-submit {
+    border: none;
+    background-color: #2563eb;
+    color: #fff;
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+/* ===== 日別ページ（/event-calendar/day）用 ===== */
+.day-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #eee;
+}
+
+.day-label { font-size: 20px; font-weight: bold; margin-right: 16px; }
+.day-date { font-size: 18px; color: #555; }
+
+.day-back {
+    text-decoration: none;
+    color: #111;
+    border: 1px solid #ddd;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.day-list { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
+
+.day-event {
+    border: 1px solid #e5e7eb;
+    border-left-width: 5px;
+    border-radius: 8px;
+    padding: 14px 18px;
+    background-color: #fff;
+}
+
+.day-event.event { border-left-color: #22a447; }
+.day-event.gyoji { border-left-color: #2563eb; }
+.day-event.kyuko { border-left-color: #e11d48; }
+.day-event.exam  { border-left-color: #ec4899; }
+.day-event.other { border-left-color: #eab308; }
+
+.day-event-title { margin: 0 0 6px; font-size: 16px; }
+.day-event-meta { margin: 0; font-size: 13px; color: #666; }
+.day-event-cat { font-weight: bold; }
+.day-event-desc { margin: 8px 0 0; font-size: 14px; line-height: 1.7; color: #333; }
+.day-empty { text-align: center; color: #999; font-size: 20px; margin-top: 60px; }
+
+/* ===== レスポンシブ ===== */
+@media (max-width: 1000px) {
+    .cal-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .cal-legend {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 10px 16px;
+    }
+
+    .cal-right {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+
+    .today-panel { margin-top: 0; }
+}
+
+@media (max-width: 600px) {
+    .content.cal-page { padding: 16px 12px 32px; }
+
+    .cal-cell { min-height: 66px; }
+    .cal-event { font-size: 9px; }
+
+    .cal-right { grid-template-columns: 1fr; }
+}
