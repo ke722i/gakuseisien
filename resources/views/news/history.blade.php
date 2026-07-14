@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <title>閲覧履歴</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/css/news.css', 'resources/js/app.js'])
 </head>
+
 <body>
     <div class="app-layout">
 
@@ -53,7 +55,7 @@
                 <a href="/" class="history-button">戻る</a>
             </div>
 
-            
+
             <!-- 履歴一覧 -->
             <section class="news-list" id="historyList">
                 <p>閲覧履歴を読み込み中です。</p>
@@ -62,4 +64,5 @@
         </main>
     </div>
 </body>
+
 </html>
