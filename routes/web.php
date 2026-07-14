@@ -349,8 +349,55 @@ Route::get('/classroom-reservation', function () {
 })->name('classroom.reservation');
 
 // 空き教室予約・詳細ページのルート設定
+Route::get('/classroom-reservation/room', function () {
+    return view('reservation.room.room-reservation');
+})->name('classroom.reservation.room');
+// 予約一覧ページのルート設定
+Route::get('/classroom-reservation/list', function () {
+    $reservations = [
+        [
+            'room' => '101c',
+            'date' => '2026/06/26',
+            'weekday' => '(金)',
+            'period' => '1限',
+            'time' => '(9:15〜10:45)',
+            'status' => 'rejected',
+            'status_label' => '承認拒否',
+        ],
+        [
+            'room' => '101c',
+            'date' => '2026/06/26',
+            'weekday' => '(金)',
+            'period' => '2限',
+            'time' => '(11:00〜12:30)',
+            'status' => 'approved',
+            'status_label' => '承認済み',
+        ],
+        [
+            'room' => '101c',
+            'date' => '2026/06/30',
+            'weekday' => '(火)',
+            'period' => '3限',
+            'time' => '(13:30〜15:00)',
+            'status' => 'pending',
+            'status_label' => '承認待ち',
+        ],
+    ];
+    return view('reservation.room.reservation-list', compact('reservations'));
+})->name('classroom.reservation.list');
+// 予約管理ページのルート設定
+Route::get('/classroom-reservation/manage', function () {
+    if (!Auth::check() || !Auth::user()->isTeacher()) {
+        return redirect()->route('classroom.reservation');
+    }
+    return view('reservation.room.reservation-management');
+})->name('classroom.reservation.manage');
+// 教室一覧予約ページのルート設定
 Route::get('/classroom-reservation/bulk', function () {
-    return view('reservation.room.bulk-reservation');
+    if (!Auth::check() || !Auth::user()->isTeacher()) {
+        return redirect()->route('classroom.reservation');
+    }
+    return view('reservation.room.bulk-room-reservation');
 })->name('classroom.reservation.bulk');
 
 // 掲示板ページのルート設定
