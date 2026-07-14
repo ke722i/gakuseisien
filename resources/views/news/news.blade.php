@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <title>時事ニュースまとめ</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/css/news.css', 'resources/js/news.js'])
 </head>
+
 <body>
     <div class="app-layout">
 
@@ -39,16 +41,12 @@
             <section class="news-list">
 
                 @forelse ($articles as $article)
-                    <article
-                        class="news-card"
-                        data-title="{{ $article['title'] ?? 'タイトルなし' }}"
+                    <article class="news-card" data-title="{{ $article['title'] ?? 'タイトルなし' }}"
                         data-description="{{ $article['description'] ?? '概要はありません。' }}"
-                        data-url="{{ $article['url'] ?? '#' }}"
-                        data-source="{{ $article['source']['name'] ?? '提供元不明' }}"
+                        data-url="{{ $article['url'] ?? '#' }}" data-source="{{ $article['source']['name'] ?? '提供元不明' }}"
                         data-date="{{ str_replace('T', ' ', substr($article['publishedAt'] ?? '', 0, 16)) }}"
                         data-category="{{ $article['app_category'] ?? 'all' }}"
-                        data-category-label="{{ $article['app_category_label'] ?? 'ニュース' }}"
-                    >
+                        data-category-label="{{ $article['app_category_label'] ?? 'ニュース' }}">
                         <div class="news-top">
                             <div>
                                 <div class="news-meta">
@@ -68,7 +66,7 @@
                                 </h2>
                             </div>
 
-                            <button class="circle-button">⌄</button>
+                            <button class="circle-button">▼</button>
                         </div>
 
                         <div class="news-detail">
@@ -89,4 +87,5 @@
         </main>
     </div>
 </body>
+
 </html>
