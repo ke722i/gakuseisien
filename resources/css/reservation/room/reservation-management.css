@@ -1,0 +1,261 @@
+/* reservation-management 用スタイル */
+.app-layout {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f5f7fb;
+}
+
+.content {
+    flex: 1;
+    padding: 40px;
+    box-sizing: border-box;
+    background-color: #f5f7fb;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 40px;
+    gap: 20px;
+}
+
+.back-button {
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    text-decoration: none;
+    color: #333;
+    padding: 0;
+    line-height: 1;
+}
+.header h1 {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 700;
+    color: #222;
+}
+
+.reservation-selection {
+    max-width: 980px;
+    margin: 0 auto;
+}
+
+.section-description {
+    margin-bottom: 24px;
+    font-size: 15px;
+    color: #4b5563;
+}
+
+.reservation-card-list {
+    display: grid;
+    gap: 16px;
+}
+
+.reservation-card-btn {
+    width: 100%;
+    padding: 22px 24px;
+    text-align: left;
+    border: 1px solid #d1d5db;
+    border-radius: 18px;
+    background: #ffffff;
+    cursor: pointer;
+    transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+}
+
+.reservation-card-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 22px rgba(15, 23, 42, 0.08);
+    border-color: #93c5fd;
+}
+
+.reservation-card-label {
+    font-size: 18px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 10px;
+}
+
+.reservation-card-detail {
+    color: #374151;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.reservation-modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.reservation-modal.is-open {
+    display: flex;
+}
+
+.reservation-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(15, 23, 42, 0.55);
+}
+
+.reservation-modal-content {
+    position: relative;
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+    max-width: 800px;
+    width: min(92%, 760px);
+    padding: 24px;
+    z-index: 1;
+}
+
+.modal-close-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 38px;
+    height: 38px;
+    border: none;
+    border-radius: 50%;
+    background-color: #111827;
+    color: #ffffff;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.modal-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 26px;
+}
+
+.modal-heading h2 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: #111827;
+}
+
+.modal-user-box {
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08);
+    border-radius: 16px;
+    padding: 14px 18px;
+    text-align: center;
+    min-width: 150px;
+    margin-right: 40px;
+}
+
+.modal-user-id,
+.modal-user-name {
+    display: block;
+    font-size: 13px;
+    line-height: 1.4;
+    color: #111827;
+}
+
+.modal-user-id {
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.modal-form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.modal-form-row label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #374151;
+}
+
+.modal-form-row input,
+.modal-form-row textarea {
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    background-color: #f8fafc;
+    color: #111827;
+    font-size: 15px;
+    padding: 14px 16px;
+    resize: none;
+}
+
+.modal-form-row input[readonly],
+.modal-form-row textarea[readonly] {
+    opacity: 0.95;
+}
+
+.horizontal-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 20px;
+    margin-top: 10px;
+}
+
+.modal-btn {
+    flex: 1;
+    padding: 16px 0;
+    border: none;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.modal-btn.reject {
+    background-color: #ef4444;
+    color: #ffffff;
+}
+
+.modal-btn.approve {
+    background-color: #22c55e;
+    color: #ffffff;
+}
+
+.modal-btn.reject:hover {
+    background-color: #dc2626;
+}
+
+.modal-btn.approve:hover {
+    background-color: #16a34a;
+}
+
+@media (max-width: 640px) {
+    .content {
+        padding: 24px;
+    }
+
+    .reservation-card-btn {
+        padding: 18px 18px;
+    }
+
+    .reservation-modal-content {
+        padding: 18px;
+    }
+
+    .modal-title {
+        font-size: 20px;
+    }
+}
+
+.no-reservations {
+    margin-top: 24px;
+    text-align: center;
+    color: #6b7280;
+    font-size: 16px;
+}
