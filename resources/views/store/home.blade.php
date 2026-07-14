@@ -12,24 +12,9 @@
 
 <div class="container">
 
-    <!-- サイドバー -->
-    <aside class="sidebar">
+    @include('partials.sidebar', ['active' => 'nearby-shop'])
 
-        <h2>MENU</h2>
-
-        <nav>
-            <ul>
-                <li><a href="{{ url('/') }}">ホーム</a></li>
-                <li><a href="{{ route('nearby.shop') }}">近辺店舗情報マップ</a></li>
-                <li><a href="{{ route('store.request') }}">店舗申請</a></li>
-                <li><a href="#">承認画面</a></li>
-                <li><a href="#">ログアウト</a></li>
-            </ul>
-        </nav>
-
-    </aside>
-
-    <!-- メイン -->
+        <!-- メイン -->
     <main class="main-content">
 
         <header>
@@ -44,6 +29,10 @@
             <button>検索</button>
 
         </section>
+
+        <a href="{{ route('store.admin') }}">
+    管理者画面
+</a>
 
         <!-- フィルター -->
         <section class="filter-area">
