@@ -27,31 +27,59 @@
         <div class="qna-card-list">
 
             @forelse ($posts as $post)
-            <div class="qna-custom-card">
+            <div class="qna-custom-card" style="margin-bottom: 15px; @if(!empty($post->best_answer_id)) background-color: #fff9db; border-color: #ffe066; @endif">
                 <div class="qna-card-header">
                     @if (!empty($post->best_answer_id))
-                        <span class="qna-badge qna-badge-resolved">解決済</span>
+                    <span class="qna-badge qna-badge-resolved">解決済</span>
                     @else
-                        <span class="qna-badge qna-badge-unresolved">未解決</span>
+                    <span class="qna-badge qna-badge-unresolved">未解決</span>
                     @endif
                     <span class="qna-post-time">{{ $post->created_at->format('Y/m/d H:i') }}</span>
                 </div>
-                
+
                 <h2 class="qna-card-title">{{ $post->title }}</h2>
-                
+
                 <p class="qna-card-body">
                     {{ Str::limit($post->content, 100, '...') }}
                 </p>
-                
-                <div class="qna-card-footer">
-                    <span class="qna-comment-count">💬 コメント 0件</span>
-                    
-                    <div class="qna-footer-right">
-                        <button type="button" class="qna-delete-top-right" style="background: none; border: none; cursor: pointer; font-size: 14px; position: relative; z-index: 9999; color: #cc3333;" 
-                                onclick="event.preventDefault(); event.stopPropagation(); document.getElementById('global-delete-form').action = '/gakunai-qna/{{ $post->id }}'; document.getElementById('deleteModal').classList.add('is-open');">
+
+                <!-- 📁 resources/views/qna/history.blade.php のフッター部分 -->
+
+                <div class="qna-card-footer" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
+                    <a href="{{ route('qna.detail', $post->id) }}#comment-section" style="text-decoration: none;">
+                        <button type="button" class="qna-icon-btn" title="comments" style="cursor: pointer; font-size: 13px;">
+                            💬 コメント {{ $post->answers->count() }}件
+                        </button>
+                    </a>
+                    <!-- 各種アクションボタン -->
+                    <button type="button" class="qna-history-btn" style="font-size: 12px; padding: 4px 8px; background-color: #6c757d; color: #fff; border: none; border-radius: 4px;" data-url="{{ route('qna.detail', $post->id) }}" onclick="handleShare(event, this)">
+                        共有
+                    </button>
+
+                    <button type="button" class="qna-history-btn" style="font-size: 12px; padding: 4px 8px; background-color: #dc3545; color: #fff; border: none; border-radius: 4px;" data-id="{{ $post->id }}" onclick="handleReport(event, this)">
+                        通報
+                    </button>
+
+                    @if(empty($post->best_answer_id))
+                    <a href="{{ route('qna.detail', $post->id) }}?action=select_best" class="qna-history-btn" style="font-size: 12px; padding: 4px 8px; background-color: #007bff; color: #fff; text-decoration: none; border-radius: 4px; display: inline-block;">
+                        解決する
+                    </a>
+                    @else
+                    <button class="qna-history-btn" style="font-size: 12px; padding: 4px 8px; background-color: #6c757d; color: #fff; opacity: 0.5; cursor: not-allowed; border: none; border-radius: 4px;" disabled>
+                        解決済
+                    </button>
+                    @endif
+
+                    <!-- 💡 右側のボタンエリアの調整と「詳細を見る」のボタン化！ -->
+                    <div class="qna-footer-right" style="margin-left: auto; display: flex; align-items: center; gap: 10px;">
+                        <button type="button" class="qna-delete-top-right" style="background: none; border: none; cursor: pointer; font-size: 14px; color: #cc3333;"
+                            onclick="event.preventDefault(); event.stopPropagation(); document.getElementById('global-delete-form').action = '/gakunai-qna/{{ $post->id }}'; document.getElementById('deleteModal').classList.add('is-open');">
                             🗑️ 削除
                         </button>
-                        <a href="{{ route('qna.detail', $post->id) }}" class="qna-read-more" style="margin-left: auto;">詳細を見る</a>
+
+                        <a href="{{ route('qna.detail', $post->id) }}" class="qna-history-btn qna-btn-black" style="text-decoration: none; font-size: 12px; padding: 5px 12px; font-weight: bold;">
+                            詳細を見る
+                        </a>
                     </div>
                 </div>
             </div>
@@ -74,7 +102,7 @@
             </p>
             <div class="qna-modal-actions">
                 <button type="button" id="modalCancelBtn" class="qna-history-btn qna-modal-btn-cancel" onclick="event.preventDefault(); document.getElementById('deleteModal').classList.remove('is-open');">キャンセル</button>
-                
+
                 <form id="global-delete-form" action="" method="POST" style="display: inline;">
                     @csrf
                     @method('DELETE')
@@ -83,6 +111,53 @@
             </div>
         </div>
     </div>
+
+    <script>
+        function handleShare(event, element) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const url = element.dataset.url;
+
+            navigator.clipboard.writeText(url).then(() => {
+                alert('質問のURLをクリップボードにコピーしました！');
+            }).catch(err => {
+                alert('URLのコピーに失敗しました。');
+            });
+        }
+
+        function handleReport(event, element) {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const id = element.dataset.id;
+            const reason = prompt("通報する理由を入力してください（スパム、嫌がらせ、公序良俗に反する投稿など）：");
+            if (reason === null) return;
+            if (reason.trim() === "") {
+                alert("通報理由は必須入力です。");
+                return;
+            }
+
+            // 通報用のフォームを動的に生成してPOST送信する
+            let form = document.getElementById('report-form-' + id);
+            if (!form) {
+                form = document.createElement('form');
+                form.id = 'report-form-' + id;
+                form.method = 'POST';
+                form.action = '/gakunai-qna/' + id + '/report';
+                form.style.display = 'none';
+
+                const csrfToken = '{{ csrf_token() }}';
+                form.innerHTML = `
+                <input type="hidden" name="_token" value="${csrfToken}">
+                <input type="hidden" name="reason" id="report-reason-${id}">
+            `;
+                document.body.appendChild(form);
+            }
+            document.getElementById('report-reason-' + id).value = reason;
+            form.submit();
+        }
+    </script>
 </body>
 
 </html>
