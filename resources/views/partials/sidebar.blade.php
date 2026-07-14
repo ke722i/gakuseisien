@@ -35,7 +35,7 @@
         <a href="{{ route('classroom.reservation') }}" class="{{ $active === 'reservation' ? 'active' : '' }}">
             <span class="menu-icon">🏫</span><span class="label">空き教室予約</span>
         </a>
-        <a href="#" class="{{ $active === 'board' ? 'active' : '' }}">
+        <a href="{{ route('forum.top') }}" class="{{ $active === 'forum' ? 'active' : '' }}">
             <span class="menu-icon">📋</span><span class="label">掲示板</span>
         </a>
         <a href="{{ route('gakunai.qna') }}" class="{{ $active === 'qna' ? 'active' : '' }}">
@@ -56,6 +56,13 @@
     </nav>
 
     <div class="logout">
+        @auth
+            {{-- ログイン中のID表示 --}}
+            <div class="current-user" title="ログイン中: {{ Auth::user()->login_id }}">
+                <span class="menu-icon">👤</span><span class="label">{{ Auth::user()->login_id }}</span>
+            </div>
+        @endauth
+
         <form method="POST" action="{{ route('logout') }}">
             @csrf
             <button type="submit" class="logout-btn">

@@ -5,12 +5,11 @@
     <title>遅刻・欠席届</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    @vite(['resources/css/notofication.css'])
+    @vite(['resources/css/app.css', 'resources/css/notification.css', 'resources/js/app.js', 'resources/js/notification.js'])
 </head>
 
 <?php
     $today = date("Y-m-d");
-
 ?>
 
 <body>
@@ -49,12 +48,22 @@
                             <div class="field"><label>提出日</label><input type="text" value="<?= $today ?>" disabled></div>
                             <div class="field"><label>担任教師</label><input type="text" value="情報教師" disabled></div>
                             <div class="field"><label>科目教師</label>
-                                <select>
-                                    <option>科目教師1</option>
-                                    <option>担当教師2</option>
-                                    <option>担当教師3</option>
-                                    <option>担当教師4</option>
-                                </select>
+                                <div class="subject-teacher-group">
+                                    <div id="teacher-list" class="teacher-list">
+                                        <div class="teacher-row">
+                                            <select name="subject_teachers[]">
+                                                <option>科目教師1</option>
+                                                <option>担当教師2</option>
+                                                <option>担当教師3</option>
+                                                <option>担当教師4</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="teacher-controls">
+                                        <button type="button" class="teacher-btn add" data-action="add">＋</button>
+                                        <button type="button" class="teacher-btn remove" data-action="remove">−</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

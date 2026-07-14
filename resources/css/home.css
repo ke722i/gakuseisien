@@ -1,0 +1,169 @@
+/* ホーム画面（ダッシュボード）専用スタイル */
+
+.home-title {
+    margin: 0 0 20px;
+    font-size: 22px;
+    letter-spacing: 2px;
+}
+
+/* 右列は右上ウィジェット（内容未定）用にスペースを確保する */
+.home-grid {
+    display: grid;
+    grid-template-columns: 1fr 150px;
+    gap: 20px;
+    align-items: start;
+}
+
+.home-main {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* 共通カード */
+.card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.card-title {
+    margin: 0 0 14px;
+    font-size: 18px;
+}
+
+.card-title.center {
+    text-align: center;
+}
+
+/* 本日の予定（緑カード） */
+.today-card {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 24px;
+    background: #c6f4bb;
+    border: none;
+}
+
+.today-left {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.today-date {
+    margin: 0;
+    font-size: 18px;
+    color: #166534;
+}
+
+.today-greeting {
+    margin: 14px 0 0;
+    font-size: 18px;
+}
+
+.today-clock {
+    margin: 6px 0 0;
+    font-size: 56px;
+    font-weight: 800;
+    letter-spacing: 3px;
+    line-height: 1.1;
+}
+
+.schedule-list,
+.reserve-list,
+.events-cols ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.schedule-list li {
+    padding: 5px 0;
+    font-size: 15px;
+}
+
+.schedule-list .time {
+    font-weight: 700;
+    margin-right: 6px;
+}
+
+.schedule-list .end {
+    color: #555;
+    margin-left: 8px;
+}
+
+/* 直近 イベント・締め切り */
+.events-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px 32px;
+}
+
+.events-cols li {
+    padding: 6px 0;
+    font-size: 15px;
+}
+
+.events-cols .time,
+.reserve-list .time {
+    margin-left: 6px;
+}
+
+/* 下段：空き教室予約 ／ お知らせ */
+.home-bottom {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.reserve-list li {
+    padding: 6px 0;
+    font-size: 15px;
+}
+
+.reserve-list .room {
+    font-weight: 700;
+    margin-left: 12px;
+}
+
+.notice-card p {
+    margin: 0;
+    font-size: 15px;
+    line-height: 2;
+}
+
+/* 右上ウィジェット用の予約スペース（内容未定なので空にしておく） */
+.home-side {
+    min-height: 120px;
+}
+
+/* スマホ・タブレット */
+@media (max-width: 700px) {
+    .home-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .today-card {
+        grid-template-columns: 1fr;
+    }
+
+    .today-clock {
+        font-size: 44px;
+    }
+
+    .events-cols {
+        grid-template-columns: 1fr;
+    }
+
+    .home-bottom {
+        grid-template-columns: 1fr;
+    }
+
+    /* 内容未定の予約スペースはスマホでは畳む */
+    .home-side {
+        display: none;
+    }
+}

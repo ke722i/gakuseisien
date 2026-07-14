@@ -1,0 +1,58 @@
+.content {
+    flex: 1;
+    padding: 40px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.center-panel {
+    width: 100%;
+    max-width: 1200px;
+
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2列 */
+    gap: 40px;
+
+    justify-items: center;
+}
+
+.big-button {
+    width: 400px;
+    height: 160px;
+
+    border: 3px solid #111;
+    border-radius: 10px;
+    background: #fff;
+
+    font-size: 40px;
+    font-weight: 600;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    text-decoration: none;
+    color: #111;
+
+    transition: transform .1s, box-shadow .1s;
+}
+
+.big-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+}
+
+/* スマホ用のレスポンシブ対応 */
+@media (max-width: 640px) {
+    .center-panel {
+        grid-template-columns: 1fr;
+    }
+
+    .big-button {
+        width: 90%;
+        height: 120px;
+        font-size: 32px;
+    }
+}

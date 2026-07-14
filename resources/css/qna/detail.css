@@ -1,0 +1,126 @@
+/* 💡 qna.css の共通デザインをまるごと読み込む */
+@import "./qna.css";
+
+/* ==========================================================================
+   詳細画面（detail）専用のスタイル
+   ========================================================================== */
+
+/* 質問主文カードの調整 */
+.qna-detail-main {
+    padding: 30px !important;
+    cursor: default !important; /* クリック判定を無効化 */
+}
+
+.qna-detail-title {
+    font-size: 22px;
+    font-weight: bold;
+    color: #111111;
+    margin: 15px 0;
+    line-height: 1.4;
+}
+
+.qna-detail-body {
+    font-size: 16px;
+    color: #111111;
+    line-height: 1.7;
+    white-space: pre-wrap; /* 改行をそのまま反映 */
+}
+
+/* 添付画像エリア */
+.qna-detail-image-box {
+    margin-top: 20px;
+    width: 100%;
+    max-width: 400px; /* 画像が大きくなりすぎないように制限 */
+}
+
+.qna-image-placeholder {
+    width: 100%;
+    height: 200px;
+    border: 2px dashed #111111;
+    border-radius: 4px;
+    background-color: #fafafa;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #555555;
+    font-weight: bold;
+}
+
+/* 💬 コメントセクション全体 */
+.qna-comments-section {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.qna-comments-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #111111;
+    margin: 10px 0 5px 0;
+}
+
+/* コメントカード固有（少し小ぶりに、背景をわずかに変えても良い） */
+.qna-comment-card {
+    padding: 20px !important;
+    cursor: default !important;
+    background-color: #ffffff;
+}
+
+.qna-comment-author {
+    font-size: 14px;
+    font-weight: bold;
+    color: #111111;
+}
+
+.qna-comment-body {
+    font-size: 15px;
+    color: #111111;
+    line-height: 1.6;
+    margin-top: 10px;
+}
+
+/* コメント投稿フォーム用のボックス */
+.qna-comment-form-box {
+    margin-top: 25px;
+    padding: 25px !important;
+    cursor: default !important;
+}
+
+/* 投稿画面から引き継ぐ共通の微調整クラス */
+.qna-form-group {
+    display: flex;
+    flex-direction: column;
+    margin-top: 15px;
+}
+
+.qna-form-input-align {
+    text-align: left !important;
+}
+
+.qna-form-input-align::placeholder {
+    text-align: left !important;
+}
+
+.qna-form-textarea {
+    resize: none;
+    overflow-y: hidden;
+    min-height: 90px; /* コメント欄用は少し低めの初期値に */
+}
+
+.qna-form-actions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.qna-btn-submit {
+    background-color: #111111 !important;
+    color: #ffffff !important;
+    padding: 8px 24px !important;
+}
+
+.qna-btn-submit:hover {
+    opacity: 0.8;
+}

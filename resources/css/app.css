@@ -87,6 +87,55 @@ button {
     border-radius: 10px;
     color: white;
     font-size: 14px;
+    text-decoration: none;
+    padding: 14px 20px;
+    font-size: 15px;
+}
+
+/* ログアウトはフォームのボタンなので見た目をリンクに揃える */
+.logout .logout-btn {
+    width: 100%;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    cursor: pointer;
+}
+
+.logout .logout-btn:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* ログイン中のID表示（ログアウトの上） */
+.logout .current-user {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 10px 20px 4px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+/* アイコン枠（画像に差し替えてもレイアウトが崩れないよう幅を固定） */
+.menu-icon {
+    width: 28px;
+    flex-shrink: 0;
+    font-size: 20px;
+    text-align: center;
+    line-height: 1;
+}
+
+/* ラベルは通常は隠し、ホバー展開時にフェード表示 */
+.label {
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.sidebar:hover .label {
+    opacity: 1;
+}
+
+.sidebar-menu a:hover {
+    background-color: rgba(255, 255, 255, 0.15);
 }
 
 .sidebar-menu a:hover,
@@ -119,4 +168,315 @@ button {
 
 .overlay.show {
     display: block;
+}
+
+/* タイトル部分 */
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.content-header h1 {
+    margin: 0;
+    font-size: 30px;
+    letter-spacing: 2px;
+}
+
+.content-header p {
+    margin-top: 12px;
+    font-size: 13px;
+    color: #666;
+}
+
+.history-button {
+    border: none;
+    background-color: #f1f1f1;
+    color: #111;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* カテゴリー */
+.category-tabs {
+    display: flex;
+    justify-content: flex-end;
+    gap: 14px;
+    margin: 35px 0 35px;
+}
+
+.category-tabs button {
+    border: 1px solid #ddd;
+    background-color: white;
+    padding: 8px 18px;
+    border-radius: 999px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.category-tabs button.selected {
+    background-color: #0d8bff;
+    color: white;
+    border-color: #0d8bff;
+}
+
+/* ニュース一覧 */
+.news-list {
+    width: 100%;
+    max-width: 930px;
+    margin: 0 auto;
+}
+
+.news-card {
+    background-color: white;
+    border: 1px solid #999;
+    border-radius: 8px;
+    padding: 18px 20px;
+    margin-bottom: 24px;
+}
+
+.news-card.open {
+    padding-bottom: 26px;
+}
+
+.news-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.news-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #777;
+    font-size: 12px;
+    margin-bottom: 10px;
+}
+
+.tag {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.tag.sports {
+    background-color: #e6edff;
+    color: #2563eb;
+}
+
+.tag.economy {
+    background-color: #e9ffe9;
+    color: #22a447;
+}
+
+.tag.other {
+    background-color: #fff0dc;
+    color: #f97316;
+}
+
+.tag.politics {
+    background-color: #ffe4e6;
+    color: #e11d48;
+}
+
+.news-card h2 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.news-summary {
+    margin-top: 14px;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+.read-more {
+    display: block;
+    text-align: right;
+    color: #3b5bff;
+    font-size: 13px;
+    text-decoration: none;
+    margin-top: 12px;
+}
+
+/* 本文は最初は非表示 */
+.news-detail {
+    display: none;
+}
+
+/* open が付いたカードだけ本文を表示 */
+.news-card.open .news-detail {
+    display: block;
+}
+
+.circle-button {
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 50%;
+    background-color: #f1f1f1;
+    cursor: pointer;
+    font-size: 17px;
+}
+
+/* スマホ画面 */
+@media (max-width: 600px) {
+    body {
+        background-color: white;
+    }
+
+    .app-layout {
+        display: block;
+        min-height: 100vh;
+    }
+
+    /* スマホは従来どおりのハンバーガー（画面外→☰で開く） */
+    .sidebar {
+        left: -260px;
+        width: 260px;
+        transition: left 0.3s ease;
+    }
+
+    .sidebar:hover {
+        width: 260px;
+        box-shadow: none;
+    }
+
+    .sidebar.open {
+        left: 0;
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25);
+    }
+
+    /* 開いたときはラベル・サイト名フルを常に表示 */
+    .sidebar .label {
+        opacity: 1;
+    }
+
+    .sidebar-logo {
+        height: auto;
+        padding: 32px 20px 24px;
+    }
+
+    .logo-mark {
+        display: none;
+    }
+
+    .logo-full {
+        display: flex;
+        margin-left: 0;
+    }
+
+    .sidebar-menu a,
+    .logout .logout-btn {
+        padding: 14px 22px;
+        font-size: 14px;
+    }
+
+    .content {
+        padding: 18px 14px 32px;
+        margin-left: 0;
+        width: 100%;
+    }
+
+    .top-header {
+        margin-bottom: 16px;
+    }
+
+    /* ☰ ボタンを表示 */
+    .menu-button {
+        display: flex;
+    }
+
+    .content-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 16px;
+    }
+
+    .content-header h1 {
+        font-size: 20px;
+        letter-spacing: 1px;
+    }
+
+    .content-header p {
+        font-size: 11px;
+        margin-top: 8px;
+    }
+
+    .history-button {
+        padding: 5px 10px;
+        font-size: 10px;
+        flex-shrink: 0;
+    }
+
+    .category-tabs {
+        justify-content: flex-start;
+        gap: 8px;
+        margin: 12px 0 18px;
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: 6px;
+    }
+
+    .category-tabs button {
+        padding: 6px 12px;
+        font-size: 11px;
+        flex-shrink: 0;
+    }
+
+    .news-list {
+        max-width: none;
+        width: 100%;
+    }
+
+    .news-card {
+        padding: 10px 12px;
+        margin-bottom: 10px;
+        border-radius: 8px;
+    }
+
+    .news-card.open {
+        padding-bottom: 14px;
+    }
+
+    .news-meta {
+        gap: 6px;
+        font-size: 9px;
+        margin-bottom: 6px;
+    }
+
+    .tag {
+        padding: 3px 7px;
+        font-size: 9px;
+    }
+
+    .news-card h2 {
+        font-size: 12px;
+        line-height: 1.4;
+    }
+
+    .news-summary {
+        font-size: 10px;
+        line-height: 1.6;
+        margin-top: 8px;
+    }
+
+    .read-more {
+        font-size: 10px;
+        margin-top: 8px;
+    }
+
+    .circle-button {
+        width: 22px;
+        height: 22px;
+        font-size: 13px;
+        flex-shrink: 0;
+    }
+
 }
