@@ -8,10 +8,15 @@ class Answer extends Model
 {
     const UPDATED_AT = null;
     protected $fillable = [
-        'question_id', 
-        'user_id', 
-        'content', 
-        'is_teacher_approved', 
+        'question_id',
+        'user_id',
+        'content',
+        'is_teacher_approved',
         'upvote_count'
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Question;
 use App\Models\Answer;
+use App\Models\Report;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -81,21 +82,62 @@ class QnaController extends Controller
     }
 
     //コメントの保存処理
-    // コメントの保存処理
     public function storeAnswer(Request $request, $id)
     {
+        $post = Question::findOrFail($id);
+
+        // 💡 既にベストアンサーが選ばれている場合は、処理を中断して追い返す
+        if ($post->best_answer_id) {
+            return back()->with('error', 'この質問はすでに解決済みのため、コメントできません。');
+        }
+
         $request->validate([
             'comment' => 'required|string|max:1000',
         ]);
 
-        // 回答データをanswersテーブルに保存
         Answer::create([
             'question_id' => $id,
-            'user_id'     => Auth::id() ?? null, 
+            'user_id'     => Auth::id() ?? 1,
             'content'     => $request->comment,
         ]);
 
-        // 書き込んだ詳細画面にそのままリダイレクトで戻る
         return redirect()->route('qna.detail', $id)->with('success', 'コメントを投稿しました');
+    }
+
+    public function selectBestAnswer($id, $answer_id)
+    {
+        // 対象の質問を取得
+        $question = Question::findOrFail($id);
+
+        // best_answer_id 列に選ばれた回答のIDを保存して更新
+        $question->update([
+            'best_answer_id' => $answer_id
+        ]);
+
+        return back()->with('success', 'ベストアンサーを決定しました！');
+    }
+
+    public function reportQuestion(Request $request, $id)
+    {
+        $request->validate([
+            'reason' => 'required|string|max:255',
+        ]);
+
+        Report::create([
+            'question_id' => $id,
+            'user_id'     => Auth::id(), // ログイン中ならIDが入る
+            'reason'      => $request->reason,
+        ]);
+
+        return back()->with('success', '通報を受け付けました。ご協力ありがとうございます。');
+    }
+
+    // 2. 教職員用の通報一覧画面の表示
+    public function showReports()
+    {
+        // 通報データを、関連する質問データ（Question）と一緒に取得
+        $reports = Report::with('question')->latest()->get();
+
+        return view('qna.admin_reports', compact('reports'));
     }
 }

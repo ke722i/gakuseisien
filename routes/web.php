@@ -424,6 +424,9 @@ Route::post('/gakunai-qna/store', [QnaController::class, 'store'])->name('qna.st
 Route::get('/gakunai-qna/history', [QnaController::class, 'history'])->name('qna.history');
 Route::get('/gakunai-qna/{id}', [QnaController::class, 'show'])->name('qna.detail');
 Route::post('/gakunai-qna/{id}/answers', [QnaController::class, 'storeAnswer'])->name('qna.storeAnswer');
+Route::patch('/gakunai-qna/{id}/best-answer/{answer_id}', [QnaController::class, 'selectBestAnswer'])->name('qna.bestAnswer');
+Route::post('/gakunai-qna/{id}/report', [QnaController::class, 'reportQuestion'])->name('qna.report');
+Route::get('/gakunai-qna/admin/reports', [QnaController::class, 'showReports'])->name('qna.admin.reports');
 
 Route::get('/gakunai-qna/create', function () {
     return view('qna.create'); 
