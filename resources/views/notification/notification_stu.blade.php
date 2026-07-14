@@ -10,6 +10,7 @@
 
 <?php
     $today = date("Y-m-d");
+    $user = Auth::user();
 ?>
 
 <body>
@@ -26,14 +27,14 @@
             </div>
 
             <div class="content-inner">
-                <form method="post" action="#">
+                <form method="post" action="{{ route('notification.store') }}">
                     @csrf
                     <div class="grid-2">
                         <div class="panel-left">
-                            <div class="field"><label>学籍番号</label><input type="text" value="234000" disabled></div>
-                            <div class="field"><label>クラス番号</label><input type="text" value="R4SA00" disabled></div>
-                            <div class="field"><label>名前</label><input type="text" value="情報太郎" disabled></div>
-                            <div class="field"><label>日付</label><input type="date" value="<?= $today ?>"></div>
+                            <div class="field"><label>学籍番号</label><input type="text" name="student_number" value="{{ old('student_number', $user?->student_number ?? '') }}" readonly></div>
+                            <div class="field"><label>クラス番号</label><input type="text" name="class_number" value="{{ old('class_number', $user?->class_number ?? '') }}" readonly></div>
+                            <div class="field"><label>名前</label><input type="text" name="student_name" value="{{ old('student_name', $user?->student_name ?? '') }}" readonly></div>
+                            <div class="field"><label>日付</label><input type="date" name="target_date" value="{{ old('target_date', $today) }}"></div>
                             <div class="field"><label>時限</label>
                                 <div class="time-box">
                                     <label><input type="checkbox">1</label>
@@ -45,8 +46,8 @@
                         </div>
 
                         <div class="panel-right">
-                            <div class="field"><label>提出日</label><input type="text" value="<?= $today ?>" disabled></div>
-                            <div class="field"><label>担任教師</label><input type="text" value="情報教師" disabled></div>
+                            <div class="field"><label>提出日</label><input type="text" name="submission_date" value="{{ old('submission_date', $today) }}" readonly></div>
+                            <div class="field"><label>担任教師</label><input type="text" name="homeroom_teacher" value="{{ old('homeroom_teacher', $user?->homeroom_teacher ?? '') }}" readonly></div>
                             <div class="field"><label>科目教師</label>
                                 <div class="subject-teacher-group">
                                     <div id="teacher-list" class="teacher-list">
