@@ -17,7 +17,9 @@
     <main class="main-content">
 
         <a href="{{ route('nearby.shop') }}" class="back-btn">← 一覧へ戻る</a>
-
+          <a href="{{ route('store.request') }}" class="request-btn">
+        店舗を申請する
+    </a>
         <h1>ラーメン〇〇（店舗ID：{{ $id }}）</h1>
 
         <div class="detail-wrapper">

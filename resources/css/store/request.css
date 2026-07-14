@@ -152,3 +152,15 @@ textarea{
 .submit-btn:hover{
     background:#1b63c4;
 }
+
+.button-area{
+    border:3px solid red;
+}
+
+.submit-btn{
+    background:red;
+}
+
+.reset-btn{
+    background:green;
+}

@@ -30,8 +30,19 @@
 
         </section>
 
-        <a href="{{ route('store.admin') }}">
-    管理者画面
+    <div class="menu-buttons">
+
+    <a href="{{ route('store.request') }}" class="request-btn">
+        店舗を申請する
+    </a>
+
+    <a href="{{ route('store.admin') }}" class="admin-btn">
+        管理者画面
+    </a>
+
+</div>
+
+    
 </a>
 
         <!-- フィルター -->
