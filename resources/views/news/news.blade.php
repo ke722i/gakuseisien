@@ -6,7 +6,7 @@
     <title>時事ニュースまとめ</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    @vite(['resources/css/app.css', 'resources/css/news.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/css/news.css', 'resources/js/news.js'])
 </head>
 
 <body>
@@ -66,7 +66,7 @@
                                 </h2>
                             </div>
 
-                            <button class="circle-button">⌄</button>
+                            <button class="circle-button">▼</button>
                         </div>
 
                         <div class="news-detail">
