@@ -20,8 +20,7 @@
         <a href="{{ route('nearby.shop') }}" class="back-btn">← 一覧へ戻る</a>
 
         <h1>店舗申請</h1>
-        <h2 style="color:red;">テスト表示</h2>
-
+        
         <div class="form-card">
 
             <form action="{{ route('store.request.store') }}" method="POST">
@@ -40,6 +39,11 @@
             <option>カフェ</option>
             <option>定食</option>
             <option>居酒屋</option>
+            <option>中華</option>
+            <option>寿司</option>
+            <option>コンビニ</option>
+            <option>スイーツ</option>
+            <option>レストラン</option>
             <option>その他</option>
         </select>
     </div>
@@ -66,21 +70,17 @@
 
     <div class="form-group">
         <label>決済方法</label>
-        <select name="payment_method">
-            <option>現金</option>
-            <option>クレジット</option>
-            <option>PayPay</option>
-            <option>電子マネー</option>
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label>申請者</label>
-        <input type="text" name="applicant" placeholder="学生名">
+            <input type="checkbox" name="現金" value="現金" >　現金
+            <input type="checkbox" name="クレジット" value="クレジット" >　クレジット 
+            <input type="checkbox" name="paypay" value="paypay" >　paypay
+            <input type="checkbox" name="電子マネー" value="電子マネー" >　電子マネー
+            <input type="checkbox" name="その他" value="その他" >　その他
+        </input>
+        
     </div>
 
     <div class="button-area">
-        <button type="reset" class="reset-btn">リセット</button>
+        <button type="reset" class="reset-btn">クリア</button>
         <button type="submit" class="submit-btn">申請する</button>
     </div>
         

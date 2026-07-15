@@ -224,3 +224,7 @@ body{
 .request-btn:hover{
     background:#1f8a4c;
 }
+
+.map iframe {
+    border-radius: 10px;
+}

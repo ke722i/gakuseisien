@@ -82,8 +82,15 @@
 
                 <h2>地図</h2>
 
-                <div class="map-placeholder">
-                    Google Map表示エリア
+                <div class="map">
+                    <iframe
+                        src="https://www.google.com/maps/embed?pb=..."
+                        width="100%"
+                        height="400"
+                        style="border:0;"
+                        allowfullscreen=""
+                        loading="lazy">
+                    </iframe>
                 </div>
 
             </section>
