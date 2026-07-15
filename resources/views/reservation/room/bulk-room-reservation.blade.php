@@ -21,9 +21,27 @@
                     <div class="form-item">
                         <label>教室番号・施設名の入力</label>
                         <select id="roomSelect">
-                            <option value="402c">402c</option>
+                            <option value="101c">101c</option>
+                            <option value="201c">201c</option>
+                            <option value="202c">202c</option>
+                            <option value="203c">203c</option>
+                            <option value="301">301</option>
+                            <option value="302">302</option>
+                            <option value="303">303</option>
+                            <option value="304c">304c</option>
+                            <option value="305">305</option>
                             <option value="401c">401c</option>
-                            <option value="304">304</option>
+                            <option value="402c">402c</option>
+                            <option value="403c">403c</option>
+                            <option value="501">501</option>
+                            <option value="502">502</option>
+                            <option value="503c">503c</option>
+                            <option value="504c">504c</option>
+                            <option value="505">505</option>
+                            <option value="601">601</option>
+                            <option value="602">602</option>
+                            <option value="603c">603c</option>
+                            <option value="604c">604c</option>
                         </select>
                     </div>
 
