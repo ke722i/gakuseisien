@@ -46,50 +46,108 @@ button {
     cursor: pointer;
 }
 
-/* サイドバー */
+/* 左サイドバー（PC: アイコンのみの細いレール。ホバーで広がる） */
 .sidebar {
     position: fixed;
     top: 0;
-    left: -280px;
-    width: 260px;
-    height: 100vh;
-    background-color: #2563eb;
-    color: white;
-    padding: 24px 18px;
-    transition: left 0.3s ease;
-    z-index: 1000;
-}
-
-.sidebar.open {
     left: 0;
+    width: 68px;              /* 通常はアイコンだけ見える幅 */
+    height: 100vh;
+    background: linear-gradient(180deg, #1d4ed8, #2563eb);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;
+    white-space: nowrap;
+    z-index: 1000;
+    transition: width 0.25s ease;
 }
 
-.sidebar-logo h2 {
-    margin: 0;
+/* ホバーで展開（本文の上に重なる。本文レイアウトは動かさない） */
+.sidebar:hover {
+    width: 260px;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25);
+}
+
+/* サイト名（ホームへのリンク） */
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+    height: 72px;
+    padding: 0 18px;
+    color: white;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+/* 折りたたみ時に見せる短いマーク */
+.logo-mark {
     font-size: 22px;
+    font-weight: 800;
+    width: 32px;
+    text-align: center;
+    flex-shrink: 0;
 }
 
-.sidebar-logo p {
-    margin: 8px 0 24px;
-    font-size: 13px;
-    opacity: 0.9;
+/* 展開時に見せるフルのサイト名（通常は隠す） */
+.logo-full {
+    display: none;
+    flex-direction: column;
+    margin-left: 10px;
+}
+
+.logo-title {
+    font-size: 20px;
+    font-weight: 800;
+}
+
+.logo-sub {
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.sidebar:hover .logo-mark {
+    display: none;
+}
+
+.sidebar:hover .logo-full {
+    display: flex;
 }
 
 .sidebar-menu {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    margin-top: 8px;
 }
 
-.sidebar-menu a {
-    display: block;
-    padding: 12px 14px;
-    border-radius: 10px;
+.sidebar-menu a,
+.logout .logout-btn {
+    display: flex;
+    align-items: center;
+    gap: 16px;
     color: white;
-    font-size: 14px;
     text-decoration: none;
     padding: 14px 20px;
     font-size: 15px;
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.sidebar-menu a.active {
+    background-color: #1e40af;
+    font-weight: bold;
+}
+
+.logout {
+    margin-top: auto;
+    padding-bottom: 20px;
+}
+
+/* メイン部分（レールの分だけ左に余白） */
+.content {
+    min-height: 100vh;
+    margin-left: 68px;
+    background-color: white;
+    padding: 40px 70px 70px;
 }
 
 /* ログアウトはフォームのボタンなので見た目をリンクに揃える */
