@@ -10,15 +10,13 @@
 </head>
 
 <body>
+    @include('partials.sidebar', ['active' => 'qna'])
+
     <main class="content qna-page">
 
         <div class="qna-header-container">
             <h1 class="qna-title">質問詳細</h1>
             <a href="{{ route('gakunai.qna') }}" class="qna-history-btn">一覧に戻る</a>
-        </div>
-
-        <div class="app-layout">
-            @include('partials.sidebar', ['active' => 'qna'])
         </div>
 
         <div class="qna-card-list">
