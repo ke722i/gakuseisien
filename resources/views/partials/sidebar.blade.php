@@ -53,14 +53,21 @@
         <a href="{{ route('nearby.shop') }}" class="{{ $active === 'shop' ? 'active' : '' }}">
             <span class="menu-icon">📍</span><span class="label">近辺店舗情報マップ</span>
         </a>
+        @auth
+        @if(Auth::user()->isTeacher())
+        <a href="{{ route('qna.adminReports') }}" class="{{ $active === 'admin_reports' ? 'active' : '' }}" style="background-color: #fff0f0;">
+            <span class="menu-icon">🚨</span><span class="label" style="color: #cc3333; font-weight: bold;">通報管理一覧</span>
+        </a>
+        @endif
+        @endauth
     </nav>
 
     <div class="logout">
         @auth
-            {{-- ログイン中のID表示 --}}
-            <div class="current-user" title="ログイン中: {{ Auth::user()->login_id }}">
-                <span class="menu-icon">👤</span><span class="label">{{ Auth::user()->login_id }}</span>
-            </div>
+        {{-- ログイン中のID表示 --}}
+        <div class="current-user" title="ログイン中: {{ Auth::user()->login_id }}">
+            <span class="menu-icon">👤</span><span class="label">{{ Auth::user()->login_id }}</span>
+        </div>
         @endauth
 
         <form method="POST" action="{{ route('logout') }}">
@@ -74,7 +81,7 @@
 
 <script>
     // スマホ用ハンバーガーの開閉。PCはCSSのホバーだけで動くのでJSは不要。
-    (function () {
+    (function() {
         const menuButton = document.getElementById('menuButton');
         const sidebar = document.getElementById('sidebar');
         const overlay = document.getElementById('overlay');

@@ -13,8 +13,7 @@ class QnaController extends Controller
     // 質問一覧画面
     public function index()
     {
-        // データベースから最新の質問をすべて取得して一覧画面に渡す
-        $posts = Question::latest('created_at')->get();
+        $posts = Question::latest()->get();
         return view('qna.qna', compact('posts'));
     }
 
@@ -27,17 +26,17 @@ class QnaController extends Controller
     // 質問をデータベースに保存する
     public function store(Request $request)
     {
-        // 入力チェック（要件定義のカラムに合わせる）
+        // 入力チェック
         $request->validate([
             'title' => 'required|max:255',
             'content' => 'required',
             'category' => 'required|max:50',
         ]);
 
-        // ログインや大学判別機能が完成するまでは、テスト用に school_id=1, user_id=1 として仮保存
+        // 💡 user_id を 1 固定から、現在ログインしているユーザーのIDに変更します！
         Question::create([
             'school_id' => 1,
-            'user_id' => 1,
+            'user_id' => Auth::id() ?? 1, // ログイン中ならそのID、未ログインなら仮で1
             'title' => $request->title,
             'content' => $request->content,
             'category' => $request->category,
@@ -133,11 +132,9 @@ class QnaController extends Controller
     }
 
     // 2. 教職員用の通報一覧画面の表示
-    public function showReports()
+    public function adminReports()
     {
-        // 通報データを、関連する質問データ（Question）と一緒に取得
         $reports = Report::with('question')->latest()->get();
-
-        return view('qna.admin_reports', compact('reports'));
+        return view('qna.admin_reports', compact('reports'))->with('active', 'admin_reports');
     }
 }

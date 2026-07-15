@@ -417,23 +417,21 @@ Route::post('/forum', [ForumController::class, 'store'])->name('forum.store');
 // 学内Q&Aページのルート設定
 use App\Http\Controllers\QnaController;
 
-Route::delete('/gakunai-qna/{id}', [QnaController::class, 'destroy'])->name('qna.destroy');
+// 固定のURL
 Route::get('/gakunai-qna', [QnaController::class, 'index'])->name('gakunai.qna');
 Route::get('/gakunai-qna/create', [QnaController::class, 'create'])->name('qna.create');
 Route::post('/gakunai-qna/store', [QnaController::class, 'store'])->name('qna.store');
 Route::get('/gakunai-qna/history', [QnaController::class, 'history'])->name('qna.history');
-Route::get('/gakunai-qna/{id}', [QnaController::class, 'show'])->name('qna.detail');
-Route::post('/gakunai-qna/{id}/answers', [QnaController::class, 'storeAnswer'])->name('qna.storeAnswer');
-Route::patch('/gakunai-qna/{id}/best-answer/{answer_id}', [QnaController::class, 'selectBestAnswer'])->name('qna.bestAnswer');
-Route::post('/gakunai-qna/{id}/report', [QnaController::class, 'reportQuestion'])->name('qna.report');
 Route::get('/gakunai-qna/admin/reports', [QnaController::class, 'adminReports'])
     ->name('qna.adminReports')
     ->middleware('teacher');
 
-Route::get('/gakunai-qna/create', function () {
-    return view('qna.create'); 
-})->name('qna.create');
-
+// 2. 動的なURL
+Route::delete('/gakunai-qna/{id}', [QnaController::class, 'destroy'])->name('qna.destroy');
+Route::get('/gakunai-qna/{id}', [QnaController::class, 'show'])->name('qna.detail');
+Route::post('/gakunai-qna/{id}/answers', [QnaController::class, 'storeAnswer'])->name('qna.storeAnswer');
+Route::patch('/gakunai-qna/{id}/best-answer/{answer_id}', [QnaController::class, 'selectBestAnswer'])->name('qna.bestAnswer');
+Route::post('/gakunai-qna/{id}/report', [QnaController::class, 'reportQuestion'])->name('qna.report');
 // イベント・締め切りカレンダーページのルート設定
 Route::get('/event-calendar', [EventController::class, 'index'])->name('event.calendar');
 Route::get('/event-calendar/day/{date}', [EventController::class, 'day'])->name('event.day');
