@@ -478,6 +478,15 @@ Route::get('/notification', function () {
 Route::post('/notification/store', [AttendanceNotificationController::class, 'storeNotification'])
     ->name('notification.store');
 
+// 教師が「受理」または「差し戻し」の処理を行うためのURL
+Route::post('/teacher/notification/{id}/decide', [AttendanceNotificationController::class, 'decideNotificationType'])
+    ->name('notification.decide');
+
+// 時事ニュースページのルート設定
+Route::get('/recentnews', function() { //担当者へ、ファイル名違ったら修正してください
+    return view('welcome'); // recentNews.blade.php を呼び出す 
+})->name('recent.news');
+
 // 近辺店舗ページのルート設定
 // 近辺店舗情報マップ（一覧 / 詳細 / 申請）
 use App\Http\Controllers\ShopController;

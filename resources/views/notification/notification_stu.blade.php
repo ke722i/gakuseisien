@@ -23,7 +23,7 @@
         <!-- メイン画面 -->
         <main class="content">
             <div class="content-header">
-                <h1>欠席・遅刻届</h1>
+                <h1>欠席・遅刻届（生徒用）</h1>
             </div>
 
             <div class="content-inner">
