@@ -415,6 +415,7 @@ Route::get('/forum-top', [ForumController::class, 'index'])->name('forum.top');
 Route::get('/forum/create', [ForumController::class, 'create'])->name('forum.create');
 Route::post('/forum', [ForumController::class, 'store'])->name('forum.store');
 Route::get('/forum/{post}', [ForumController::class, 'show'])->name('forum.show');
+Route::post('/forum/{post}/reply', [ForumController::class, 'storeReply'])->name('forum.reply.store');
 Route::get('/forum/{post}/edit', [ForumController::class, 'edit'])->name('forum.edit');
 Route::patch('/forum/{post}', [ForumController::class, 'update'])->name('forum.update');
 Route::delete('/forum/{post}', [ForumController::class, 'destroy'])->name('forum.destroy');
