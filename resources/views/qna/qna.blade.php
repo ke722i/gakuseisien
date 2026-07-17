@@ -15,6 +15,8 @@
 </head>
 
 <body>
+    @include('partials.sidebar', ['active' => 'qna'])
+
     <main class="content qna-page">
 
         <div class="qna-header-container">
@@ -28,10 +30,6 @@
                 <a href="{{ route('qna.create') }}" class="qna-history-btn qna-btn-black">質問を投稿</a>
                 <a href="{{ route('qna.history') }}" class="qna-history-btn">投稿履歴</a>
             </div>
-        </div>
-
-        <div class="app-layout">
-            @include('partials.sidebar', ['active' => 'qna'])
         </div>
 
         <div class="qna-card-list">
@@ -65,33 +63,26 @@
                     </div>
                 </div>
 
-                <!-- 📁 resources/views/qna/qna.blade.php のフッター部分 -->
-
                 <div class="qna-card-footer" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; width: 100%;">
-                    <!-- コメント件数ボタン -->
                     <a href="{{ route('qna.detail', $post->id) }}#comment-section" style="text-decoration: none;">
                         <button type="button" class="qna-icon-btn" title="comments" style="cursor: pointer;">
                             💬 コメント {{ $post->answers->count() }}件
                         </button>
                     </a>
 
-                    <!-- 共有ボタン -->
                     <button type="button" class="qna-icon-btn" title="URLをコピー" data-url="{{ route('qna.detail', $post->id) }}" onclick="handleShare(event, this)">
                         共有
                     </button>
 
-                    <!-- 通報ボタン -->
                     <button type="button" class="qna-icon-btn" title="通報する" data-id="{{ $post->id }}" onclick="handleReport(event, this)">
                         通報
                     </button>
 
-                    <!-- 通報用の非表示フォーム -->
                     <form id="report-form-{{ $post->id }}" action="{{ route('qna.report', $post->id) }}" method="POST" style="display: none;">
                         @csrf
                         <input type="hidden" name="reason" id="report-reason-{{ $post->id }}">
                     </form>
 
-                    <!-- 解決ボタン -->
                     @if(!$post->best_answer_id)
                     <a href="{{ route('qna.detail', $post->id) }}?action=select_best" class="qna-icon-btn" title="解決にする" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
                         解決する
@@ -102,7 +93,6 @@
                     </button>
                     @endif
 
-                    <!-- 💡 「詳細を見る」をテキストリンクから綺麗なボタンへ変更！ -->
                     <a href="{{ route('qna.detail', $post->id) }}" class="qna-history-btn qna-btn-black" style="margin-left: auto; text-decoration: none; font-size: 13px; padding: 6px 14px; text-align: center; font-weight: bold;">
                         詳細を見る
                     </a>
@@ -138,13 +128,10 @@
     </div>
 
     <script>
-        // 💡 共有ボタンの処理（element から data-url を取得する）
         function handleShare(event, element) {
             event.preventDefault();
             event.stopPropagation();
-
             const url = element.dataset.url;
-
             navigator.clipboard.writeText(url).then(() => {
                 alert('質問のURLをクリップボードにコピーしました！');
             }).catch(err => {
@@ -152,20 +139,16 @@
             });
         }
 
-        // 💡 通報ボタンの処理（element から data-id を取得する）
         function handleReport(event, element) {
             event.preventDefault();
             event.stopPropagation();
-
             const id = element.dataset.id;
-
             const reason = prompt("通報する理由を入力してください（スパム、嫌がらせ、公序良俗に反する投稿など）：");
             if (reason === null) return;
             if (reason.trim() === "") {
                 alert("通報理由は必須入力です。");
                 return;
             }
-
             document.getElementById('report-reason-' + id).value = reason;
             document.getElementById('report-form-' + id).submit();
         }

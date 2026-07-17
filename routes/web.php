@@ -427,7 +427,9 @@ Route::get('/gakunai-qna/{id}', [QnaController::class, 'show'])->name('qna.detai
 Route::post('/gakunai-qna/{id}/answers', [QnaController::class, 'storeAnswer'])->name('qna.storeAnswer');
 Route::patch('/gakunai-qna/{id}/best-answer/{answer_id}', [QnaController::class, 'selectBestAnswer'])->name('qna.bestAnswer');
 Route::post('/gakunai-qna/{id}/report', [QnaController::class, 'reportQuestion'])->name('qna.report');
-Route::get('/gakunai-qna/admin/reports', [QnaController::class, 'showReports'])->name('qna.admin.reports');
+Route::get('/gakunai-qna/admin/reports', [QnaController::class, 'adminReports'])
+    ->name('qna.adminReports')
+    ->middleware('teacher');
 
 Route::get('/gakunai-qna/create', function () {
     return view('qna.create'); 
@@ -466,21 +468,22 @@ Route::get('/recentnews', function() { //担当者へ、ファイル名違った
 
 // 近辺店舗ページのルート設定
 // 近辺店舗情報マップ（一覧 / 詳細 / 申請）
-Route::get('/nearby-shop', function () {
-    return view('store.home');
-})->name('nearby.shop');
+use App\Http\Controllers\ShopController;
+Route::get('/nearby-shop', [ShopController::class, 'index'])
+    ->name('nearby.shop');
 
-Route::get('/nearby-shop/store/{id}', function ($id) {
-    return view('store.more', ['id' => $id]);
-})->name('store.more');
+Route::get('/nearby-shop/store/{id}', [ShopController::class, 'show'])
+    ->name('store.more');
 
-Route::get('/nearby-shop/request', function () {
-    return view('store.request');
-})->name('store.request');
+Route::get('/nearby-shop/request', [ShopController::class, 'request'])
+    ->name('store.request');
 
-Route::get('/nearby-shop/admin', function () {
-    return view('store.admin');
-})->name('store.admin');
+// 店舗申請を保存
+Route::post('/nearby-shop/request', [ShopController::class, 'storeRequest'])
+    ->name('store.request.store');
+
+Route::get('/nearby-shop/admin', [ShopController::class, 'admin'])
+    ->name('store.admin');
 
 
 
