@@ -83,6 +83,17 @@
         .btn-primary:hover {
             background-color: #1d4ed8;
         }
+        
+        .btn-warning {
+            background-color: #fffbeb;
+            color: #d97706;
+            border-color: #fcd34d;
+            padding: 0.25rem 0.6rem;
+            font-size: 0.8rem;
+        }
+        .btn-warning:hover {
+            background-color: #fef3c7;
+        }
 
         /* サブボタン（返信一覧の中の返信・編集用） */
         .btn-secondary {
@@ -109,6 +120,68 @@
         .btn-danger:hover {
             background-color: #fecaca;
         }
+
+        .post-header-top {
+            display: flex;
+            justify-content: space-between; /* 左右に配置 */
+            align-items: flex-start;
+        }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #4b5563;
+            padding: 0.4rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+        .dropdown-toggle:hover {
+            background-color: #f3f4f6;
+        }
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: #ffffff;
+            min-width: 180px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            z-index: 50;
+            overflow: hidden;
+        }
+        .dropdown-menu.show {
+            display: block; /* JSでこのクラスを付与して表示 */
+        }
+        .dropdown-item {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 0.6rem 1rem;
+            font-size: 0.875rem;
+            color: #374151;
+            background: none;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .dropdown-item:hover {
+            background-color: #f9fafb;
+        }
+        .dropdown-item.text-danger {
+            color: #dc2626;
+        }
+        .dropdown-item.text-warning {
+            color: #d97706;
+        }
     </style>
 </head>
 <body>
@@ -129,7 +202,7 @@
                         </div>
                         <div class="post-meta">
                             <span class="badge">{{ $post->category ?? 'その他' }}</span>
-                            <time class="post-date">{{ $post->published_at?->format('Y-m-d H:i') }}</time>
+                            <time class="post-date">{{ optional($post->published_at)->setTimezone('Asia/Tokyo')->format('Y-m-d H:i') }}</time>
                         </div>
                         <h1 class="post-title">{{ $post->title }}</h1>
                         @if ($post->content)
@@ -155,7 +228,7 @@
                             @foreach ($post->replies as $reply)
                                 <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:0.5rem;padding:0.9rem;">
                                     <div style="font-size:0.85rem;color:#6b7280;margin-bottom:0.35rem;">
-                                        {{ $reply->author_name ?? ($reply->user?->login_id ?? '匿名') }} · {{ $reply->created_at->format('Y-m-d H:i') }}
+                                        {{ $reply->author_name ?? ($reply->user?->login_id ?? '匿名') }} · {{ optional($reply->created_at)->setTimezone('Asia/Tokyo')->format('Y-m-d H:i') }}
                                     </div>
                                     <div style="white-space:pre-wrap;line-height:1.6;">{{ $reply->content }}</div>
 
@@ -189,7 +262,7 @@
                                             @foreach ($reply->children as $child)
                                                 <div style="background:#fff;border:1px solid #e5e7eb;border-radius:0.4rem;padding:0.75rem;">
                                                     <div style="font-size:0.8rem;color:#6b7280;margin-bottom:0.3rem;">
-                                                        {{ $child->author_name ?? ($child->user?->login_id ?? '匿名') }} · {{ $child->created_at->format('Y-m-d H:i') }}
+                                                        {{ $child->author_name ?? ($child->user?->login_id ?? '匿名') }} · {{ optional($child->created_at)->setTimezone('Asia/Tokyo')->format('Y-m-d H:i') }}
                                                     </div>
                                                     <div style="white-space:pre-wrap;line-height:1.5;">{{ $child->content }}</div>
                                                 </div>
@@ -203,16 +276,30 @@
                 @endif
 
                 @auth
-                    @if (Auth::id() === $post->user_id)
-                        <div style="margin-top:1.5rem;display:flex;gap:0.75rem;">
-                            <a href="{{ route('forum.edit', $post) }}" class="submit-button" style="display:inline-block;text-decoration:none;">編集</a>
+                    <div style="margin-top:1.5rem;display:flex;gap:0.75rem;flex-wrap:wrap;">
+                        @if (Auth::user()->isTeacher())
+                            <form method="POST" action="{{ route('forum.destroy', $post) }}" onsubmit="return confirm('この投稿を削除しますか？');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="action-btn btn-danger">削除</button>
+                            </form>
+                        @elseif (Auth::id() === $post->user_id)
+                            <a href="{{ route('forum.edit', $post) }}" class="action-btn btn-secondary" style="text-decoration:none;">編集</a>
                             <form method="POST" action="{{ route('forum.destroy', $post) }}" onsubmit="return confirm('削除しますか？');">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="submit-button" style="background:#dc2626;">削除</button>
+                                <button type="submit" class="action-btn btn-danger">削除</button>
                             </form>
-                        </div>
-                    @endif
+                        @endif
+
+                        @if (!Auth::user()->isTeacher())
+                            <form method="POST" action="{{ route('forum.report', $post) }}" onsubmit="return confirm('この投稿を通報しますか？');" style="display:inline-block;">
+                                @csrf
+                                <input type="hidden" name="reason" value="不適切な投稿です。">
+                                <button type="submit" class="action-btn btn-warning">通報する</button>
+                            </form>
+                        @endif
+                    </div>
                 @endauth
             </div>
 
@@ -224,7 +311,7 @@
                             @foreach ($relatedPosts as $related)
                                 <div class="related-post-item">
                                     <a href="{{ route('forum.show', $related) }}" class="related-post-link">{{ $related->title }}</a>
-                                    <div class="related-post-meta">{{ $related->published_at?->format('m/d H:i') }}</div>
+                                    <div class="related-post-meta">{{ optional($related->published_at)->setTimezone('Asia/Tokyo')->format('m/d H:i') }}</div>
                                 </div>
                             @endforeach
                         </div>

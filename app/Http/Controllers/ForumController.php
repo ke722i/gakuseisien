@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Post;
 use App\Models\PostReply;
+use App\Models\Report;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -106,6 +107,14 @@ class ForumController extends Controller
 
     public function edit(Post $post)
     {
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        if (Auth::user()->isTeacher()) {
+            return view('forum.edit', compact('post'));
+        }
+
         // 投稿者本人以外は編集画面を開けない（user_idがnullの匿名投稿も編集不可）
         abort_if($post->user_id === null || $post->user_id !== Auth::id(), 403);
 
@@ -125,6 +134,10 @@ class ForumController extends Controller
             'content' => 'nullable|string',
             'media.*' => 'nullable|file|mimes:jpg,jpeg,png,gif,mp4,mov|max:10240',
         ]);
+
+        if (($validated['category'] ?? '') === '落とし物' && (!Auth::check() || !Auth::user()->isTeacher())) {
+            return back()->withErrors(['category' => '落とし物の投稿は教職員のみ作成できます。'])->withInput();
+        }
 
         $post = Post::create([
             'category' => $validated['category'],
@@ -157,6 +170,26 @@ class ForumController extends Controller
 
     public function update(Request $request, Post $post)
     {
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        if (Auth::user()->isTeacher()) {
+            $validated = $request->validate([
+                'category' => 'required|string|max:255',
+                'title' => 'required|string|max:300',
+                'content' => 'nullable|string',
+            ]);
+
+            $post->update([
+                'category' => $validated['category'],
+                'title' => $validated['title'],
+                'content' => $validated['content'] ?? null,
+            ]);
+
+            return redirect()->route('forum.show', $post);
+        }
+
         // 投稿者本人以外は更新できない
         abort_if($post->user_id === null || $post->user_id !== Auth::id(), 403);
 
@@ -177,11 +210,42 @@ class ForumController extends Controller
 
     public function destroy(Post $post)
     {
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
+
+        $user = Auth::user();
+
+        if ($user && $user->isTeacher()) {
+            $post->delete();
+            return redirect()->route('forum.top');
+        }
+
         // 投稿者本人以外は削除できない
         abort_if($post->user_id === null || $post->user_id !== Auth::id(), 403);
 
         $post->delete();
 
         return redirect()->route('forum.top');
+    }
+
+    public function reportPost(Request $request, Post $post)
+    {
+        if (!Auth::check()) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'reason' => 'required|string|max:1000',
+        ]);
+
+        Report::create([
+            'post_id' => $post->id,
+            'user_id' => Auth::id(),
+            'reason' => $validated['reason'],
+            'type' => 'forum_post',
+        ]);
+
+        return redirect()->route('forum.show', $post)->with('status', '投稿を通報しました。');
     }
 }
