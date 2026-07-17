@@ -22,13 +22,76 @@
         </header>
 
         <!-- 検索 -->
-        <section class="search-area">
+        <form method="GET" action="{{ route('nearby.shop') }}">
 
-            <input type="text" placeholder="店舗名を検索">
+    <section class="search-area">
 
-            <button>検索</button>
+        <input
+            type="text"
+            name="keyword"
+            placeholder="店舗名を検索"
+            value="{{ request('keyword') }}">
 
-        </section>
+        <button type="submit">検索</button>
+
+        <a href="{{ route('nearby.shop') }}" class="all-btn">
+            すべて表示
+        </a>
+
+        <button type="button" class="detail-btn" onclick="toggleSearch()">
+            詳細検索 ▼
+        </button>
+
+    </section>
+
+    <section id="detail-search" class="filter-area" style="display:none;">
+
+        <select name="genre">
+            <option value="">ジャンル</option>
+            <option value="ラーメン">ラーメン</option>
+            <option value="カフェ">カフェ</option>
+            <option value="定食">定食</option>
+            <option value="居酒屋">居酒屋</option>
+            <option value="中華">中華</option>
+            <option value="寿司">寿司</option>
+            <option value="コンビニ">コンビニ</option>
+            <option value="スイーツ">スイーツ</option>
+            <option value="レストラン">レストラン</option>
+            <option value="その他">その他</option>
+        </select>
+
+        <select name="budget">
+            <option value="">価格</option>
+            <option value="500">500円以下</option>
+            <option value="1000">1000円以下</option>
+            <option value="1500">1500円以下</option>
+            <option value="2000">2000円以下</option>
+        </select>
+
+        <select name="distance">
+            <option value="">距離</option>
+            <option value="300">300m以内</option>
+            <option value="500">500m以内</option>
+            <option value="1000">1000m以内</option>
+            <option value="2000">2000m以内</option>
+        </select>
+
+        <select name="payment_method">
+            <option value="">決済方法</option>
+            <option value="現金">現金</option>
+            <option value="クレジット">クレジット</option>
+            <option value="PayPay">PayPay</option>
+            <option value="電子マネー">電子マネー</option>
+            <option value="その他">その他</option>
+        </select>
+
+        <button type="submit" class="search-btn">
+            条件で検索
+        </button>
+
+    </section>
+
+</form>
 
     <div class="menu-buttons">
 
@@ -40,137 +103,35 @@
         店舗を申請する
     </a>
 
-</div>
-
-    
-</a>
-
-        <!-- フィルター -->
-        <section class="filter-area">
-
-            <select>
-                <option>価格</option>
-            </select>
-
-            <select>
-                <option>距離</option>
-            </select>
-
-            <select>
-                <option>ジャンル</option>
-            </select>
-
-            <select>
-                <option>営業時間</option>
-            </select>
-
-            <select>
-                <option>決済方法</option>
-            </select>
-
-        </section>
 
         <div class="content">
 
             <!-- 店舗一覧 -->
             <section class="store-grid">
 
-                <div class="store-card">
-                    <h3>🍜 ラーメン○○</h3>
-                    <p>★★★★★</p>
-                    <p>営業時間：11:00～22:00</p>
-                    <p>予算：800円</p>
-                    <p>徒歩3分</p>
-                    <button onclick="location.href='{{ route('store.more', ['id' => 1]) }}'">詳細を見る</button>
-                </div>
+@foreach($shops as $shop)
 
-                <div class="store-card">
-                    <h3>☕ カフェ△△</h3>
-                    <p>★★★★☆</p>
-                    <p>営業時間：9:00～18:00</p>
-                    <p>予算：700円</p>
-                    <p>徒歩5分</p>
-                    <button onclick="location.href='{{ route('store.more', ['id' => 2]) }}'">詳細を見る</button>
-                </div>
+<div class="store-card">
 
-                <div class="store-card">
-                    <h3>☕ カフェ△△</h3>
-                    <p>★★★★☆</p>
-                    <p>営業時間：9:00～18:00</p>
-                    <p>予算：700円</p>
-                    <p>徒歩5分</p>
-                    <button onclick="location.href='{{ route('store.more', ['id' => 3]) }}'">詳細を見る</button>
-                </div>
+    <h3>{{ $shop->name }}</h3>
 
-                <div class="store-card">
-                    <h3>☕ カフェ△△</h3>
-                    <p>★★★★☆</p>
-                    <p>営業時間：9:00～18:00</p>
-                    <p>予算：700円</p>
-                    <p>徒歩5分</p>
-                    <button onclick="location.href='{{ route('store.more', ['id' => 4]) }}'">詳細を見る</button>
-                </div>
+    <p>{{ $shop->genre }}</p>
 
-                <div class="store-card">
-                    <h3>☕ カフェ△△</h3>
-                    <p>★★★★☆</p>
-                    <p>営業時間：9:00～18:00</p>
-                    <p>予算：700円</p>
-                    <p>徒歩5分</p>
-                    <button onclick="location.href='{{ route('store.more', ['id' => 5]) }}'">詳細を見る</button>
-                </div>
+    <p>営業時間：{{ $shop->business_hours }}</p>
 
-                <div class="store-card">
-                    <h3>☕ カフェ△△</h3>
-                    <p>★★★★☆</p>
-                    <p>営業時間：9:00～18:00</p>
-                    <p>予算：700円</p>
-                    <p>徒歩5分</p>
-                    <button onclick="location.href='{{ route('store.more', ['id' => 6]) }}'">詳細を見る</button>
-                </div>
+    <p>予算：{{ $shop->budget }}円</p>
 
-                <div class="store-card">
-                    <h3>☕ カフェ△△</h3>
-                    <p>★★★★☆</p>
-                    <p>営業時間：9:00～18:00</p>
-                    <p>予算：700円</p>
-                    <p>徒歩5分</p>
-                    <button onclick="location.href='{{ route('store.more', ['id' => 7]) }}'">詳細を見る</button>
-                </div>
+    <p>徒歩 {{ $shop->distance }}m</p>
 
-                <div class="store-card">
-                    <h3>☕ カフェ△△</h3>
-                    <p>★★★★☆</p>
-                    <p>営業時間：9:00～18:00</p>
-                    <p>予算：700円</p>
-                    <p>徒歩5分</p>
-                    <button onclick="location.href='{{ route('store.more', ['id' => 8]) }}'">詳細を見る</button>
-                </div>
+    <a href="{{ route('store.more',$shop->id) }}">
+        <button>詳細を見る</button>
+    </a>
 
-                <div class="store-card">
-                    <h3>☕ カフェ△△</h3>
-                    <p>★★★★☆</p>
-                    <p>営業時間：9:00～18:00</p>
-                    <p>予算：700円</p>
-                    <p>徒歩5分</p>
-                    <button onclick="location.href='{{ route('store.more', ['id' => 9]) }}'">詳細を見る</button>
-                </div>
-            </section>
+</div>
 
-            <!-- お気に入り -->
-            <aside class="favorite-area">
+@endforeach
 
-                <h2>お気に入り</h2>
-
-                <div class="favorite-card">🍜 ラーメン○○</div>
-
-                <div class="favorite-card">☕ カフェ△△</div>
-
-                <div class="favorite-card">🍛 カレー□□</div>
-
-            </aside>
-
-        </div>
+</section>
 
         <!-- ページネーション -->
         <section class="pagination">
@@ -191,6 +152,19 @@
 
 </div>
 
+    <script>
+        function toggleSearch(){
+
+        const area = document.getElementById("detail-search");
+
+        if(area.style.display === "none"){
+            area.style.display = "flex";
+        }else{
+            area.style.display = "none";
+        }
+
+}
+    </script>
 </body>
 
 </html>

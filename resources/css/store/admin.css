@@ -237,3 +237,42 @@ body{
     margin-bottom:20px;
 
 }
+
+.buttons{
+    display:flex;
+    gap:10px;
+    margin-top:15px;
+}
+
+.buttons button{
+    border:none;
+    padding:10px 16px;
+    border-radius:8px;
+    color:white;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+/* 詳細 */
+.buttons .detail{
+    background:#3498db;
+}
+
+/* 承認 */
+.buttons .approve{
+    background:#2ecc71;
+}
+
+/* 却下 */
+.buttons .reject{
+    background:#e74c3c;
+}
+
+.buttons button:hover{
+    opacity:.85;
+}
+
+.show{
+    background:#28a745;
+    color:#fff;
+}

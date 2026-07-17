@@ -409,3 +409,47 @@ body{
     background: linear-gradient(135deg,#667eea,#764ba2);
 
 }
+
+.all-btn,
+.detail-btn,
+.search-btn{
+
+    padding:10px 18px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    text-decoration:none;
+    color:white;
+    font-size:14px;
+
+}
+
+.all-btn{
+
+    background:#777;
+    display:flex;
+    align-items:center;
+
+}
+
+.detail-btn{
+
+    background:#2d7be7;
+
+}
+
+.search-btn{
+
+    background:#28a745;
+
+}
+
+#detail-search{
+
+    margin-top:20px;
+    display:flex;
+    gap:15px;
+    flex-wrap:wrap;
+    align-items:center;
+
+}
