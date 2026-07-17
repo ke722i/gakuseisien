@@ -96,7 +96,7 @@ class DatabaseSeeder extends Seeder
             ['password' => Hash::make('katayama1'), 'role' => 'teacher', 'teacher_number' => '001', 'class_number' => 'R4SA00', 'teacher_name' => '片山']
         );
 
-        // 近辺店舗マップのサンプル店舗データ
-        $this->call(ShopSeeder::class);
+        // 空き教室予約：1階のフロアマップ用部屋データ
+        $this->call(RoomSeeder::class);
     }
 }

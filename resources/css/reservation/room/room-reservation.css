@@ -129,17 +129,252 @@
 /* 教室レイアウト */
 .room-layout {
     background-color: white;
-    padding: 30px;
+    padding: 20px;
     border-radius: 12px;
     border: 2px solid #ddd;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    max-width: 720px;
+    margin: 0 auto;
 }
 
 .room-layout svg {
-    max-width: 100%;
+    width: 100%;
+    max-width: 620px;
     height: auto;
-    max-height: 600px;
+}
+
+.room-layout-empty {
+    padding: 80px 0;
+    color: #888;
+    font-size: 16px;
+}
+
+/* フラッシュメッセージ */
+.flash-message {
+    max-width: 900px;
+    margin: 0 auto 20px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    list-style: none;
+}
+
+.flash-success {
+    background-color: #ecfdf5;
+    border: 1px solid #34d399;
+    color: #065f46;
+}
+
+.flash-error {
+    background-color: #fef2f2;
+    border: 1px solid #f87171;
+    color: #991b1b;
+}
+
+/* フロアマップの部屋の色分け */
+.floor-room rect {
+    stroke: #94a3b8;
+    stroke-width: 2;
+    fill: #ffffff;
+}
+
+.floor-room text {
+    font-size: 20px;
+    fill: #1f2937;
+    font-weight: 600;
+}
+
+/* 当日の配色: 黄=予約可能 / 赤=予約不可 */
+.floor-room--available rect {
+    fill: #fef9c3;
+    cursor: pointer;
+}
+
+.floor-room--available:hover rect {
+    fill: #fde047;
+}
+
+.floor-room--reserved rect {
+    fill: #f87171;
+}
+
+.floor-room--reserved text {
+    fill: #7f1d1d;
+}
+
+/* 翌日以降の配色: 緑=予約可能 / 灰=予約不可 */
+.palette-future .floor-room--available rect {
+    fill: #b5d8a5;
+}
+
+.palette-future .floor-room--available:hover rect {
+    fill: #8fca75;
+}
+
+.palette-future .floor-room--reserved rect {
+    fill: #c9ced6;
+}
+
+.palette-future .floor-room--reserved text {
+    fill: #4b5563;
+}
+
+/* 予約対象外の部屋（職員室・EV等）は色を付けず図面と同じ白のまま */
+.floor-room--utility rect {
+    fill: #ffffff;
+}
+
+.floor-room--utility text {
+    fill: #6b7280;
+    font-size: 16px;
+}
+
+/* 幅が狭い部屋（PS・トイレなど）のラベルは縦書き */
+.floor-room text.label-vertical {
+    writing-mode: vertical-rl;
+    font-size: 14px;
+}
+
+.floor-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-self: flex-start;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: #374151;
+}
+
+.legend-box {
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+    border: 1px solid #94a3b8;
+}
+
+.legend-box--available { background-color: #fef9c3; }
+.legend-box--reserved { background-color: #f87171; }
+
+/* 翌日以降は凡例も緑/灰に合わせる */
+.palette-future .legend-box--available { background-color: #b5d8a5; }
+.palette-future .legend-box--reserved { background-color: #c9ced6; }
+
+/* 予約確認モーダル */
+.reservation-modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.reservation-modal.is-open {
+    display: flex;
+}
+
+.reservation-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background-color: rgba(15, 23, 42, 0.55);
+}
+
+.reservation-modal-content {
+    position: relative;
+    background: #ffffff;
+    border-radius: 24px;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+    max-width: 520px;
+    width: min(92%, 480px);
+    padding: 28px;
+    z-index: 1;
+}
+
+.reservation-modal-content h2 {
+    margin: 0 0 22px;
+    font-size: 26px;
+    font-weight: 800;
+    text-align: center;
+    color: #111827;
+}
+
+.modal-form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.modal-form-row label {
+    font-size: 13px;
+    font-weight: 700;
+    color: #374151;
+}
+
+.modal-form-row input,
+.modal-form-row textarea {
+    width: 100%;
+    border: 1px solid #d1d5db;
+    border-radius: 12px;
+    background-color: #f8fafc;
+    color: #111827;
+    font-size: 15px;
+    padding: 12px 14px;
+    resize: none;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.modal-form-row input[readonly] {
+    opacity: 0.9;
+}
+
+.horizontal-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 16px;
+    margin-top: 8px;
+}
+
+.modal-btn {
+    flex: 1;
+    padding: 14px 0;
+    border: none;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.modal-btn.cancel {
+    background-color: #ef4444;
+    color: #ffffff;
+}
+
+.modal-btn.cancel:hover {
+    background-color: #dc2626;
+}
+
+.modal-btn.submit {
+    background-color: #22c55e;
+    color: #ffffff;
+}
+
+.modal-btn.submit:hover {
+    background-color: #16a34a;
 }
 
 /* レスポンシブ対応 */

@@ -19,6 +19,10 @@
                 <h1>予約一覧</h1>
             </div>
 
+            @if (session('reservation_success'))
+                <p class="flash-message flash-success">{{ session('reservation_success') }}</p>
+            @endif
+
             <section class="reservation-list">
                 @php($reservations = $reservations ?? [])
 
@@ -34,7 +38,11 @@
                             </div>
                             <div class="card-controls">
                                 <div class="reservation-status">{{ $reservation['status_label'] ?? '承認待ち' }}</div>
-                                <button type="button" class="delete-button">削除</button>
+                                <form method="POST" action="{{ route('classroom.reservation.destroy', $reservation['id']) }}" onsubmit="return confirm('この予約を削除しますか？');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="delete-button">削除</button>
+                                </form>
                             </div>
                         </div>
                     </article>
