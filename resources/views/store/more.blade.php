@@ -17,7 +17,9 @@
     <main class="main-content">
 
         <a href="{{ route('nearby.shop') }}" class="back-btn">← 一覧へ戻る</a>
-
+          <a href="{{ route('store.request') }}" class="request-btn">
+        店舗を申請する
+    </a>
         <h1>ラーメン〇〇（店舗ID：{{ $id }}）</h1>
 
         <div class="detail-wrapper">
@@ -80,8 +82,15 @@
 
                 <h2>地図</h2>
 
-                <div class="map-placeholder">
-                    Google Map表示エリア
+                <div class="map">
+                    <iframe
+                        src="https://www.google.com/maps/embed?pb=..."
+                        width="100%"
+                        height="400"
+                        style="border:0;"
+                        allowfullscreen=""
+                        loading="lazy">
+                    </iframe>
                 </div>
 
             </section>
