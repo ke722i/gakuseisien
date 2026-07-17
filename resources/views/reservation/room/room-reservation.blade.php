@@ -51,8 +51,6 @@
                     </select>
                 </div>
 
-            
-                </svg>
             </div>
         </main>
     </div>

@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>店舗詳細</title>
-    @vite(['resources/css/store/more.css'])
+    @vite(['resources/css/app.css', 'resources/css/store/more.css'])
 </head>
 
 <body>
 
 <div class="container">
 
-    @include('partials.sidebar', ['active' => 'nearby-shop'])
+    @include('partials.sidebar', ['active' => 'shop'])
 
     <!-- メイン -->
     <main class="main-content">
@@ -20,11 +20,11 @@
           <a href="{{ route('store.request') }}" class="request-btn">
         店舗を申請する
     </a>
-        <h1>ラーメン〇〇（店舗ID：{{ $id }}）</h1>
+        <h1>{{ $shop->name }}（店舗ID：{{ $shop->id }}）</h1>
 
         <div class="detail-wrapper">
 
-            <!-- 店舗情報 -->
+            <!-- 店舗情報（shopsテーブルのデータを表示） -->
             <section class="info-card">
 
                 <h2>店舗情報</h2>
@@ -32,45 +32,33 @@
                 <table>
 
                     <tr>
-                        <th>評価</th>
-                        <td>★★★★★ (4.8)</td>
-                    </tr>
-
-                    <tr>
                         <th>ジャンル</th>
-                        <td>ラーメン</td>
+                        <td>{{ $shop->genre }}</td>
                     </tr>
 
                     <tr>
                         <th>営業時間</th>
-                        <td>11:00～22:00</td>
+                        <td>{{ $shop->business_hours }}</td>
                     </tr>
 
                     <tr>
                         <th>住所</th>
-                        <td>大阪市〇〇区〇〇</td>
+                        <td>{{ $shop->address }}</td>
                     </tr>
 
                     <tr>
                         <th>学校からの距離</th>
-                        <td>徒歩3分</td>
+                        <td>徒歩約{{ max(1, (int) ceil($shop->distance / 80)) }}分（{{ $shop->distance }}m）</td>
                     </tr>
 
                     <tr>
                         <th>平均価格</th>
-                        <td>800円</td>
+                        <td>{{ number_format($shop->budget) }}円</td>
                     </tr>
 
                     <tr>
                         <th>決済方法</th>
-                        <td>現金・PayPay</td>
-                    </tr>
-
-                    <tr>
-                        <th>公式URL</th>
-                        <td>
-                            <a href="#">https://sample.jp</a>
-                        </td>
+                        <td>{{ $shop->payment_method }}</td>
                     </tr>
 
                 </table>
@@ -97,7 +85,7 @@
 
         </div>
 
-        <!-- 口コミ -->
+        <!-- 口コミ（レビュー機能は未実装のためダミー表示） -->
 
         <section class="review-card">
 
