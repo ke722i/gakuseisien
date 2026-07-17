@@ -55,7 +55,7 @@
         </a>
         @auth
         @if(Auth::user()->isTeacher())
-        <a href="{{ route('qna.adminReports') }}" class="{{ $active === 'admin_reports' ? 'active' : '' }}" style="background-color: #fff0f0;">
+        <a href="{{ route('adminReports') }}" class="{{ $active === 'admin_reports' ? 'active' : '' }}" style="background-color: #fff0f0;">
             <span class="menu-icon">🚨</span><span class="label" style="color: #cc3333; font-weight: bold;">通報管理一覧</span>
         </a>
         @endif

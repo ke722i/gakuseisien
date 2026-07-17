@@ -1,13 +1,64 @@
 @import "./qna.css";
 
 /* ==========================================================================
-   投稿画面（create）専用のスタイル
+   投稿画面（create）専用のスタイル（完全スクロール非表示）
    ========================================================================== */
 
-/* フォーム内側の余白を確保 */
-.qna-form-padding {
-    padding: 30px !important;
-    cursor: default !important; /* カード全体のクリック判定をフォームでは無効に */
+/* 💡 ブラウザ全体のスクロールバー自体を完全に非表示にする */
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100% !important;
+    max-height: 100vh !important;
+    overflow: hidden !important; /* スクロールを完全に禁止 */
+}
+
+/* 💡 Chrome, Safari, Edge などのスクロールバー自体を消す魔法 */
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+/* 💡 Firefox のスクロールバーを消す */
+html, body {
+    scrollbar-width: none !important;
+}
+
+/* 💡 メインコンテンツ領域（サイドバーの横） */
+main.content {
+    height: 100vh !important;
+    max-height: 100vh !important;
+    box-sizing: border-box;
+    padding: 40px !important;
+    /* フォームの中身が多くなったとき、画面全体ではなく「このメインエリアの中だけ」をスクロールさせる */
+    overflow-y: auto !important; 
+}
+
+/* 💡 メインエリア内のスクロールバーもデフォルトでは見えないようにする */
+main.content::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* 💡 ヘッダーコンテナの最大幅を 950px に拡張 */
+.qna-header-container {
+    max-width: 950px !important; 
+    margin: 0 auto 24px auto !important; 
+    width: 100%;
+}
+
+/* 💡 フォームカードの最大幅を 950px に拡張 */
+.qna-custom-card.qna-form-padding {
+    max-width: 950px !important; 
+    margin: 0 auto !important;   
+    width: 100% !important;
+    min-height: auto !important;
+    height: auto !important;
+    padding: 40px !important;   
+    box-sizing: border-box;
+    cursor: default !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); 
 }
 
 /* フォームのラベリングと入力欄の縦並び */
@@ -15,18 +66,23 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    margin-bottom: 20px;
+    margin-bottom: 24px; 
 }
 
 .qna-form-label {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: bold;
     color: #111111;
 }
 
-/* 入力欄を確実に左寄せに・リサイズ可能に調整 */
+/* 入力欄を確実に左寄せに調整 */
 .qna-form-input-align {
     text-align: left !important;
+    width: 100%;
+    box-sizing: border-box;
+    border: 1.5px solid #111111 !important; 
+    border-radius: 4px;
+    padding: 12px !important;
 }
 
 /* プレースホルダー（薄い文字）も確実に左寄せ */
@@ -36,8 +92,7 @@
 
 .qna-form-textarea {
     resize: none; 
-    overflow-y: hidden; 
-    min-height: 140px; 
+    min-height: 180px; 
 }
 
 /* 画像アップロード用の点線枠 */
@@ -69,12 +124,15 @@
 .qna-form-actions {
     display: flex;
     justify-content: flex-end;
+    margin-top: 10px;
 }
 
 .qna-btn-submit {
     background-color: #111111 !important;
     color: #ffffff !important;
-    padding: 10px 32px !important;
+    padding: 12px 36px !important; 
+    font-weight: bold;
+    border-radius: 4px;
 }
 
 .qna-btn-submit:hover {
