@@ -425,6 +425,10 @@ Route::middleware('auth')->group(function () {
     Route::patch('/forum/{post}', [ForumController::class, 'update'])->name('forum.update');
     Route::delete('/forum/{post}', [ForumController::class, 'destroy'])->name('forum.destroy');
 });
+Route::post('/forum/{post}/reply', [ForumController::class, 'storeReply'])->name('forum.reply.store');
+Route::get('/forum/{post}/edit', [ForumController::class, 'edit'])->name('forum.edit');
+Route::patch('/forum/{post}', [ForumController::class, 'update'])->name('forum.update');
+Route::delete('/forum/{post}', [ForumController::class, 'destroy'])->name('forum.destroy');
 
 // 学内Q&Aページのルート設定
 use App\Http\Controllers\QnaController;

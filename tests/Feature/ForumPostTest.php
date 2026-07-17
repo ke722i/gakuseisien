@@ -28,6 +28,34 @@ class ForumPostTest extends TestCase
         $response->assertSee('詳細ページの確認用です。');
     }
 
+    public function test_user_can_reply_to_a_post(): void
+    {
+        $user = User::factory()->create([
+            'login_id' => 'student02',
+            'role' => 'student',
+        ]);
+
+        $post = Post::create([
+            'title' => '返信テスト投稿',
+            'content' => '返信の確認用です。',
+            'category' => '落とし物',
+            'posted_by' => '匿名',
+            'published_at' => now(),
+        ]);
+
+        $this->actingAs($user);
+
+        $this->post(route('forum.reply.store', $post), [
+            'content' => 'こちらが返信です。',
+        ])->assertRedirect(route('forum.show', $post));
+
+        $this->assertDatabaseHas('post_replies', [
+            'post_id' => $post->id,
+            'content' => 'こちらが返信です。',
+            'author_name' => $user->login_id,
+        ]);
+    }
+
     public function test_authenticated_user_can_edit_and_delete_their_post(): void
     {
         $user = User::factory()->create([

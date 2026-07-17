@@ -90,6 +90,31 @@
                     </div>
                 </section>
 
+                <section style="margin-top:1.5rem;">
+                    <h2 style="font-size:1rem;font-weight:700;margin-bottom:0.75rem;">返信</h2>
+                    <form method="POST" action="{{ route('forum.reply.store', $post) }}" style="display:flex;flex-direction:column;gap:0.75rem;">
+                        @csrf
+                        <textarea name="content" rows="4" placeholder="返信を入力してください" required style="width:100%;border:1px solid #d1d5db;border-radius:0.5rem;padding:0.75rem;"></textarea>
+                        <button type="submit" class="submit-button" style="width:auto;">返信する</button>
+                    </form>
+                </section>
+
+                @if ($post->replies->count() > 0)
+                    <section style="margin-top:1.5rem;">
+                        <h2 style="font-size:1rem;font-weight:700;margin-bottom:0.75rem;">返信一覧</h2>
+                        <div style="display:flex;flex-direction:column;gap:0.75rem;">
+                            @foreach ($post->replies as $reply)
+                                <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:0.5rem;padding:0.9rem;">
+                                    <div style="font-size:0.85rem;color:#6b7280;margin-bottom:0.35rem;">
+                                        {{ $reply->author_name ?? ($reply->user?->login_id ?? '匿名') }} · {{ $reply->created_at->format('Y-m-d H:i') }}
+                                    </div>
+                                    <div style="white-space:pre-wrap;line-height:1.6;">{{ $reply->content }}</div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </section>
+                @endif
+
                 @auth
                     @if (Auth::id() === $post->user_id)
                         <div style="margin-top:1.5rem;display:flex;gap:0.75rem;">
