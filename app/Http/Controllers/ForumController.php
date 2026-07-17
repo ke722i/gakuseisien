@@ -106,6 +106,9 @@ class ForumController extends Controller
 
     public function edit(Post $post)
     {
+        // 投稿者本人以外は編集画面を開けない（user_idがnullの匿名投稿も編集不可）
+        abort_if($post->user_id === null || $post->user_id !== Auth::id(), 403);
+
         return view('forum.edit', compact('post'));
     }
 
@@ -154,6 +157,9 @@ class ForumController extends Controller
 
     public function update(Request $request, Post $post)
     {
+        // 投稿者本人以外は更新できない
+        abort_if($post->user_id === null || $post->user_id !== Auth::id(), 403);
+
         $validated = $request->validate([
             'category' => 'required|string|max:255',
             'title' => 'required|string|max:300',
@@ -171,6 +177,9 @@ class ForumController extends Controller
 
     public function destroy(Post $post)
     {
+        // 投稿者本人以外は削除できない
+        abort_if($post->user_id === null || $post->user_id !== Auth::id(), 403);
+
         $post->delete();
 
         return redirect()->route('forum.top');

@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>近辺店舗情報マップ</title>
 
-    @vite(['resources/css/store/home.css'])
+    @vite(['resources/css/app.css', 'resources/css/store/home.css'])
 </head>
 
 <body>
 
 <div class="container">
 
-    @include('partials.sidebar', ['active' => 'nearby-shop'])
+    @include('partials.sidebar', ['active' => 'shop'])
 
         <!-- メイン -->
     <main class="main-content">
@@ -42,9 +42,6 @@
 
 </div>
 
-    
-</a>
-
         <!-- フィルター -->
         <section class="filter-area">
 
@@ -70,91 +67,34 @@
 
         </section>
 
-        <div class="content">
+        <div class="store-content">
 
-            <!-- 店舗一覧 -->
+            <!-- 店舗一覧（shopsテーブルのデータを表示） -->
             <section class="store-grid">
 
-                <div class="store-card">
-                    <h3>🍜 ラーメン○○</h3>
-                    <p>★★★★★</p>
-                    <p>営業時間：11:00～22:00</p>
-                    <p>予算：800円</p>
-                    <p>徒歩3分</p>
-                    <button onclick="location.href='{{ route('store.more', ['id' => 1]) }}'">詳細を見る</button>
-                </div>
-
-                <div class="store-card">
-                    <h3>☕ カフェ△△</h3>
-                    <p>★★★★☆</p>
-                    <p>営業時間：9:00～18:00</p>
-                    <p>予算：700円</p>
-                    <p>徒歩5分</p>
-                    <button onclick="location.href='{{ route('store.more', ['id' => 2]) }}'">詳細を見る</button>
-                </div>
-
-                <div class="store-card">
-                    <h3>☕ カフェ△△</h3>
-                    <p>★★★★☆</p>
-                    <p>営業時間：9:00～18:00</p>
-                    <p>予算：700円</p>
-                    <p>徒歩5分</p>
-                    <button onclick="location.href='{{ route('store.more', ['id' => 3]) }}'">詳細を見る</button>
-                </div>
-
-                <div class="store-card">
-                    <h3>☕ カフェ△△</h3>
-                    <p>★★★★☆</p>
-                    <p>営業時間：9:00～18:00</p>
-                    <p>予算：700円</p>
-                    <p>徒歩5分</p>
-                    <button onclick="location.href='{{ route('store.more', ['id' => 4]) }}'">詳細を見る</button>
-                </div>
-
-                <div class="store-card">
-                    <h3>☕ カフェ△△</h3>
-                    <p>★★★★☆</p>
-                    <p>営業時間：9:00～18:00</p>
-                    <p>予算：700円</p>
-                    <p>徒歩5分</p>
-                    <button onclick="location.href='{{ route('store.more', ['id' => 5]) }}'">詳細を見る</button>
-                </div>
-
-                <div class="store-card">
-                    <h3>☕ カフェ△△</h3>
-                    <p>★★★★☆</p>
-                    <p>営業時間：9:00～18:00</p>
-                    <p>予算：700円</p>
-                    <p>徒歩5分</p>
-                    <button onclick="location.href='{{ route('store.more', ['id' => 6]) }}'">詳細を見る</button>
-                </div>
-
-                <div class="store-card">
-                    <h3>☕ カフェ△△</h3>
-                    <p>★★★★☆</p>
-                    <p>営業時間：9:00～18:00</p>
-                    <p>予算：700円</p>
-                    <p>徒歩5分</p>
-                    <button onclick="location.href='{{ route('store.more', ['id' => 7]) }}'">詳細を見る</button>
-                </div>
-
-                <div class="store-card">
-                    <h3>☕ カフェ△△</h3>
-                    <p>★★★★☆</p>
-                    <p>営業時間：9:00～18:00</p>
-                    <p>予算：700円</p>
-                    <p>徒歩5分</p>
-                    <button onclick="location.href='{{ route('store.more', ['id' => 8]) }}'">詳細を見る</button>
-                </div>
-
-                <div class="store-card">
-                    <h3>☕ カフェ△△</h3>
-                    <p>★★★★☆</p>
-                    <p>営業時間：9:00～18:00</p>
-                    <p>予算：700円</p>
-                    <p>徒歩5分</p>
-                    <button onclick="location.href='{{ route('store.more', ['id' => 9]) }}'">詳細を見る</button>
-                </div>
+                @forelse ($shops as $shop)
+                    @php
+                        // ジャンルに応じた表示用アイコン
+                        $genreIcon = match ($shop->genre) {
+                            'ラーメン' => '🍜',
+                            'カフェ' => '☕',
+                            '定食' => '🍛',
+                            '寿司' => '🍣',
+                            'コンビニ' => '🏪',
+                            default => '🍽️',
+                        };
+                    @endphp
+                    <div class="store-card">
+                        <h3>{{ $genreIcon }} {{ $shop->name }}</h3>
+                        <p>ジャンル：{{ $shop->genre }}</p>
+                        <p>営業時間：{{ $shop->business_hours }}</p>
+                        <p>予算：{{ number_format($shop->budget) }}円</p>
+                        <p>徒歩約{{ max(1, (int) ceil($shop->distance / 80)) }}分（{{ $shop->distance }}m）</p>
+                        <button onclick="location.href='{{ route('store.more', ['id' => $shop->id]) }}'">詳細を見る</button>
+                    </div>
+                @empty
+                    <p>表示できる店舗がありません。</p>
+                @endforelse
             </section>
 
             <!-- お気に入り -->
