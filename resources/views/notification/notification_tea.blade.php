@@ -24,11 +24,11 @@
                     <div class="summary-section">
                         <div class="summary-item">
                             <span class="summary-label">日付</span>
-                            <span class="summary-value">yyyy/mm/dd</span>
+                            <span class="summary-value">yyyy/mm/dd（提出時の日付）</span>
                         </div>
                         <div class="summary-item">
                             <span class="summary-label">クラス</span>
-                            <span class="summary-value">R4SA00</span>
+                            <span class="summary-value">R4SA00（提出した生徒のクラス）</span>
                         </div>
                         <div class="summary-item">
                             <span class="summary-label">学生名</span>
@@ -40,6 +40,42 @@
                             <span class="summary-label">ステータス</span>
                             <span class="summary-value">未処理</span>
                         </div>
+                    </div>
+
+                    <div class="submission-list">
+                        <div class="submission-list-header">生徒提出一覧</div>
+                        @if(isset($reports) && $reports->isNotEmpty())
+                            @foreach($reports as $report)
+                                @php
+                                    $status = $report->attendance_type ?? '未処理';
+                                    $statusClass = match ($status) {
+                                        '受理' => 'status-accepted',
+                                        '差し戻し' => 'status-rejected',
+                                        default => 'status-pending',
+                                    };
+                                @endphp
+                                <div class="submission-item {{ $statusClass }}">
+                                    <div class="summary-item">
+                                        <span class="summary-label">日付</span>
+                                        <span class="summary-value">{{ $report->submission_date }}</span>
+                                    </div>
+                                    <div class="summary-item">
+                                        <span class="summary-label">クラス</span>
+                                        <span class="summary-value">{{ $report->class_number }}</span>
+                                    </div>
+                                    <div class="summary-item">
+                                        <span class="summary-label">学生名</span>
+                                        <span class="summary-value">{{ $report->student_name }}</span>
+                                    </div>
+                                    <div class="summary-item">
+                                        <span class="summary-label">ステータス</span>
+                                        <span class="summary-value">{{ $status }}</span>
+                                    </div>
+                                </div>
+                            @endforeach
+                        @else
+                            <div class="submission-empty">提出された届出はありません。</div>
+                        @endif
                     </div>
                 </aside>
 

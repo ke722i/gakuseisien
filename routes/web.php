@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EventController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Carbon;
@@ -439,8 +440,19 @@ Route::post('/event-calendar', [EventController::class, 'store'])->name('event.s
 
 // 欠席・遅刻届ページのルート設定
 Route::get('/notification', function () {
-    $view = Auth::user()?->isTeacher() ? 'notification.notification_tea' : 'notification.notification_stu';
-    return view($view);
+    $user = Auth::user();
+
+    if ($user?->isTeacher()) {
+        $classPrefix = substr($user->class_number ?? '', 0, 4);
+        $reports = DB::table('attendance_reports')
+            ->whereRaw('left(class_number, 4) = ?', [$classPrefix])
+            ->orderBy('submission_date', 'desc')
+            ->get();
+
+        return view('notification.notification_tea', compact('reports', 'classPrefix'));
+    }
+
+    return view('notification.notification_stu');
 })->name('notification');
 
 // 欠席・遅刻届フォームの送信（POSTリクエスト）を受け付けるURLとコントローラーの紐付け
