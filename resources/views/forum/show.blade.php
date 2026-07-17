@@ -58,6 +58,57 @@
             color: #999;
             margin-top: 0.25rem;
         }
+
+       .action-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border-radius: 0.25rem;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        /* メインの返信ボタン */
+        .btn-primary {
+            background-color: #2563eb;
+            color: #ffffff;
+            padding: 0.4rem 0.6rem;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            /* ↓この1行を追加して横幅の広がりを抑え、左寄せにします */
+            align-self: flex-start; 
+        }
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+
+        /* サブボタン（返信一覧の中の返信・編集用） */
+        .btn-secondary {
+            background-color: #ffffff;
+            color: #374151;
+            border-color: #d1d5db;
+            /* 左右の余白を 0.6rem → 0.3rem にカットし、限界まで細く */
+            padding: 0.25rem 0.3rem;
+            font-size: 0.8rem;
+        }
+        .btn-secondary:hover {
+            background-color: #f3f4f6;
+        }
+
+        /* 削除ボタン */
+        .btn-danger {
+            background-color: #fee2e2;
+            color: #dc2626;
+            border-color: #fca5a5;
+            /* サブボタンと同じく左右の余白を 0.3rem にカット */
+            padding: 0.25rem 0.3rem;
+            font-size: 0.8rem;
+        }
+        .btn-danger:hover {
+            background-color: #fecaca;
+        }
     </style>
 </head>
 <body>
@@ -91,17 +142,15 @@
                 </section>
 
                 <section style="margin-top:1.5rem;">
-                    <h2 style="font-size:1rem;font-weight:700;margin-bottom:0.75rem;">返信</h2>
                     <form method="POST" action="{{ route('forum.reply.store', $post) }}" style="display:flex;flex-direction:column;gap:0.75rem;">
                         @csrf
                         <textarea name="content" rows="4" placeholder="返信を入力してください" required style="width:100%;border:1px solid #d1d5db;border-radius:0.5rem;padding:0.75rem;"></textarea>
-                        <button type="submit" class="submit-button" style="width:auto;">返信する</button>
+                        <button type="submit" class="action-btn btn-primary">返信する</button>
                     </form>
                 </section>
 
                 @if ($post->replies->count() > 0)
                     <section style="margin-top:1.5rem;">
-                        <h2 style="font-size:1rem;font-weight:700;margin-bottom:0.75rem;">返信一覧</h2>
                         <div style="display:flex;flex-direction:column;gap:0.75rem;">
                             @foreach ($post->replies as $reply)
                                 <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:0.5rem;padding:0.9rem;">
@@ -109,6 +158,44 @@
                                         {{ $reply->author_name ?? ($reply->user?->login_id ?? '匿名') }} · {{ $reply->created_at->format('Y-m-d H:i') }}
                                     </div>
                                     <div style="white-space:pre-wrap;line-height:1.6;">{{ $reply->content }}</div>
+
+                                    <div style="margin-top:0.75rem;display:flex;gap:0.5rem;flex-wrap:wrap;">
+                                        <form method="POST" action="{{ route('forum.reply.store', $post) }}" style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+                                            @csrf
+                                            <input type="hidden" name="parent_id" value="{{ $reply->id }}">
+                                            <input type="text" name="content" placeholder="返信" required style="border:1px solid #d1d5db;border-radius:0.4rem;padding:0.45rem 0.6rem;min-width:220px;">
+                                            <button type="submit" class="action-btn btn-secondary">返信</button>
+                                        </form>
+
+                                        @auth
+                                            @if (Auth::id() === $reply->user_id)
+                                                <form method="POST" action="{{ route('forum.reply.update', $reply) }}" style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <input type="text" name="content" value="{{ old('content', $reply->content) }}" required style="border:1px solid #d1d5db;border-radius:0.4rem;padding:0.45rem 0.6rem;min-width:220px;">
+                                                    <button type="submit" class="action-btn btn-secondary">編集</button>
+                                                </form>
+                                                <form method="POST" action="{{ route('forum.reply.destroy', $reply) }}" onsubmit="return confirm('この返信を削除しますか？');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="action-btn btn-danger">削除</button>
+                                                </form>
+                                            @endif
+                                        @endauth
+                                    </div>
+
+                                    @if ($reply->children->count() > 0)
+                                        <div style="margin-top:0.75rem;padding-left:1rem;border-left:2px solid #e5e7eb;display:flex;flex-direction:column;gap:0.5rem;">
+                                            @foreach ($reply->children as $child)
+                                                <div style="background:#fff;border:1px solid #e5e7eb;border-radius:0.4rem;padding:0.75rem;">
+                                                    <div style="font-size:0.8rem;color:#6b7280;margin-bottom:0.3rem;">
+                                                        {{ $child->author_name ?? ($child->user?->login_id ?? '匿名') }} · {{ $child->created_at->format('Y-m-d H:i') }}
+                                                    </div>
+                                                    <div style="white-space:pre-wrap;line-height:1.5;">{{ $child->content }}</div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endif
                                 </div>
                             @endforeach
                         </div>

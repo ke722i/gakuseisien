@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB; // 直接データベースを操作するク
 class AttendanceNotificationController extends Controller
 {
     /**
-     * 【生徒用】欠席・遅刻届の新規提出（生徒はreport_typeを選ばない）
+     * 【生徒用】欠席・遅刻届の新規提出（生徒はattendance_typeを選ばない）
      */
     public function storeNotification(Request $request)
     {
@@ -53,6 +53,7 @@ class AttendanceNotificationController extends Controller
             'reason_detail'     => $request->input('reason_detail'),
             
             'attendance_type'   => null, // 生徒は提出時に出席状況を選ばないため、nullで初期化
+            'report_status'     => '未処理',// 初期状態は「未処理」とする
 
             // 現在時刻を自動挿入
             'created_at'        => now(),
@@ -64,24 +65,33 @@ class AttendanceNotificationController extends Controller
     }
 
     /**
-    * 【教師用】届出を確認し、report_type（欠席・遅刻など）を決定する
+    * 【教師用】届出を確認し、attendance_type（欠席・遅刻など）を決定する
     */
     public function decideNotificationType(Request $request, $id)
     {
-        // 教師の処理でのみ「report_type」を必須（required）にする！
-        $request->validate([
-            'attendance_type' => 'required|string|in:病気,欠席,遅刻,その他', // 指定の文字のみ許可
-        ]);
+        // 1. report_status（受理 or 差し戻し）のバリデーション
+        $rules = [
+            'report_status' => 'required|string|in:受理,差し戻し',
+        ];
 
-        // 対象の届出データを教師が選んだ種別で更新する
+        // 2. 「受理」の場合のみ、attendance_type（ラジオボタン）を必須にする
+        if ($request->input('report_status') === '受理') {
+            $rules['attendance_type'] = 'required|string|in:病気,欠席,遅刻,その他';
+        } else {
+            $rules['attendance_type'] = 'nullable|string|in:病気,欠席,遅刻,その他';
+        }
+
+        $request->validate($rules);
+
+        // 3. 対象の届出データを更新
         DB::table('attendance_reports')
             ->where('id', $id)
             ->update([
-                'report_type' => $request->input('report_type'),
-                'updated_at'  => now(),
+                'attendance_type' => $request->input('attendance_type'),
+                'report_status'   => $request->input('report_status'), // 追加：ステータスを更新
+                'updated_at'      => now(),
             ]);
 
-        return redirect()->route('teacher.dashboard')->with('success', '届出の種別を確定しました。');
+        return redirect()->route('notification')->with('success', '届出のステータスを更新しました。');
     }
-    
 }

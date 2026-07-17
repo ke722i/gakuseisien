@@ -61,13 +61,44 @@ Route::get('/recentnews', function () {
         $content = $title . ' ' . $description . ' ' . $source;
 
         $entertainmentWords = [
-            'アニメ', '漫画', 'マンガ', '映画', 'ドラマ', '俳優', '女優',
-            '声優', 'アイドル', '芸能', 'タレント', '歌手', '音楽',
-            'ライブ', '舞台', 'キャスト', 'グッズ', '特装版', '付録',
-            'CD', 'ブルーロック', 'ゲーム', 'Switch', 'PS5', 'XBOX',
-            'PlayStation', '任天堂', 'ポケモン', 'ファミ通', 'Game',
-            'Game*Spark', 'オリコン', 'ORICON', 'ちいかわ', 'コラボ限定',
-            'リップ', 'スリーピングマスク', 'キャラクター'
+            'アニメ',
+            '漫画',
+            'マンガ',
+            '映画',
+            'ドラマ',
+            '俳優',
+            '女優',
+            '声優',
+            'アイドル',
+            '芸能',
+            'タレント',
+            '歌手',
+            '音楽',
+            'ライブ',
+            '舞台',
+            'キャスト',
+            'グッズ',
+            '特装版',
+            '付録',
+            'CD',
+            'ブルーロック',
+            'ゲーム',
+            'Switch',
+            'PS5',
+            'XBOX',
+            'PlayStation',
+            '任天堂',
+            'ポケモン',
+            'ファミ通',
+            'Game',
+            'Game*Spark',
+            'オリコン',
+            'ORICON',
+            'ちいかわ',
+            'コラボ限定',
+            'リップ',
+            'スリーピングマスク',
+            'キャラクター'
         ];
 
         foreach ($entertainmentWords as $word) {
@@ -92,44 +123,153 @@ Route::get('/recentnews', function () {
 
         // 政治系
         $politicsWords = [
-            '政治', '政府', '国会', '選挙', '首相', '大臣',
-            '知事', '法案', '政策', '与党', '野党', '議員',
-            '自民', '立憲', '維新', '公明', '参院', '衆院',
-            '自治体', '行政', '補助金', '制度', '内閣',
-            '外交', '防衛', '予算', '条例', '皇室', '天皇'
+            '政治',
+            '政府',
+            '国会',
+            '選挙',
+            '首相',
+            '大臣',
+            '知事',
+            '法案',
+            '政策',
+            '与党',
+            '野党',
+            '議員',
+            '自民',
+            '立憲',
+            '維新',
+            '公明',
+            '参院',
+            '衆院',
+            '自治体',
+            '行政',
+            '補助金',
+            '制度',
+            '内閣',
+            '外交',
+            '防衛',
+            '予算',
+            '条例',
+            '皇室',
+            '天皇'
         ];
 
         // 経済系
         $businessWords = [
-            '経済', '企業', '株', '株価', '為替', '円安', '円高',
-            '物価', '賃上げ', '決算', '市場', '投資', '銀行',
-            '日経平均', '金利', '買収', '売上', '利益', '事業',
-            'Amazon', 'PayPay', '価格', '値上げ', '消費', '雇用',
-            '給付金', '税', '自動車', 'EV', '半導体', 'マクドナルド',
-            'クレジットカード', '決済', '破産', '製造', '給与',
-            '資産', '仮想通貨', '暗号資産', '好悪材料', '開示情報',
-            '三菱', 'ソニー', 'ファミマ', 'コンビニ', 'インフレ'
+            '経済',
+            '企業',
+            '株',
+            '株価',
+            '為替',
+            '円安',
+            '円高',
+            '物価',
+            '賃上げ',
+            '決算',
+            '市場',
+            '投資',
+            '銀行',
+            '日経平均',
+            '金利',
+            '買収',
+            '売上',
+            '利益',
+            '事業',
+            'Amazon',
+            'PayPay',
+            '価格',
+            '値上げ',
+            '消費',
+            '雇用',
+            '給付金',
+            '税',
+            '自動車',
+            'EV',
+            '半導体',
+            'マクドナルド',
+            'クレジットカード',
+            '決済',
+            '破産',
+            '製造',
+            '給与',
+            '資産',
+            '仮想通貨',
+            '暗号資産',
+            '好悪材料',
+            '開示情報',
+            '三菱',
+            'ソニー',
+            'ファミマ',
+            'コンビニ',
+            'インフレ'
         ];
 
         // IT系
         $technologyWords = [
-            'IT', 'AI', '生成AI', '人工知能', 'テクノロジー',
-            'アプリ', 'SNS', 'スマホ', 'iPhone', 'Android',
-            'セキュリティ', 'クラウド', 'システム', 'ソフトウェア',
-            'データ', 'ロボット', '半導体', '宇宙', 'ウェブ',
-            'Web', 'Google', 'Microsoft', 'Meta', 'SEO',
-            'マーケティング', 'AEO', 'スタートアップ', 'DX',
-            'プログラム', 'デジタル'
+            'IT',
+            'AI',
+            '生成AI',
+            '人工知能',
+            'テクノロジー',
+            'アプリ',
+            'SNS',
+            'スマホ',
+            'iPhone',
+            'Android',
+            'セキュリティ',
+            'クラウド',
+            'システム',
+            'ソフトウェア',
+            'データ',
+            'ロボット',
+            '半導体',
+            '宇宙',
+            'ウェブ',
+            'Web',
+            'Google',
+            'Microsoft',
+            'Meta',
+            'SEO',
+            'マーケティング',
+            'AEO',
+            'スタートアップ',
+            'DX',
+            'プログラム',
+            'デジタル'
         ];
 
         // スポーツ系
         $sportsWords = [
-            '野球', 'サッカー', 'バスケット', 'バスケ', 'バレー',
-            'バレーボール', 'テニス', 'ゴルフ', '五輪', 'オリンピック',
-            '試合', '選手', '監督', '阪神', '巨人', '大谷',
-            'ヤクルト', 'Jリーグ', 'W杯', '高校野球', '球団',
-            '日本代表', 'リーグ', 'スポーツ', '決勝', '勝利',
-            '敗戦', '得点', 'サーブ', 'ブラジル戦'
+            '野球',
+            'サッカー',
+            'バスケット',
+            'バスケ',
+            'バレー',
+            'バレーボール',
+            'テニス',
+            'ゴルフ',
+            '五輪',
+            'オリンピック',
+            '試合',
+            '選手',
+            '監督',
+            '阪神',
+            '巨人',
+            '大谷',
+            'ヤクルト',
+            'Jリーグ',
+            'W杯',
+            '高校野球',
+            '球団',
+            '日本代表',
+            'リーグ',
+            'スポーツ',
+            '決勝',
+            '勝利',
+            '敗戦',
+            '得点',
+            'サーブ',
+            'ブラジル戦'
         ];
 
         foreach ($politicsWords as $word) {
@@ -343,7 +483,7 @@ Route::get('/home', function () {
 // ログイン・新規登録画面のルート設定
 Route::get('/login', [AuthController::class, 'show'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.attempt');
-Route::get('/register', fn () => app(AuthController::class)->show('register'))->name('register');
+Route::get('/register', fn() => app(AuthController::class)->show('register'))->name('register');
 Route::post('/register', [AuthController::class, 'register'])->name('register.attempt');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
@@ -408,26 +548,37 @@ Route::middleware('auth')->group(function () {
 });
 // 投稿への返信（未ログインは「匿名」として投稿される仕様）
 Route::post('/forum/{post}/reply', [ForumController::class, 'storeReply'])->name('forum.reply.store');
+Route::patch('/forum/replies/{reply}', [ForumController::class, 'updateReply'])->name('forum.reply.update');
+Route::delete('/forum/replies/{reply}', [ForumController::class, 'destroyReply'])->name('forum.reply.destroy');
+Route::get('/forum/{post}/edit', [ForumController::class, 'edit'])->name('forum.edit');
+Route::patch('/forum/{post}', [ForumController::class, 'update'])->name('forum.update');
+Route::delete('/forum/{post}', [ForumController::class, 'destroy'])->name('forum.destroy');
 
 // 学内Q&Aページのルート設定
 use App\Http\Controllers\QnaController;
 
-Route::delete('/gakunai-qna/{id}', [QnaController::class, 'destroy'])->name('qna.destroy');
+// 固定のURL
 Route::get('/gakunai-qna', [QnaController::class, 'index'])->name('gakunai.qna');
 Route::get('/gakunai-qna/create', [QnaController::class, 'create'])->name('qna.create');
 Route::post('/gakunai-qna/store', [QnaController::class, 'store'])->name('qna.store');
 Route::get('/gakunai-qna/history', [QnaController::class, 'history'])->name('qna.history');
+Route::get('/gakunai-qna/admin/reports', [QnaController::class, 'adminReports'])
+    ->name('adminReports')
+    ->middleware('teacher');
+
+// 2. 動的なURL
+Route::delete('/gakunai-qna/{id}', [QnaController::class, 'destroy'])->name('qna.destroy');
 Route::get('/gakunai-qna/{id}', [QnaController::class, 'show'])->name('qna.detail');
 Route::post('/gakunai-qna/{id}/answers', [QnaController::class, 'storeAnswer'])->name('qna.storeAnswer');
 Route::patch('/gakunai-qna/{id}/best-answer/{answer_id}', [QnaController::class, 'selectBestAnswer'])->name('qna.bestAnswer');
 Route::post('/gakunai-qna/{id}/report', [QnaController::class, 'reportQuestion'])->name('qna.report');
-Route::get('/gakunai-qna/admin/reports', [QnaController::class, 'adminReports'])
-    ->name('qna.adminReports')
-    ->middleware('teacher');
-
-Route::get('/gakunai-qna/create', function () {
-    return view('qna.create'); 
-})->name('qna.create');
+Route::post('/qna/answers/{answer}/upvote', [App\Http\Controllers\QnaController::class, 'toggleUpvote'])
+    ->name('qna.answers.upvote')
+    ->middleware('auth');
+Route::delete('/qna/answers/{answer}', [App\Http\Controllers\QnaController::class, 'destroyAnswer'])
+    ->name('qna.destroyAnswer')
+    ->middleware('auth');
+Route::post('/qna/answers/{id}/approve', [QnaController::class, 'approveAnswer'])->name('qna.answers.approve');
 
 // イベント・締め切りカレンダーページのルート設定
 Route::get('/event-calendar', [EventController::class, 'index'])->name('event.calendar');
@@ -455,9 +606,19 @@ Route::get('/notification', function () {
 Route::post('/notification/store', [AttendanceNotificationController::class, 'storeNotification'])
     ->name('notification.store');
 
+// 教師が「受理」または「差し戻し」の処理を行うためのURL
+Route::post('/teacher/notification/{id}/decide', [AttendanceNotificationController::class, 'decideNotificationType'])
+    ->name('notification.decide');
+
+// 時事ニュースページのルート設定
+Route::get('/recentnews', function () { //担当者へ、ファイル名違ったら修正してください
+    return view('welcome'); // recentNews.blade.php を呼び出す 
+})->name('recent.news');
+
 // 近辺店舗ページのルート設定
 // 近辺店舗情報マップ（一覧 / 詳細 / 申請）
 use App\Http\Controllers\ShopController;
+
 Route::get('/nearby-shop', [ShopController::class, 'index'])
     ->name('nearby.shop');
 
@@ -481,4 +642,4 @@ Route::get('/nearby-shop/admin', [ShopController::class, 'admin'])
 
 
 // 時事ニュース関連のルート（/recentnews, /history）を読み込む
-require __DIR__.'/news.php';
+require __DIR__ . '/news.php';

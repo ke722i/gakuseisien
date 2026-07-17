@@ -5,6 +5,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
+
+    min-height: calc(100vh - 80px);
 }
 
 .center-panel {
@@ -45,13 +47,14 @@
 }
 
 /* スマホ用のレスポンシブ対応 */
-@media (max-width: 640px) {
+@media (max-width: 900px) {
     .center-panel {
         grid-template-columns: 1fr;
     }
 
     .big-button {
         width: 90%;
+        max-width: 400px;
         height: 120px;
         font-size: 32px;
     }
