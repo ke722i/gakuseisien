@@ -56,10 +56,12 @@ class ForumController extends Controller
     {
         $validated = $request->validate([
             'content' => 'required|string|max:1000',
+            'parent_id' => 'nullable|exists:post_replies,id',
         ]);
 
         $reply = PostReply::create([
             'post_id' => $post->id,
+            'parent_id' => $validated['parent_id'] ?? null,
             'user_id' => Auth::id(),
             'author_name' => Auth::check() ? Auth::user()->login_id : '匿名',
             'content' => $validated['content'],
@@ -67,6 +69,37 @@ class ForumController extends Controller
 
         $post->increment('reply_count');
         $post->update(['last_replied_at' => $reply->created_at]);
+
+        return redirect()->route('forum.show', $post);
+    }
+
+    public function updateReply(Request $request, PostReply $reply)
+    {
+        if (!Auth::check() || Auth::id() !== $reply->user_id) {
+            abort(403);
+        }
+
+        $validated = $request->validate([
+            'content' => 'required|string|max:1000',
+        ]);
+
+        $reply->update(['content' => $validated['content']]);
+
+        return redirect()->route('forum.show', $reply->post);
+    }
+
+    public function destroyReply(PostReply $reply)
+    {
+        if (!Auth::check() || Auth::id() !== $reply->user_id) {
+            abort(403);
+        }
+
+        $post = $reply->post;
+        $reply->delete();
+
+        if ($post) {
+            $post->decrement('reply_count');
+        }
 
         return redirect()->route('forum.show', $post);
     }
