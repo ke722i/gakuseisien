@@ -120,6 +120,68 @@
         .btn-danger:hover {
             background-color: #fecaca;
         }
+
+        .post-header-top {
+            display: flex;
+            justify-content: space-between; /* 左右に配置 */
+            align-items: flex-start;
+        }
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .dropdown-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #4b5563;
+            padding: 0.4rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+        .dropdown-toggle:hover {
+            background-color: #f3f4f6;
+        }
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: #ffffff;
+            min-width: 180px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            z-index: 50;
+            overflow: hidden;
+        }
+        .dropdown-menu.show {
+            display: block; /* JSでこのクラスを付与して表示 */
+        }
+        .dropdown-item {
+            display: block;
+            width: 100%;
+            text-align: left;
+            padding: 0.6rem 1rem;
+            font-size: 0.875rem;
+            color: #374151;
+            background: none;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .dropdown-item:hover {
+            background-color: #f9fafb;
+        }
+        .dropdown-item.text-danger {
+            color: #dc2626;
+        }
+        .dropdown-item.text-warning {
+            color: #d97706;
+        }
     </style>
 </head>
 <body>
