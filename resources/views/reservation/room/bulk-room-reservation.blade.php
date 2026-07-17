@@ -204,6 +204,110 @@
                 periodBtns.forEach(b => b.addEventListener('click', () => b.classList.toggle('active')));
                 weekdayBtns.forEach(b => b.addEventListener('click', () => b.classList.toggle('active')));
 
+                function normalizeDate(value) {
+                    return value.replace(/\//g, '-').split('T')[0];
+                }
+
+                function getRequestedDates(fromDate, toDate, selectedDays) {
+                    if (!fromDate || !toDate || selectedDays.length === 0) return [];
+
+                    const start = new Date(normalizeDate(fromDate));
+                    const end = new Date(normalizeDate(toDate));
+                    const dayNames = ['日', '月', '火', '水', '木', '金', '土'];
+                    const selectedSet = new Set(selectedDays);
+                    const dates = [];
+                    const current = new Date(start);
+
+                    while (current <= end) {
+                        const year = current.getFullYear();
+                        const month = String(current.getMonth() + 1).padStart(2, '0');
+                        const day = String(current.getDate()).padStart(2, '0');
+                        const dateKey = `${year}-${month}-${day}`;
+
+                        if (selectedSet.has(dayNames[current.getDay()])) {
+                            dates.push(dateKey);
+                        }
+
+                        current.setDate(current.getDate() + 1);
+                    }
+
+                    return dates;
+                }
+
+                function collectRowData(row) {
+                    return {
+                        room: row.dataset.room || row.querySelector('td')?.textContent.trim() || '',
+                        usage: row.dataset.usage || row.querySelectorAll('td')[1]?.textContent.trim() || '',
+                        periods: JSON.parse(row.dataset.periods || '[]'),
+                        fromDate: row.dataset.fromDate || '',
+                        toDate: row.dataset.toDate || '',
+                        selectedDays: JSON.parse(row.dataset.selectedDays || '[]')
+                    };
+                }
+
+                function buildConflictDetails(candidate, existingRows = []) {
+                    const requestedDates = getRequestedDates(candidate.fromDate, candidate.toDate, candidate.selectedDays);
+                    const conflicts = [];
+                    const seen = new Set();
+
+                    existingReservations.forEach(ex => {
+                        if (ex.room !== candidate.room) return;
+                        if (!requestedDates.includes(normalizeDate(ex.date))) return;
+                        if (!candidate.periods.includes(ex.period)) return;
+
+                        const key = `${candidate.room}|${normalizeDate(ex.date)}|${ex.period}`;
+                        if (seen.has(key)) return;
+
+                        seen.add(key);
+                        conflicts.push({
+                            room: candidate.room,
+                            date: normalizeDate(ex.date),
+                            period: ex.period,
+                            request: candidate,
+                            existing: ex
+                        });
+                    });
+
+                    existingRows.forEach(existingRow => {
+                        if (existingRow.room !== candidate.room) return;
+
+                        const existingDates = getRequestedDates(existingRow.fromDate, existingRow.toDate, existingRow.selectedDays);
+                        const overlapDates = existingDates.filter(date => requestedDates.includes(date));
+                        if (overlapDates.length === 0) return;
+
+                        const overlapPeriods = existingRow.periods.filter(period => candidate.periods.includes(period));
+                        if (overlapPeriods.length === 0) return;
+
+                        overlapDates.forEach(date => {
+                            overlapPeriods.forEach(period => {
+                                const key = `${candidate.room}|${date}|${period}`;
+                                if (seen.has(key)) return;
+
+                                seen.add(key);
+                                conflicts.push({
+                                    room: candidate.room,
+                                    date,
+                                    period,
+                                    request: candidate,
+                                    existing: {
+                                        room: existingRow.room,
+                                        date,
+                                        period,
+                                        userName: existingRow.usage,
+                                        userType: '登録済み'
+                                    }
+                                });
+                            });
+                        });
+                    });
+
+                    return conflicts;
+                }
+
+                function hasConflict(candidate, existingRows = []) {
+                    return buildConflictDetails(candidate, existingRows).length > 0;
+                }
+
                 addToListBtn.addEventListener('click', () => {
                     const room = document.getElementById('roomSelect').value;
                     const usage = document.getElementById('usageInput').value.trim();
@@ -229,7 +333,22 @@
                         return;
                     }
 
+                    const candidate = {
+                        room,
+                        usage,
+                        periods: selectedPeriods,
+                        fromDate,
+                        toDate,
+                        selectedDays
+                    };
+
                     const tr = document.createElement('tr');
+                    tr.dataset.room = room;
+                    tr.dataset.usage = usage;
+                    tr.dataset.fromDate = fromDate;
+                    tr.dataset.toDate = toDate;
+                    tr.dataset.periods = JSON.stringify(selectedPeriods);
+                    tr.dataset.selectedDays = JSON.stringify(selectedDays);
                     tr.innerHTML = `
                         <td>${room}</td>
                         <td>${usage}</td>
@@ -251,55 +370,31 @@
                     updateCount();
                 });
 
-                function parseDuration(durationText) {
-                    // expected formats: yyyy-mm-dd〜yyyy-mm-dd or yyyy/mm/dd〜yyyy/mm/dd
-                    const parts = durationText.split('〜');
-                    if (parts.length < 2) return [null, null];
-                    const from = parts[0].trim().replace(/\//g, '-');
-                    const to = parts[1].split('\n')[0].trim().replace(/\//g, '-');
-                    return [from, to];
-                }
-
-                function dateInRange(dateStr, fromStr, toStr) {
-                    if (!dateStr || !fromStr || !toStr) return false;
-                    const d = new Date(dateStr);
-                    const f = new Date(fromStr);
-                    const t = new Date(toStr);
-                    return d >= f && d <= t;
-                }
-
                 function findConflicts(rows) {
                     const conflicts = [];
+                    const seen = new Set();
+
                     rows.forEach((r, idx) => {
-                        const [from, to] = parseDuration(r.duration);
-                        existingReservations.forEach(ex => {
-                            if (ex.room !== r.room) return;
-                            // if existing reservation date falls within requested range
-                            if (dateInRange(ex.date.replace(/\//g, '-'), from, to)) {
-                                // check period overlap by checking ex.period appears in r.periods
-                                if (r.periods.indexOf(ex.period) !== -1 || r.periods.indexOf(ex.period + ' ') !== -1) {
-                                    conflicts.push({
-                                        rowIndex: idx,
-                                        request: r,
-                                        existing: ex
-                                    });
-                                }
-                            }
+                        const detailConflicts = buildConflictDetails(r, rows.filter((_, otherIdx) => otherIdx !== idx));
+
+                        detailConflicts.forEach(detail => {
+                            const key = `${idx}|${detail.date}|${detail.period}|${detail.existing.userName || ''}`;
+                            if (seen.has(key)) return;
+
+                            seen.add(key);
+                            conflicts.push({
+                                rowIndex: idx,
+                                request: r,
+                                existing: detail.existing
+                            });
                         });
                     });
+
                     return conflicts;
                 }
 
                 bulkRegisterBtn.addEventListener('click', () => {
-                    const rows = Array.from(reserveTbody.querySelectorAll('tr')).map(row => {
-                        const cells = row.querySelectorAll('td');
-                        return {
-                            room: cells[0].textContent.trim(),
-                            usage: cells[1].textContent.trim(),
-                            periods: cells[2].innerHTML.replace(/<br>/g, ', ').trim(),
-                            duration: cells[3].textContent.trim()
-                        };
-                    });
+                    const rows = Array.from(reserveTbody.querySelectorAll('tr')).map(collectRowData);
 
                     if (rows.length === 0) {
                         alert('登録する項目がありません');
