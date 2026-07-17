@@ -193,3 +193,38 @@ body{
     background:#1b63c4;
 
 }
+
+/* ===================================
+   上部ボタン
+=================================== */
+
+.top-buttons{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+.back-btn{
+    text-decoration:none;
+    color:#2d7be7;
+    font-weight:bold;
+}
+
+.request-btn{
+    display:inline-block;
+    padding:10px 20px;
+    background:#27ae60;
+    color:white;
+    text-decoration:none;
+    border-radius:8px;
+    transition:.3s;
+}
+
+.request-btn:hover{
+    background:#1f8a4c;
+}
+
+.map iframe {
+    border-radius: 10px;
+}
