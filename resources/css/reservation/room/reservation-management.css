@@ -36,6 +36,20 @@
     color: #222;
 }
 
+.flash-message {
+    max-width: 980px;
+    margin: 0 auto 20px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+.flash-success {
+    background-color: #ecfdf5;
+    border: 1px solid #34d399;
+    color: #065f46;
+}
+
 .reservation-selection {
     max-width: 980px;
     margin: 0 auto;
@@ -207,8 +221,12 @@
     margin-top: 10px;
 }
 
-.modal-btn {
+.modal-actions form {
     flex: 1;
+}
+
+.modal-btn {
+    width: 100%;
     padding: 16px 0;
     border: none;
     border-radius: 14px;

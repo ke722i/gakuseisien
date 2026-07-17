@@ -4,6 +4,7 @@ use App\Http\Controllers\ForumController;
 use App\Http\Controllers\AttendanceNotificationController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\RoomReservationController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
@@ -353,50 +354,30 @@ Route::get('/classroom-reservation', function () {
     return view($view);
 })->name('classroom.reservation');
 
-// 空き教室予約・詳細ページのルート設定
-Route::get('/classroom-reservation/room', function () {
-    return view('reservation.room.room-reservation');
-})->name('classroom.reservation.room');
-// 予約一覧ページのルート設定
-Route::get('/classroom-reservation/list', function () {
-    $reservations = [
-        [
-            'room' => '101c',
-            'date' => '2026/06/26',
-            'weekday' => '(金)',
-            'period' => '1限',
-            'time' => '(9:15〜10:45)',
-            'status' => 'rejected',
-            'status_label' => '承認拒否',
-        ],
-        [
-            'room' => '101c',
-            'date' => '2026/06/26',
-            'weekday' => '(金)',
-            'period' => '2限',
-            'time' => '(11:00〜12:30)',
-            'status' => 'approved',
-            'status_label' => '承認済み',
-        ],
-        [
-            'room' => '101c',
-            'date' => '2026/06/30',
-            'weekday' => '(火)',
-            'period' => '3限',
-            'time' => '(13:30〜15:00)',
-            'status' => 'pending',
-            'status_label' => '承認待ち',
-        ],
-    ];
-    return view('reservation.room.reservation-list', compact('reservations'));
-})->name('classroom.reservation.list');
-// 予約管理ページのルート設定
-Route::get('/classroom-reservation/manage', function () {
-    if (!Auth::check() || !Auth::user()->isTeacher()) {
-        return redirect()->route('classroom.reservation');
-    }
-    return view('reservation.room.reservation-management');
-})->name('classroom.reservation.manage');
+// 空き教室予約・詳細ページのルート設定（フロアマップ表示・予約作成）
+Route::get('/classroom-reservation/room', [RoomReservationController::class, 'index'])->name('classroom.reservation.room');
+Route::post('/classroom-reservation/room', [RoomReservationController::class, 'store'])
+    ->name('classroom.reservation.store')
+    ->middleware('auth');
+
+// 予約一覧ページのルート設定（自分の予約のみ）
+Route::get('/classroom-reservation/list', [RoomReservationController::class, 'list'])
+    ->name('classroom.reservation.list')
+    ->middleware('auth');
+Route::delete('/classroom-reservation/{reservation}', [RoomReservationController::class, 'destroy'])
+    ->name('classroom.reservation.destroy')
+    ->middleware('auth');
+
+// 予約管理ページのルート設定（先生のみ・承認/拒否）
+Route::get('/classroom-reservation/manage', [RoomReservationController::class, 'manage'])
+    ->name('classroom.reservation.manage')
+    ->middleware('teacher');
+Route::patch('/classroom-reservation/{reservation}/approve', [RoomReservationController::class, 'approve'])
+    ->name('classroom.reservation.approve')
+    ->middleware('teacher');
+Route::patch('/classroom-reservation/{reservation}/reject', [RoomReservationController::class, 'reject'])
+    ->name('classroom.reservation.reject')
+    ->middleware('teacher');
 // 教室一覧予約ページのルート設定
 Route::get('/classroom-reservation/bulk', function () {
     if (!Auth::check() || !Auth::user()->isTeacher()) {
@@ -425,10 +406,8 @@ Route::middleware('auth')->group(function () {
     Route::patch('/forum/{post}', [ForumController::class, 'update'])->name('forum.update');
     Route::delete('/forum/{post}', [ForumController::class, 'destroy'])->name('forum.destroy');
 });
+// 投稿への返信（未ログインは「匿名」として投稿される仕様）
 Route::post('/forum/{post}/reply', [ForumController::class, 'storeReply'])->name('forum.reply.store');
-Route::get('/forum/{post}/edit', [ForumController::class, 'edit'])->name('forum.edit');
-Route::patch('/forum/{post}', [ForumController::class, 'update'])->name('forum.update');
-Route::delete('/forum/{post}', [ForumController::class, 'destroy'])->name('forum.destroy');
 
 // 学内Q&Aページのルート設定
 use App\Http\Controllers\QnaController;
