@@ -10,40 +10,15 @@ body{
 }
 
 .container{
-    display:flex;
     min-height:100vh;
 }
 
-/* サイドバー */
-
-.sidebar{
-    width:220px;
-    background:#2253F4;
-    color:white;
-    padding:30px 20px;
-}
-
-.sidebar h2{
-    margin-bottom:40px;
-}
-
-.sidebar ul{
-    list-style:none;
-}
-
-.sidebar li{
-    margin-bottom:20px;
-}
-
-.sidebar a{
-    color:white;
-    text-decoration:none;
-}
-
-/* メイン */
+/* メイン
+   （サイドバーは app.css の共通部品を使用。
+     固定幅68pxのレール分だけ左に余白をとる） */
 
 .main-content{
-    flex:1;
+    margin-left:68px;
     padding:35px;
 }
 

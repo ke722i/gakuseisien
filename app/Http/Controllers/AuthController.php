@@ -17,9 +17,9 @@ class AuthController extends Controller
      */
     public function show(string $tab = 'login')
     {
-        // 既にログイン済みならトップへ
+        // 既にログイン済みならホーム画面へ
         if (Auth::check()) {
-            return redirect('/');
+            return redirect()->route('home');
         }
 
         return view('auth.login', ['tab' => $tab]);
@@ -47,7 +47,8 @@ class AuthController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended('/');
+        // ログイン後はホーム画面へ（authミドルウェアで弾かれた場合は元のページへ戻す）
+        return redirect()->intended('/home');
     }
 
     /**
@@ -76,11 +77,11 @@ class AuthController extends Controller
             'role' => 'student',
         ]);
 
-        // 登録後はそのままログイン状態にする
+        // 登録後はそのままログイン状態にしてホーム画面へ
         Auth::login($user);
         $request->session()->regenerate();
 
-        return redirect()->intended('/');
+        return redirect()->intended('/home');
     }
 
     /**

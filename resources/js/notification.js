@@ -11,6 +11,16 @@ if (teacherList && addTeacherButton && removeTeacherButton) {
         removeTeacherButton.disabled = rows.length <= 1;
     };
 
+    const updateTeacherNames = () => {
+        const rows = teacherList.querySelectorAll('.teacher-row');
+        rows.forEach((row, index) => {
+            const select = row.querySelector('select');
+            if (select) {
+                select.name = `subject_teacher_${index + 1}`;
+            }
+        });
+    };
+
     addTeacherButton.addEventListener('click', () => {
         const rows = teacherList.querySelectorAll('.teacher-row');
         if (rows.length >= maxTeachers) {
@@ -20,7 +30,7 @@ if (teacherList && addTeacherButton && removeTeacherButton) {
         const row = document.createElement('div');
         row.className = 'teacher-row';
         row.innerHTML = `
-            <select name="subject_teachers[]">
+            <select name="subject_teacher_${rows.length + 1}">
                 <option>科目教師1</option>
                 <option>担当教師2</option>
                 <option>担当教師3</option>
@@ -29,6 +39,7 @@ if (teacherList && addTeacherButton && removeTeacherButton) {
         `;
 
         teacherList.appendChild(row);
+        updateTeacherNames();
         updateTeacherButtons();
     });
 
@@ -39,8 +50,10 @@ if (teacherList && addTeacherButton && removeTeacherButton) {
         }
 
         rows[rows.length - 1].remove();
+        updateTeacherNames();
         updateTeacherButtons();
     });
 
+    updateTeacherNames();
     updateTeacherButtons();
 }
