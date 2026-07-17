@@ -12,8 +12,15 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Carbon;
 
 // ホームページのルート設定
-// 未ログインで開くとログイン画面へ。ログイン済みならホームダッシュボードを表示する。
+// 未ログインで開くとログイン画面へ。ログイン済みならホームダッシュボードへ。
 Route::get('/', function () {
+    return Auth::check()
+        ? redirect()->route('home')
+        : redirect()->route('login');
+});
+
+// 時事ニュースまとめ（GNews連携・キャッシュ付き）
+Route::get('/recentnews', function () {
     $category = request('category', 'all');
 
     // 存在しないカテゴリーが来たら「すべて」に戻す
@@ -325,16 +332,12 @@ Route::get('/', function () {
         'articles' => $articles,
         'currentCategory' => $category,
     ]);
-});
+})->name('recent.news');
 
-// ホームダッシュボード
+// ホームダッシュボード（要ログイン）
 Route::get('/home', function () {
     return view('home');
-})->name('home');
-
-Route::get('/history', function () {
-    return view('news.history');
-});
+})->name('home')->middleware('auth');
 
 // ログイン・新規登録画面のルート設定
 Route::get('/login', [AuthController::class, 'show'])->name('login');
@@ -414,6 +417,20 @@ Route::get('/classroom-reservation/bulk', function () {
 Route::get('/forum-top', [ForumController::class, 'index'])->name('forum.top');
 Route::get('/forum/create', [ForumController::class, 'create'])->name('forum.create');
 Route::post('/forum', [ForumController::class, 'store'])->name('forum.store');
+Route::get('/forum/{post}', [ForumController::class, 'show'])->name('forum.show');
+
+// 編集・更新・削除はログイン必須（本人チェックはコントローラー側で行う）
+Route::middleware('auth')->group(function () {
+    Route::get('/forum/{post}/edit', [ForumController::class, 'edit'])->name('forum.edit');
+    Route::patch('/forum/{post}', [ForumController::class, 'update'])->name('forum.update');
+    Route::delete('/forum/{post}', [ForumController::class, 'destroy'])->name('forum.destroy');
+});
+Route::post('/forum/{post}/reply', [ForumController::class, 'storeReply'])->name('forum.reply.store');
+Route::patch('/forum/replies/{reply}', [ForumController::class, 'updateReply'])->name('forum.reply.update');
+Route::delete('/forum/replies/{reply}', [ForumController::class, 'destroyReply'])->name('forum.reply.destroy');
+Route::get('/forum/{post}/edit', [ForumController::class, 'edit'])->name('forum.edit');
+Route::patch('/forum/{post}', [ForumController::class, 'update'])->name('forum.update');
+Route::delete('/forum/{post}', [ForumController::class, 'destroy'])->name('forum.destroy');
 
 // 学内Q&Aページのルート設定
 use App\Http\Controllers\QnaController;

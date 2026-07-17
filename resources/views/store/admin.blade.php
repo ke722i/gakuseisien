@@ -1,16 +1,15 @@
 <!DOCTYPE html> <html lang="ja">
-     <head> 
-        <meta charset="UTF-8"> 
-        <title>店舗管理画面</title> 
-        <link rel="stylesheet" href="{{ asset('css/store/admin.css') }}"
-        > @vite(['resources/css/store/admin.css']) 
+     <head>
+        <meta charset="UTF-8">
+        <title>店舗管理画面</title>
+        @vite(['resources/css/app.css', 'resources/css/store/admin.css'])
     </head>
 
 <body>
 
 <div class="container">
 
-    @include('partials.sidebar', ['active' => 'nearby-shop'])
+    @include('partials.sidebar', ['active' => 'shop'])
 
     <main class="main">
 
@@ -22,7 +21,7 @@
             <button>検索</button>
         </div>
 
-        <div class="content">
+        <div class="admin-content">
 
             <!-- 店舗一覧 -->
             <section class="store-list">
@@ -67,8 +66,6 @@
                     <h3>{{ $request->name }}</h3>
 
                     <p>ジャンル：{{ $request->genre }}</p>
-
-                    <p>申請者：{{ $request->applicant }}</p>
 
                     <div class="buttons">
 
