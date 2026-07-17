@@ -22,9 +22,23 @@
         <div class="qna-header-container">
             <h1 class="qna-title">学内Q&A</h1>
 
-            <div class="qna-search-box">
-                <input type="text" class="qna-search-input" placeholder="キーワードで質問を検索...">
+            <!-- 並べ替えリンク -->
+            <div class="qna-sort-menu" style="margin: 15px 0; display: flex; gap: 10px;">
+                <a href="{{ route('gakunai.qna', ['sort' => 'new', 'keyword' => $keyword ?? '']) }}"
+                    class="qna-history-btn {{ ($sort ?? 'new') == 'new' ? 'qna-btn-black' : '' }}">最近順</a>
+                <a href="{{ route('gakunai.qna', ['sort' => 'resolved', 'keyword' => $keyword ?? '']) }}"
+                    class="qna-history-btn {{ ($sort ?? '') == 'resolved' ? 'qna-btn-black' : '' }}">解決済み順</a>
+                <a href="{{ route('gakunai.qna', ['sort' => 'unresolved', 'keyword' => $keyword ?? '']) }}"
+                    class="qna-history-btn {{ ($sort ?? '') == 'unresolved' ? 'qna-btn-black' : '' }}">未解決順</a>
             </div>
+
+            <!-- 💡 検索機能をフォームに変更 -->
+            <form action="{{ route('gakunai.qna') }}" method="GET" class="qna-search-box">
+                <input type="hidden" name="sort" value="{{ $sort ?? 'new' }}">
+                <input type="text" name="keyword" class="qna-search-input"
+                    placeholder="キーワードで質問を検索..." value="{{ $keyword ?? '' }}">
+                <button type="submit" style="display:none;"></button>
+            </form>
 
             <div class="qna-header-actions">
                 <a href="{{ route('qna.create') }}" class="qna-history-btn qna-btn-black">質問を投稿</a>
@@ -36,10 +50,15 @@
 
             @forelse ($posts as $post)
             <article class="qna-custom-card">
+
+                @auth
+                @if(Auth::id() == $post->user_id || Auth::user()->isTeacher())
                 <button type="button" class="qna-delete-top-right" style="background: none; border: none; cursor: pointer; font-size: 16px; position: relative; z-index: 9999;"
                     onclick="event.preventDefault(); event.stopPropagation(); document.getElementById('global-delete-form').action = '/gakunai-qna/{{ $post->id }}'; document.getElementById('deleteModal').classList.add('is-open');">
                     🗑️
                 </button>
+                @endif
+                @endauth
 
                 <div class="qna-card-body">
                     <div class="qna-card-text">
@@ -58,8 +77,17 @@
                         </div>
 
                         <h2 class="qna-card-title">{{ $post->title }}</h2>
-
                         <p class="qna-card-desc">{{ Str::limit($post->content, 100, '...') }}</p>
+
+                        @if($post->image)
+                        <div class="qna-card-image-container" style="margin-top: 12px; text-align: left;">
+                            <img src="{{ asset('storage/' . $post->image) }}" alt="投稿画像"
+                                class="qna-card-image"
+                                style="max-width: 100%; max-height: 180px; border-radius: 6px; object-fit: contain; cursor: pointer; border: 1px solid #eee;"
+                                onclick="event.preventDefault(); event.stopPropagation(); openImagePopup(this.src)">
+                        </div>
+                        @endif
+
                     </div>
                 </div>
 
@@ -69,24 +97,27 @@
                             💬 コメント {{ $post->answers->count() }}件
                         </button>
                     </a>
-
-                    <button type="button" class="qna-icon-btn" title="URLをコピー" data-url="{{ route('qna.detail', $post->id) }}" onclick="handleShare(event, this)">
-                        共有
-                    </button>
-
-                    <button type="button" class="qna-icon-btn" title="通報する" data-id="{{ $post->id }}" onclick="handleReport(event, this)">
-                        通報
-                    </button>
-
+                    <button type="button" class="qna-icon-btn" title="URLをコピー" data-url="{{ route('qna.detail', $post->id) }}" onclick="handleShare(event, this)">共有</button>
+                    @if(Auth::id() !== $post->user_id)
+                    <button type="button" class="qna-icon-btn" title="通報する" data-id="{{ $post->id }}" onclick="handleReport(event, this)">通報</button>
+                    <form id="report-form-{{ $post->id }}" action="{{ route('qna.report', $post->id) }}" method="POST" style="display: none;">
+                        @csrf
+                        <input type="hidden" name="reason" id="report-reason-{{ $post->id }}">
+                    </form>
+                    @endif
                     <form id="report-form-{{ $post->id }}" action="{{ route('qna.report', $post->id) }}" method="POST" style="display: none;">
                         @csrf
                         <input type="hidden" name="reason" id="report-reason-{{ $post->id }}">
                     </form>
 
                     @if(!$post->best_answer_id)
+                    @auth
+                    @if(Auth::id() == $post->user_id)
                     <a href="{{ route('qna.detail', $post->id) }}?action=select_best" class="qna-icon-btn" title="解決にする" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
                         解決する
                     </a>
+                    @endif
+                    @endauth
                     @else
                     <button class="qna-icon-btn" title="解決済みです" style="opacity: 0.4; cursor: not-allowed;" disabled>
                         解決済
@@ -99,14 +130,18 @@
                 </div>
             </article>
             @empty
-            <div class="qna-custom-card" style="text-align: center; padding: 40px; color: #666666;">
-                <p style="font-size: 16px; font-weight: bold;">まだ質問が投稿されていません。</p>
-                <p style="font-size: 14px; margin-top: 5px;">最初の質問を投稿してみよう！</p>
-            </div>
             @endforelse
 
         </div>
     </main>
+
+    <!-- 画像拡大ポップアップモーダル -->
+    <div id="imagePopupModal" class="qna-image-popup-overlay" onclick="closeImagePopup()">
+        <div class="qna-image-popup-content" onclick="event.stopPropagation()">
+            <span class="qna-image-popup-close" onclick="closeImagePopup()">&times;</span>
+            <img id="popupTargetImage" src="" alt="拡大画像" class="qna-image-popup-img">
+        </div>
+    </div>
 
     <div id="deleteModal" class="qna-modal-overlay" onclick="if(event.target === this) { this.classList.remove('is-open'); }">
         <div class="qna-custom-card qna-modal-box">
@@ -128,6 +163,27 @@
     </div>
 
     <script>
+        function openImagePopup(src) {
+            const modal = document.getElementById('imagePopupModal');
+            const popupImg = document.getElementById('popupTargetImage');
+
+            popupImg.src = src;
+            modal.classList.add('is-active');
+            document.addEventListener('keydown', handleEscClose);
+        }
+
+        function closeImagePopup() {
+            const modal = document.getElementById('imagePopupModal');
+            modal.classList.remove('is-active');
+            document.removeEventListener('keydown', handleEscClose);
+        }
+
+        function handleEscClose(event) {
+            if (event.key === 'Escape') {
+                closeImagePopup();
+            }
+        }
+
         function handleShare(event, element) {
             event.preventDefault();
             event.stopPropagation();
