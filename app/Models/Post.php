@@ -31,6 +31,6 @@ class Post extends Model
 
     public function replies()
     {
-        return $this->hasMany(PostReply::class)->orderBy('created_at', 'asc');
+        return $this->hasMany(PostReply::class)->whereNull('parent_id')->orderBy('created_at', 'asc');
     }
 }
