@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Post;
+use App\Models\PostReply;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -39,6 +40,8 @@ class ForumController extends Controller
 
     public function show(Post $post)
     {
+        $post->load(['replies.user']);
+
         // 同じカテゴリの関連投稿を取得（自分の投稿を除く、最新5件）
         $relatedPosts = Post::where('category', $post->category)
             ->where('id', '!=', $post->id)
@@ -47,6 +50,25 @@ class ForumController extends Controller
             ->get();
 
         return view('forum.show', compact('post', 'relatedPosts'));
+    }
+
+    public function storeReply(Request $request, Post $post)
+    {
+        $validated = $request->validate([
+            'content' => 'required|string|max:1000',
+        ]);
+
+        $reply = PostReply::create([
+            'post_id' => $post->id,
+            'user_id' => Auth::id(),
+            'author_name' => Auth::check() ? Auth::user()->login_id : '匿名',
+            'content' => $validated['content'],
+        ]);
+
+        $post->increment('reply_count');
+        $post->update(['last_replied_at' => $reply->created_at]);
+
+        return redirect()->route('forum.show', $post);
     }
 
     public function edit(Post $post)
