@@ -55,7 +55,7 @@
                             </div>
                             <div class="post-meta">
                                 <span class="badge {{ $post->category === '落とし物' ? 'badge-lost' : ($post->category === 'サークル' ? 'badge-circle' : ($post->category === '教科書' ? 'badge-book' : 'badge-circle')) }}">{{ $post->category ?? 'その他' }}</span>
-                                <time class="post-date">{{ $post->published_at?->format('Y-m-d H:i') ?? $post->created_at->format('Y-m-d H:i') }}</time>
+                                <time class="post-date">{{ optional($post->published_at)->setTimezone('Asia/Tokyo')->format('Y-m-d H:i') ?? optional($post->created_at)->setTimezone('Asia/Tokyo')->format('Y-m-d H:i') }}</time>
                             </div>
                             <h2 class="post-title">{{ $post->title }}</h2>
                                 @if ($post->location)

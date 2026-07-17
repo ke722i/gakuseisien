@@ -9,10 +9,15 @@ class Report extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['question_id', 'user_id', 'reason'];
+    protected $fillable = ['question_id', 'user_id', 'reason', 'post_id', 'type'];
 
     public function question()
     {
         return $this->belongsTo(Question::class);
+    }
+
+    public function post()
+    {
+        return $this->belongsTo(Post::class);
     }
 }
