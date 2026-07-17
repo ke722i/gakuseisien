@@ -619,7 +619,7 @@ Route::get('/recentnews', function () { //担当者へ、ファイル名違っ�
 // 近辺店舗ページのルート設定
 // 近辺店舗情報マップ（一覧 / 詳細 / 申請）
 use App\Http\Controllers\ShopController;
-
+use App\Http\Controllers\ReviewController;
 Route::get('/nearby-shop', [ShopController::class, 'index'])
     ->name('nearby.shop');
 
@@ -636,10 +636,38 @@ Route::post('/nearby-shop/request', [ShopController::class, 'storeRequest'])
 Route::get('/nearby-shop/admin', [ShopController::class, 'admin'])
     ->name('store.admin');
 
+Route::get('/nearby-shop/request/{id}', [ShopController::class, 'requestMore'])
+    ->name('store.request.more');
 
+    // 承認
+Route::post('/nearby-shop/request/{id}/approve', [ShopController::class, 'approve'])
+    ->name('store.request.approve');
 
+// 却下
+Route::post('/nearby-shop/request/{id}/reject', [ShopController::class, 'reject'])
+    ->name('store.request.reject');
 
+Route::get('/nearby-shop/admin/edit/{id}', [ShopController::class, 'edit'])
+    ->name('store.edit');
 
+Route::post('/nearby-shop/admin/update/{id}', [ShopController::class, 'update'])
+    ->name('store.update');
+
+Route::get('/nearby-shop/admin/edit/{id}', [ShopController::class, 'edit'])
+    ->name('store.edit');
+
+Route::post('/nearby-shop/admin/update/{id}', [ShopController::class, 'update'])
+    ->name('store.update');
+
+Route::post('/nearby-shop/admin/hide/{id}', [ShopController::class, 'hide'])
+    ->name('store.hide');
+
+Route::post('/nearby-shop/admin/delete/{id}', [ShopController::class, 'destroy'])
+    ->name('store.destroy');
+
+// 口コミ投稿
+Route::post('/nearby-shop/store/{id}/review', [ReviewController::class, 'store'])
+    ->name('reviews.store');
 
 
 // 時事ニュース関連のルート（/recentnews, /history）を読み込む

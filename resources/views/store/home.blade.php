@@ -22,13 +22,76 @@
         </header>
 
         <!-- 検索 -->
-        <section class="search-area">
+        <form method="GET" action="{{ route('nearby.shop') }}">
 
-            <input type="text" placeholder="店舗名を検索">
+    <section class="search-area">
 
-            <button>検索</button>
+        <input
+            type="text"
+            name="keyword"
+            placeholder="店舗名を検索"
+            value="{{ request('keyword') }}">
 
-        </section>
+        <button type="submit">検索</button>
+
+        <a href="{{ route('nearby.shop') }}" class="all-btn">
+            すべて表示
+        </a>
+
+        <button type="button" class="detail-btn" onclick="toggleSearch()">
+            詳細検索 ▼
+        </button>
+
+    </section>
+
+    <section id="detail-search" class="filter-area" style="display:none;">
+
+        <select name="genre">
+            <option value="">ジャンル</option>
+            <option value="ラーメン">ラーメン</option>
+            <option value="カフェ">カフェ</option>
+            <option value="定食">定食</option>
+            <option value="居酒屋">居酒屋</option>
+            <option value="中華">中華</option>
+            <option value="寿司">寿司</option>
+            <option value="コンビニ">コンビニ</option>
+            <option value="スイーツ">スイーツ</option>
+            <option value="レストラン">レストラン</option>
+            <option value="その他">その他</option>
+        </select>
+
+        <select name="budget">
+            <option value="">価格</option>
+            <option value="500">500円以下</option>
+            <option value="1000">1000円以下</option>
+            <option value="1500">1500円以下</option>
+            <option value="2000">2000円以下</option>
+        </select>
+
+        <select name="distance">
+            <option value="">距離</option>
+            <option value="300">300m以内</option>
+            <option value="500">500m以内</option>
+            <option value="1000">1000m以内</option>
+            <option value="2000">2000m以内</option>
+        </select>
+
+        <select name="payment_method">
+            <option value="">決済方法</option>
+            <option value="現金">現金</option>
+            <option value="クレジット">クレジット</option>
+            <option value="PayPay">PayPay</option>
+            <option value="電子マネー">電子マネー</option>
+            <option value="その他">その他</option>
+        </select>
+
+        <button type="submit" class="search-btn">
+            条件で検索
+        </button>
+
+    </section>
+
+</form>
 
     <div class="menu-buttons">
 
@@ -40,77 +103,35 @@
         店舗を申請する
     </a>
 
-</div>
 
-        <!-- フィルター -->
-        <section class="filter-area">
+        <div class="content">
 
-            <select>
-                <option>価格</option>
-            </select>
-
-            <select>
-                <option>距離</option>
-            </select>
-
-            <select>
-                <option>ジャンル</option>
-            </select>
-
-            <select>
-                <option>営業時間</option>
-            </select>
-
-            <select>
-                <option>決済方法</option>
-            </select>
-
-        </section>
-
-        <div class="store-content">
-
-            <!-- 店舗一覧（shopsテーブルのデータを表示） -->
+            <!-- 店舗一覧 -->
             <section class="store-grid">
 
-                @forelse ($shops as $shop)
-                    @php
-                        // ジャンルに応じた表示用アイコン
-                        $genreIcon = match ($shop->genre) {
-                            'ラーメン' => '🍜',
-                            'カフェ' => '☕',
-                            '定食' => '🍛',
-                            '寿司' => '🍣',
-                            'コンビニ' => '🏪',
-                            default => '🍽️',
-                        };
-                    @endphp
-                    <div class="store-card">
-                        <h3>{{ $genreIcon }} {{ $shop->name }}</h3>
-                        <p>ジャンル：{{ $shop->genre }}</p>
-                        <p>営業時間：{{ $shop->business_hours }}</p>
-                        <p>予算：{{ number_format($shop->budget) }}円</p>
-                        <p>徒歩約{{ max(1, (int) ceil($shop->distance / 80)) }}分（{{ $shop->distance }}m）</p>
-                        <button onclick="location.href='{{ route('store.more', ['id' => $shop->id]) }}'">詳細を見る</button>
-                    </div>
-                @empty
-                    <p>表示できる店舗がありません。</p>
-                @endforelse
-            </section>
+@foreach($shops as $shop)
 
-            <!-- お気に入り -->
-            <aside class="favorite-area">
+<div class="store-card">
 
-                <h2>お気に入り</h2>
+    <h3>{{ $shop->name }}</h3>
 
-                <div class="favorite-card">🍜 ラーメン○○</div>
+    <p>{{ $shop->genre }}</p>
 
-                <div class="favorite-card">☕ カフェ△△</div>
+    <p>営業時間：{{ $shop->business_hours }}</p>
 
-                <div class="favorite-card">🍛 カレー□□</div>
+    <p>予算：{{ $shop->budget }}円</p>
 
-            </aside>
+    <p>徒歩 {{ $shop->distance }}m</p>
 
-        </div>
+    <a href="{{ route('store.more',$shop->id) }}">
+        <button>詳細を見る</button>
+    </a>
+
+</div>
+
+@endforeach
+
+</section>
 
         <!-- ページネーション -->
         <section class="pagination">
@@ -131,6 +152,19 @@
 
 </div>
 
+    <script>
+        function toggleSearch(){
+
+        const area = document.getElementById("detail-search");
+
+        if(area.style.display === "none"){
+            area.style.display = "flex";
+        }else{
+            area.style.display = "none";
+        }
+
+}
+    </script>
 </body>
 
 </html>

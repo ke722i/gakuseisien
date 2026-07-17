@@ -14,6 +14,13 @@ class Shop extends Model
         'budget',
         'distance',
         'payment_method',
+        'official_url', // 追加済みならここも
         'is_visible',
     ];
+
+    // 1店舗に対して複数の口コミ
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
 }

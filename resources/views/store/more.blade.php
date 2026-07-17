@@ -1,10 +1,14 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>店舗詳細</title>
-    @vite(['resources/css/app.css', 'resources/css/store/more.css'])
+
+    <title>{{ $shop->name }}｜店舗詳細</title>
+
+    @vite(['resources/css/store/more.css'])
+
 </head>
 
 <body>
@@ -13,111 +17,378 @@
 
     @include('partials.sidebar', ['active' => 'shop'])
 
-    <!-- メイン -->
     <main class="main-content">
 
-        <a href="{{ route('nearby.shop') }}" class="back-btn">← 一覧へ戻る</a>
-          <a href="{{ route('store.request') }}" class="request-btn">
-        店舗を申請する
-    </a>
-        <h1>{{ $shop->name }}（店舗ID：{{ $shop->id }}）</h1>
+        <div class="top-actions">
+            <a href="{{ route('nearby.shop') }}" class="back-btn">
+                ← 一覧へ戻る
+            </a>
 
-        <div class="detail-wrapper">
+            <a href="{{ route('store.request') }}" class="request-btn">
+                店舗を申請する
+            </a>
+        </div>
 
-            <!-- 店舗情報（shopsテーブルのデータを表示） -->
-            <section class="info-card">
+        @if (session('success'))
+            <div class="success-message">
+                {{ session('success') }}
+            </div>
+        @endif
 
-                <h2>店舗情報</h2>
+        @if ($errors->any())
+            <div class="error-message">
+                <p>入力内容を確認してください。</p>
 
-                <table>
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
-                    <tr>
-                        <th>ジャンル</th>
-                        <td>{{ $shop->genre }}</td>
-                    </tr>
+        <section class="shop-card">
 
-                    <tr>
-                        <th>営業時間</th>
-                        <td>{{ $shop->business_hours }}</td>
-                    </tr>
+            <div class="shop-heading">
+                <p class="shop-genre">
+                    {{ $shop->genre }}
+                </p>
 
-                    <tr>
-                        <th>住所</th>
-                        <td>{{ $shop->address }}</td>
-                    </tr>
+                <h1>{{ $shop->name }}</h1>
 
-                    <tr>
-                        <th>学校からの距離</th>
-                        <td>徒歩約{{ max(1, (int) ceil($shop->distance / 80)) }}分（{{ $shop->distance }}m）</td>
-                    </tr>
+                <p class="shop-address">
+                    {{ $shop->address }}
+                </p>
+            </div>
 
-                    <tr>
-                        <th>平均価格</th>
-                        <td>{{ number_format($shop->budget) }}円</td>
-                    </tr>
+            <table class="shop-table">
 
-                    <tr>
-                        <th>決済方法</th>
-                        <td>{{ $shop->payment_method }}</td>
-                    </tr>
+                <tr>
+                    <th>営業時間</th>
+                    <td>{{ $shop->business_hours }}</td>
+                </tr>
 
-                </table>
+                <tr>
+                    <th>学校からの距離</th>
+                    <td>{{ number_format($shop->distance) }} m</td>
+                </tr>
+
+                <tr>
+                    <th>平均価格</th>
+                    <td>{{ number_format($shop->budget) }} 円</td>
+                </tr>
+
+                <tr>
+                    <th>決済方法</th>
+                    <td>{{ $shop->payment_method }}</td>
+                </tr>
+
+                <tr>
+                    <th>公式サイト</th>
+                    <td>
+                        @if ($shop->official_url)
+                            <a
+                                href="{{ $shop->official_url }}"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                公式サイトを見る
+                            </a>
+                        @else
+                            <span class="muted-text">
+                                未登録
+                            </span>
+                        @endif
+                    </td>
+                </tr>
+
+            </table>
+
+        </section>
+
+        <div class="detail-grid">
+
+            <section class="map-card">
+
+                <div class="section-header">
+                    <h2>地図</h2>
+
+                    <a
+                        href="{{ $googleMapsUrl }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="google-map-link"
+                    >
+                        Google Mapsで開く
+                    </a>
+                </div>
+
+                @if ($googleMapsEnabled && $mapEmbedUrl)
+
+                    <div class="map">
+                        <iframe
+                            src="{{ $mapEmbedUrl }}"
+                            title="{{ $shop->name }}の地図"
+                            loading="lazy"
+                            allowfullscreen
+                            referrerpolicy="strict-origin-when-cross-origin">
+                        </iframe>
+                    </div>
+
+                @else
+
+                    <div class="google-placeholder">
+                        <p class="placeholder-title">
+                            Google Maps連携準備中
+                        </p>
+
+                        <p>
+                            APIキーを設定すると、この場所に店舗の地図が表示されます。
+                        </p>
+
+                        <a
+                            href="{{ $googleMapsUrl }}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="google-map-button"
+                        >
+                            Google Mapsで検索する
+                        </a>
+                    </div>
+
+                @endif
 
             </section>
 
-            <!-- 地図 -->
-            <section class="map-card">
+            <section class="rating-card">
 
-                <h2>地図</h2>
+                <h2>店舗評価</h2>
 
-                <div class="map">
-                    <iframe
-                        src="https://www.google.com/maps/embed?pb=..."
-                        width="100%"
-                        height="400"
-                        style="border:0;"
-                        allowfullscreen=""
-                        loading="lazy">
-                    </iframe>
+                <div class="rating-box">
+
+                    <h3>Google Maps評価</h3>
+
+                    @if (!$googleMapsEnabled)
+
+                        <p class="rating-message">
+                            APIキー設定後にGoogle評価が表示されます。
+                        </p>
+
+                    @elseif ($googleRating !== null)
+
+                        <div class="rating-score-row">
+                            <strong class="rating-number">
+                                {{ number_format($googleRating, 1) }}
+                            </strong>
+
+                            <span class="rating-stars">
+                                @for ($i = 1; $i <= 5; $i++)
+                                    {{ $i <= round($googleRating) ? '★' : '☆' }}
+                                @endfor
+                            </span>
+                        </div>
+
+                        <p class="rating-count">
+                            {{ number_format($googleReviewCount ?? 0) }}件の評価
+                        </p>
+
+                    @else
+
+                        <p class="rating-message">
+                            Google評価を取得できませんでした。
+                        </p>
+
+                    @endif
+
+                    <a
+                        href="{{ $googleMapsUrl }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="google-map-button"
+                    >
+                        Google Mapsで見る
+                    </a>
+
+                </div>
+
+                <div class="rating-divider"></div>
+
+                <div class="rating-box">
+
+                    <h3>学生支援.com評価</h3>
+
+                    @if ($reviewCount > 0)
+
+                        <div class="rating-score-row">
+                            <strong class="rating-number">
+                                {{ number_format($studentRating, 1) }}
+                            </strong>
+
+                            <span class="rating-stars">
+                                @for ($i = 1; $i <= 5; $i++)
+                                    {{ $i <= round($studentRating) ? '★' : '☆' }}
+                                @endfor
+                            </span>
+                        </div>
+
+                        <p class="rating-count">
+                            {{ number_format($reviewCount) }}件の口コミ
+                        </p>
+
+                    @else
+
+                        <p class="rating-message">
+                            まだ評価はありません。
+                        </p>
+
+                    @endif
+
                 </div>
 
             </section>
 
         </div>
 
-        <!-- 口コミ（レビュー機能は未実装のためダミー表示） -->
+        <div class="review-grid">
 
-        <section class="review-card">
+            <section class="review-card review-list-card">
 
-            <h2>口コミ</h2>
+                <div class="section-header">
+                    <h2>学生の口コミ</h2>
 
-            <div class="review">
+                    <span class="review-count">
+                        {{ $reviewCount }}件
+                    </span>
+                </div>
 
-                <strong>★★★★★</strong>
+                <div class="review-list">
 
-                <p>学生でも入りやすく、量も多くて満足でした！</p>
+                    @forelse ($shop->reviews as $review)
 
-            </div>
+                        <article class="review">
 
-            <div class="review">
+                            <div class="review-header">
 
-                <strong>★★★★☆</strong>
+                                <div>
+                                    <span class="anonymous-name">
+                                        匿名の学生
+                                    </span>
 
-                <p>店員さんの対応が丁寧でした。</p>
+                                    <strong class="review-stars">
+                                        @for ($i = 1; $i <= 5; $i++)
+                                            {{ $i <= $review->rating ? '★' : '☆' }}
+                                        @endfor
+                                    </strong>
+                                </div>
 
-            </div>
+                                <time
+                                    datetime="{{ $review->created_at->toDateString() }}"
+                                    class="review-date"
+                                >
+                                    {{ $review->created_at->format('Y年n月j日') }}
+                                </time>
 
-            <button class="review-btn">
+                            </div>
 
-                口コミを書く
+                            <p class="review-comment">
+                                {{ $review->comment }}
+                            </p>
 
-            </button>
+                        </article>
 
-        </section>
+                    @empty
+
+                        <div class="no-review">
+                            <p>まだ口コミはありません。</p>
+                            <p>最初の口コミを投稿してみましょう。</p>
+                        </div>
+
+                    @endforelse
+
+                </div>
+
+            </section>
+
+            <section class="review-card review-form-card">
+
+                <h2>口コミを投稿</h2>
+
+                <p class="form-description">
+                    口コミは匿名で公開されます。
+                </p>
+
+                <form
+                    action="{{ route('reviews.store', $shop->id) }}"
+                    method="POST"
+                    class="review-form"
+                >
+                    @csrf
+
+                    <div class="form-group">
+                        <label for="rating">
+                            評価
+                            <span class="required">必須</span>
+                        </label>
+
+                        <select id="rating" name="rating" required>
+                            <option value="">選択してください</option>
+
+                            <option value="5" @selected(old('rating') == 5)>
+                                ★★★★★ 5
+                            </option>
+
+                            <option value="4" @selected(old('rating') == 4)>
+                                ★★★★☆ 4
+                            </option>
+
+                            <option value="3" @selected(old('rating') == 3)>
+                                ★★★☆☆ 3
+                            </option>
+
+                            <option value="2" @selected(old('rating') == 2)>
+                                ★★☆☆☆ 2
+                            </option>
+
+                            <option value="1" @selected(old('rating') == 1)>
+                                ★☆☆☆☆ 1
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="comment">
+                            口コミ内容
+                            <span class="required">必須</span>
+                        </label>
+
+                        <textarea
+                            id="comment"
+                            name="comment"
+                            rows="7"
+                            maxlength="1000"
+                            placeholder="店舗の雰囲気、料理、価格、混雑状況などを入力してください"
+                            required
+                        >{{ old('comment') }}</textarea>
+                    </div>
+
+                    <p class="review-note">
+                        個人を特定する情報や、誹謗中傷にあたる内容は投稿しないでください。
+                    </p>
+
+                    <button type="submit" class="review-btn">
+                        匿名で投稿する
+                    </button>
+
+                </form>
+
+            </section>
+
+        </div>
 
     </main>
 
 </div>
 
 </body>
+
 </html>

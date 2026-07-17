@@ -14,81 +14,176 @@
 
     @include('partials.sidebar', ['active' => 'shop'])
 
-    <!-- メイン -->
     <main class="main-content">
 
-        <a href="{{ route('nearby.shop') }}" class="back-btn">← 一覧へ戻る</a>
+        <a href="{{ route('nearby.shop') }}" class="back-btn">
+            ← 一覧へ戻る
+        </a>
 
         <h1>店舗申請</h1>
 
-        {{-- 申請完了メッセージ --}}
-        @if (session('success'))
-            <p style="color:#1f8a4c;font-weight:bold;margin-bottom:20px;">{{ session('success') }}</p>
-        @endif
-
-        {{-- バリデーションエラー --}}
-        @if ($errors->any())
-            <ul style="color:#c0392b;margin-bottom:20px;">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
-        @endif
-
         <div class="form-card">
 
+            @if (session('success'))
+                <div class="success-message">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if ($errors->any())
+                <div class="error-message">
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <form action="{{ route('store.request.store') }}" method="POST">
-    @csrf
+                @csrf
 
-    <div class="form-group">
-        <label>店舗名</label>
-        <input type="text" name="name" placeholder="店舗名を入力" value="{{ old('name') }}">
-    </div>
+                <div class="form-group">
+                    <label for="name">店舗名</label>
+                    <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        value="{{ old('name') }}"
+                        placeholder="店舗名を入力"
+                        required
+                    >
+                </div>
 
-    <div class="form-group">
-        <label>ジャンル</label>
-        <select name="genre">
-            <option value="">選択してください</option>
-            @foreach (['ラーメン', 'カフェ', '定食', '居酒屋', '中華', '寿司', 'コンビニ', 'スイーツ', 'レストラン', 'その他'] as $genre)
-                <option value="{{ $genre }}" {{ old('genre') === $genre ? 'selected' : '' }}>{{ $genre }}</option>
-            @endforeach
-        </select>
-    </div>
+                <div class="form-group">
+                    <label for="genre">ジャンル</label>
 
-    <div class="form-group">
-        <label>住所</label>
-        <input type="text" name="address" placeholder="住所を入力" value="{{ old('address') }}">
-    </div>
+                    <select id="genre" name="genre" required>
+                        <option value="">選択してください</option>
+                        <option value="ラーメン" @selected(old('genre') === 'ラーメン')>
+                            ラーメン
+                        </option>
+                        <option value="カフェ" @selected(old('genre') === 'カフェ')>
+                            カフェ
+                        </option>
+                        <option value="定食" @selected(old('genre') === '定食')>
+                            定食
+                        </option>
+                        <option value="居酒屋" @selected(old('genre') === '居酒屋')>
+                            居酒屋
+                        </option>
+                        <option value="中華" @selected(old('genre') === '中華')>
+                            中華
+                        </option>
+                        <option value="寿司" @selected(old('genre') === '寿司')>
+                            寿司
+                        </option>
+                        <option value="コンビニ" @selected(old('genre') === 'コンビニ')>
+                            コンビニ
+                        </option>
+                        <option value="スイーツ" @selected(old('genre') === 'スイーツ')>
+                            スイーツ
+                        </option>
+                        <option value="レストラン" @selected(old('genre') === 'レストラン')>
+                            レストラン
+                        </option>
+                        <option value="その他" @selected(old('genre') === 'その他')>
+                            その他
+                        </option>
+                    </select>
+                </div>
 
-    <div class="form-group">
-        <label>営業時間</label>
-        <input type="text" name="business_hours" placeholder="11:00～22:00" value="{{ old('business_hours') }}">
-    </div>
+                <div class="form-group">
+                    <label for="address">住所</label>
+                    <input
+                        type="text"
+                        id="address"
+                        name="address"
+                        value="{{ old('address') }}"
+                        placeholder="住所を入力"
+                        required
+                    >
+                </div>
 
-    <div class="form-group">
-        <label>平均価格</label>
-        <input type="number" name="budget" placeholder="800" value="{{ old('budget') }}">
-    </div>
+                <div class="form-group">
+                    <label for="business_hours">営業時間</label>
+                    <input
+                        type="text"
+                        id="business_hours"
+                        name="business_hours"
+                        value="{{ old('business_hours') }}"
+                        placeholder="11:00～22:00"
+                        required
+                    >
+                </div>
 
-    <div class="form-group">
-        <label>学校からの距離(m)</label>
-        <input type="number" name="distance" placeholder="300" value="{{ old('distance') }}">
-    </div>
+                <div class="form-group">
+                    <label for="budget">平均価格</label>
+                    <input
+                        type="number"
+                        id="budget"
+                        name="budget"
+                        value="{{ old('budget') }}"
+                        placeholder="800"
+                        min="0"
+                        required
+                    >
+                </div>
 
-    <div class="form-group">
-        <label>決済方法</label>
-            @foreach (['現金', 'クレジット', 'paypay', '電子マネー', 'その他'] as $method)
-                <input type="checkbox" name="payment_method[]" value="{{ $method }}"
-                    {{ in_array($method, old('payment_method', []), true) ? 'checked' : '' }}>　{{ $method }}
-            @endforeach
-    </div>
+                <div class="form-group">
+                    <label for="distance">学校からの距離（m）</label>
+                    <input
+                        type="number"
+                        id="distance"
+                        name="distance"
+                        value="{{ old('distance') }}"
+                        placeholder="300"
+                        min="0"
+                        required
+                    >
+                </div>
 
-    <div class="button-area">
-        <button type="reset" class="reset-btn">クリア</button>
-        <button type="submit" class="submit-btn">申請する</button>
-    </div>
+                <div class="form-group">
+                    <label for="payment_method">決済方法</label>
 
-</form>
+                    <select id="payment_method" name="payment_method" required>
+                        <option value="">選択してください</option>
+                        <option value="現金" @selected(old('payment_method') === '現金')>
+                            現金
+                        </option>
+                        <option value="クレジット" @selected(old('payment_method') === 'クレジット')>
+                            クレジット
+                        </option>
+                        <option value="PayPay" @selected(old('payment_method') === 'PayPay')>
+                            PayPay
+                        </option>
+                        <option value="電子マネー" @selected(old('payment_method') === '電子マネー')>
+                            電子マネー
+                        </option>
+                        <option value="その他" @selected(old('payment_method') === 'その他')>
+                            その他
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="official_url">公式URL</label>
+                    <input
+                        type="url"
+                        id="official_url"
+                        name="official_url"
+                        value="{{ old('official_url') }}"
+                        placeholder="https://example.com"
+                    >
+                </div>
+
+                <div class="button-area">
+                    <button type="reset" class="reset-btn">クリア</button>
+                    <button type="submit" class="submit-btn">申請する</button>
+                </div>
+
+            </form>
+
         </div>
 
     </main>
