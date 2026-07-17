@@ -16,8 +16,14 @@ class Question extends Model
         'title',
         'content',
         'best_answer_id',
-        'category'
+        'category',
+        'image',
     ];
+
+    public function user()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'user_id');
+    }
 
     public function answers()
     {

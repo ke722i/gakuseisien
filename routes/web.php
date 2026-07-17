@@ -1,17 +1,27 @@
 <?php
 
 use App\Http\Controllers\ForumController;
+use App\Http\Controllers\AttendanceNotificationController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\RoomReservationController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Carbon;
 
 // ホームページのルート設定
-// 未ログインで開くとログイン画面へ。ログイン済みならホームダッシュボードを表示する。
+// 未ログインで開くとログイン画面へ。ログイン済みならホームダッシュボードへ。
 Route::get('/', function () {
+    return Auth::check()
+        ? redirect()->route('home')
+        : redirect()->route('login');
+});
+
+// 時事ニュースまとめ（GNews連携・キャッシュ付き）
+Route::get('/recentnews', function () {
     $category = request('category', 'all');
 
     // 存在しないカテゴリーが来たら「すべて」に戻す
@@ -51,13 +61,44 @@ Route::get('/', function () {
         $content = $title . ' ' . $description . ' ' . $source;
 
         $entertainmentWords = [
-            'アニメ', '漫画', 'マンガ', '映画', 'ドラマ', '俳優', '女優',
-            '声優', 'アイドル', '芸能', 'タレント', '歌手', '音楽',
-            'ライブ', '舞台', 'キャスト', 'グッズ', '特装版', '付録',
-            'CD', 'ブルーロック', 'ゲーム', 'Switch', 'PS5', 'XBOX',
-            'PlayStation', '任天堂', 'ポケモン', 'ファミ通', 'Game',
-            'Game*Spark', 'オリコン', 'ORICON', 'ちいかわ', 'コラボ限定',
-            'リップ', 'スリーピングマスク', 'キャラクター'
+            'アニメ',
+            '漫画',
+            'マンガ',
+            '映画',
+            'ドラマ',
+            '俳優',
+            '女優',
+            '声優',
+            'アイドル',
+            '芸能',
+            'タレント',
+            '歌手',
+            '音楽',
+            'ライブ',
+            '舞台',
+            'キャスト',
+            'グッズ',
+            '特装版',
+            '付録',
+            'CD',
+            'ブルーロック',
+            'ゲーム',
+            'Switch',
+            'PS5',
+            'XBOX',
+            'PlayStation',
+            '任天堂',
+            'ポケモン',
+            'ファミ通',
+            'Game',
+            'Game*Spark',
+            'オリコン',
+            'ORICON',
+            'ちいかわ',
+            'コラボ限定',
+            'リップ',
+            'スリーピングマスク',
+            'キャラクター'
         ];
 
         foreach ($entertainmentWords as $word) {
@@ -82,44 +123,153 @@ Route::get('/', function () {
 
         // 政治系
         $politicsWords = [
-            '政治', '政府', '国会', '選挙', '首相', '大臣',
-            '知事', '法案', '政策', '与党', '野党', '議員',
-            '自民', '立憲', '維新', '公明', '参院', '衆院',
-            '自治体', '行政', '補助金', '制度', '内閣',
-            '外交', '防衛', '予算', '条例', '皇室', '天皇'
+            '政治',
+            '政府',
+            '国会',
+            '選挙',
+            '首相',
+            '大臣',
+            '知事',
+            '法案',
+            '政策',
+            '与党',
+            '野党',
+            '議員',
+            '自民',
+            '立憲',
+            '維新',
+            '公明',
+            '参院',
+            '衆院',
+            '自治体',
+            '行政',
+            '補助金',
+            '制度',
+            '内閣',
+            '外交',
+            '防衛',
+            '予算',
+            '条例',
+            '皇室',
+            '天皇'
         ];
 
         // 経済系
         $businessWords = [
-            '経済', '企業', '株', '株価', '為替', '円安', '円高',
-            '物価', '賃上げ', '決算', '市場', '投資', '銀行',
-            '日経平均', '金利', '買収', '売上', '利益', '事業',
-            'Amazon', 'PayPay', '価格', '値上げ', '消費', '雇用',
-            '給付金', '税', '自動車', 'EV', '半導体', 'マクドナルド',
-            'クレジットカード', '決済', '破産', '製造', '給与',
-            '資産', '仮想通貨', '暗号資産', '好悪材料', '開示情報',
-            '三菱', 'ソニー', 'ファミマ', 'コンビニ', 'インフレ'
+            '経済',
+            '企業',
+            '株',
+            '株価',
+            '為替',
+            '円安',
+            '円高',
+            '物価',
+            '賃上げ',
+            '決算',
+            '市場',
+            '投資',
+            '銀行',
+            '日経平均',
+            '金利',
+            '買収',
+            '売上',
+            '利益',
+            '事業',
+            'Amazon',
+            'PayPay',
+            '価格',
+            '値上げ',
+            '消費',
+            '雇用',
+            '給付金',
+            '税',
+            '自動車',
+            'EV',
+            '半導体',
+            'マクドナルド',
+            'クレジットカード',
+            '決済',
+            '破産',
+            '製造',
+            '給与',
+            '資産',
+            '仮想通貨',
+            '暗号資産',
+            '好悪材料',
+            '開示情報',
+            '三菱',
+            'ソニー',
+            'ファミマ',
+            'コンビニ',
+            'インフレ'
         ];
 
         // IT系
         $technologyWords = [
-            'IT', 'AI', '生成AI', '人工知能', 'テクノロジー',
-            'アプリ', 'SNS', 'スマホ', 'iPhone', 'Android',
-            'セキュリティ', 'クラウド', 'システム', 'ソフトウェア',
-            'データ', 'ロボット', '半導体', '宇宙', 'ウェブ',
-            'Web', 'Google', 'Microsoft', 'Meta', 'SEO',
-            'マーケティング', 'AEO', 'スタートアップ', 'DX',
-            'プログラム', 'デジタル'
+            'IT',
+            'AI',
+            '生成AI',
+            '人工知能',
+            'テクノロジー',
+            'アプリ',
+            'SNS',
+            'スマホ',
+            'iPhone',
+            'Android',
+            'セキュリティ',
+            'クラウド',
+            'システム',
+            'ソフトウェア',
+            'データ',
+            'ロボット',
+            '半導体',
+            '宇宙',
+            'ウェブ',
+            'Web',
+            'Google',
+            'Microsoft',
+            'Meta',
+            'SEO',
+            'マーケティング',
+            'AEO',
+            'スタートアップ',
+            'DX',
+            'プログラム',
+            'デジタル'
         ];
 
         // スポーツ系
         $sportsWords = [
-            '野球', 'サッカー', 'バスケット', 'バスケ', 'バレー',
-            'バレーボール', 'テニス', 'ゴルフ', '五輪', 'オリンピック',
-            '試合', '選手', '監督', '阪神', '巨人', '大谷',
-            'ヤクルト', 'Jリーグ', 'W杯', '高校野球', '球団',
-            '日本代表', 'リーグ', 'スポーツ', '決勝', '勝利',
-            '敗戦', '得点', 'サーブ', 'ブラジル戦'
+            '野球',
+            'サッカー',
+            'バスケット',
+            'バスケ',
+            'バレー',
+            'バレーボール',
+            'テニス',
+            'ゴルフ',
+            '五輪',
+            'オリンピック',
+            '試合',
+            '選手',
+            '監督',
+            '阪神',
+            '巨人',
+            '大谷',
+            'ヤクルト',
+            'Jリーグ',
+            'W杯',
+            '高校野球',
+            '球団',
+            '日本代表',
+            'リーグ',
+            'スポーツ',
+            '決勝',
+            '勝利',
+            '敗戦',
+            '得点',
+            'サーブ',
+            'ブラジル戦'
         ];
 
         foreach ($politicsWords as $word) {
@@ -323,21 +473,17 @@ Route::get('/', function () {
         'articles' => $articles,
         'currentCategory' => $category,
     ]);
-});
+})->name('recent.news');
 
-// ホームダッシュボード
+// ホームダッシュボード（要ログイン）
 Route::get('/home', function () {
     return view('home');
-})->name('home');
-
-Route::get('/history', function () {
-    return view('news.history');
-});
+})->name('home')->middleware('auth');
 
 // ログイン・新規登録画面のルート設定
 Route::get('/login', [AuthController::class, 'show'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.attempt');
-Route::get('/register', fn () => app(AuthController::class)->show('register'))->name('register');
+Route::get('/register', fn() => app(AuthController::class)->show('register'))->name('register');
 Route::post('/register', [AuthController::class, 'register'])->name('register.attempt');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
@@ -348,9 +494,36 @@ Route::get('/classroom-reservation', function () {
     return view($view);
 })->name('classroom.reservation');
 
-// 空き教室予約・詳細ページのルート設定
+// 空き教室予約・詳細ページのルート設定（フロアマップ表示・予約作成）
+Route::get('/classroom-reservation/room', [RoomReservationController::class, 'index'])->name('classroom.reservation.room');
+Route::post('/classroom-reservation/room', [RoomReservationController::class, 'store'])
+    ->name('classroom.reservation.store')
+    ->middleware('auth');
+
+// 予約一覧ページのルート設定（自分の予約のみ）
+Route::get('/classroom-reservation/list', [RoomReservationController::class, 'list'])
+    ->name('classroom.reservation.list')
+    ->middleware('auth');
+Route::delete('/classroom-reservation/{reservation}', [RoomReservationController::class, 'destroy'])
+    ->name('classroom.reservation.destroy')
+    ->middleware('auth');
+
+// 予約管理ページのルート設定（先生のみ・承認/拒否）
+Route::get('/classroom-reservation/manage', [RoomReservationController::class, 'manage'])
+    ->name('classroom.reservation.manage')
+    ->middleware('teacher');
+Route::patch('/classroom-reservation/{reservation}/approve', [RoomReservationController::class, 'approve'])
+    ->name('classroom.reservation.approve')
+    ->middleware('teacher');
+Route::patch('/classroom-reservation/{reservation}/reject', [RoomReservationController::class, 'reject'])
+    ->name('classroom.reservation.reject')
+    ->middleware('teacher');
+// 教室一覧予約ページのルート設定
 Route::get('/classroom-reservation/bulk', function () {
-    return view('reservation.room.bulk-reservation');
+    if (!Auth::check() || !Auth::user()->isTeacher()) {
+        return redirect()->route('classroom.reservation');
+    }
+    return view('reservation.room.bulk-room-reservation');
 })->name('classroom.reservation.bulk');
 
 // 掲示板ページのルート設定
@@ -365,21 +538,48 @@ Route::get('/classroom-reservation/bulk', function () {
 Route::get('/forum-top', [ForumController::class, 'index'])->name('forum.top');
 Route::get('/forum/create', [ForumController::class, 'create'])->name('forum.create');
 Route::post('/forum', [ForumController::class, 'store'])->name('forum.store');
+Route::get('/forum/{post}', [ForumController::class, 'show'])->name('forum.show');
+
+// 編集・更新・削除はログイン必須（本人チェックはコントローラー側で行う）
+Route::middleware('auth')->group(function () {
+    Route::get('/forum/{post}/edit', [ForumController::class, 'edit'])->name('forum.edit');
+    Route::patch('/forum/{post}', [ForumController::class, 'update'])->name('forum.update');
+    Route::delete('/forum/{post}', [ForumController::class, 'destroy'])->name('forum.destroy');
+});
+// 投稿への返信（未ログインは「匿名」として投稿される仕様）
+Route::post('/forum/{post}/reply', [ForumController::class, 'storeReply'])->name('forum.reply.store');
+Route::patch('/forum/replies/{reply}', [ForumController::class, 'updateReply'])->name('forum.reply.update');
+Route::delete('/forum/replies/{reply}', [ForumController::class, 'destroyReply'])->name('forum.reply.destroy');
+Route::post('/forum/{post}/report', [ForumController::class, 'reportPost'])->name('forum.report');
+Route::get('/forum/{post}/edit', [ForumController::class, 'edit'])->name('forum.edit');
+Route::patch('/forum/{post}', [ForumController::class, 'update'])->name('forum.update');
+Route::delete('/forum/{post}', [ForumController::class, 'destroy'])->name('forum.destroy');
 
 // 学内Q&Aページのルート設定
 use App\Http\Controllers\QnaController;
 
-Route::delete('/gakunai-qna/{id}', [QnaController::class, 'destroy'])->name('qna.destroy');
+// 固定のURL
 Route::get('/gakunai-qna', [QnaController::class, 'index'])->name('gakunai.qna');
 Route::get('/gakunai-qna/create', [QnaController::class, 'create'])->name('qna.create');
 Route::post('/gakunai-qna/store', [QnaController::class, 'store'])->name('qna.store');
 Route::get('/gakunai-qna/history', [QnaController::class, 'history'])->name('qna.history');
+Route::get('/gakunai-qna/admin/reports', [QnaController::class, 'adminReports'])
+    ->name('adminReports')
+    ->middleware('teacher');
+
+// 2. 動的なURL
+Route::delete('/gakunai-qna/{id}', [QnaController::class, 'destroy'])->name('qna.destroy');
 Route::get('/gakunai-qna/{id}', [QnaController::class, 'show'])->name('qna.detail');
 Route::post('/gakunai-qna/{id}/answers', [QnaController::class, 'storeAnswer'])->name('qna.storeAnswer');
-
-Route::get('/gakunai-qna/create', function () {
-    return view('qna.create'); 
-})->name('qna.create');
+Route::patch('/gakunai-qna/{id}/best-answer/{answer_id}', [QnaController::class, 'selectBestAnswer'])->name('qna.bestAnswer');
+Route::post('/gakunai-qna/{id}/report', [QnaController::class, 'reportQuestion'])->name('qna.report');
+Route::post('/qna/answers/{answer}/upvote', [App\Http\Controllers\QnaController::class, 'toggleUpvote'])
+    ->name('qna.answers.upvote')
+    ->middleware('auth');
+Route::delete('/qna/answers/{answer}', [App\Http\Controllers\QnaController::class, 'destroyAnswer'])
+    ->name('qna.destroyAnswer')
+    ->middleware('auth');
+Route::post('/qna/answers/{id}/approve', [QnaController::class, 'approveAnswer'])->name('qna.answers.approve');
 
 // イベント・締め切りカレンダーページのルート設定
 Route::get('/event-calendar', [EventController::class, 'index'])->name('event.calendar');
@@ -388,11 +588,33 @@ Route::post('/event-calendar', [EventController::class, 'store'])->name('event.s
 
 // 欠席・遅刻届ページのルート設定
 Route::get('/notification', function () {
-    return view('notification.notification_tea'); //notification.blade.php を呼び出す
+    $user = Auth::user();
+
+    if ($user?->isTeacher()) {
+        $classPrefix = substr($user->class_number ?? '', 0, 4);
+        $reports = DB::table('attendance_reports')
+            ->whereRaw('left(class_number, 4) = ?', [$classPrefix])
+            ->orderBy('submission_date', 'desc')
+            ->get();
+
+        return view('notification.notification_tea', compact('reports', 'classPrefix'));
+    }
+
+    return view('notification.notification_stu');
 })->name('notification');
 
-// 時事ニュースページは routes/news.php に定義（GNews API で取得）。
-// 以前ここにあった暫定ルート（view('welcome')）は news.php と重複するため無効化。
+// 欠席・遅刻届フォームの送信（POSTリクエスト）を受け付けるURLとコントローラーの紐付け
+Route::post('/notification/store', [AttendanceNotificationController::class, 'storeNotification'])
+    ->name('notification.store');
+
+// 教師が「受理」または「差し戻し」の処理を行うためのURL
+Route::post('/teacher/notification/{id}/decide', [AttendanceNotificationController::class, 'decideNotificationType'])
+    ->name('notification.decide');
+
+// 時事ニュースページのルート設定
+Route::get('/recentnews', function () { //担当者へ、ファイル名違ったら修正してください
+    return view('welcome'); // recentNews.blade.php を呼び出す 
+})->name('recent.news');
 
 // 近辺店舗ページのルート設定
 // 近辺店舗情報マップ（一覧 / 詳細 / 申請）
@@ -449,4 +671,4 @@ Route::post('/nearby-shop/store/{id}/review', [ReviewController::class, 'store']
 
 
 // 時事ニュース関連のルート（/recentnews, /history）を読み込む
-require __DIR__.'/news.php';
+require __DIR__ . '/news.php';

@@ -24,7 +24,7 @@ body {
 }
 
 .notification-summary {
-    width: 240px;
+    width: 320px;
     background: white;
     border: 1px solid #dbe6fa;
     border-radius: 12px;
@@ -71,6 +71,53 @@ body {
     font-size: 14px;
     color: #1f2937;
     font-weight: 600;
+}
+
+.submission-list {
+    margin-top: 18px;
+    max-height: calc(100vh - 260px);
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.submission-list-header {
+    font-size: 13px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 12px;
+}
+
+.submission-item {
+    padding: 12px 14px;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background: #f8fafc;
+    margin-bottom: 10px;
+}
+
+.submission-item:last-child {
+    margin-bottom: 0;
+}
+
+.status-pending {
+    background: #f0fdf4;
+    border: 1px solid #86efac;
+}
+
+.status-accepted {
+    background: #eff6ff;
+    border: 1px solid #93c5fd;
+}
+
+.status-rejected {
+    background: #fef2f2;
+    border: 1px solid #fca5a5;
+}
+
+.submission-empty {
+    color: #64748b;
+    font-size: 13px;
+    padding: 10px 0;
 }
 
 .notification-content {
@@ -259,7 +306,7 @@ body {
     border: 1px solid #dbe6fa;
     border-radius: 12px;
     padding: 12px;
-    margin-bottom: 26px;
+    margin-bottom: 13px;
 }
 
 .reason-header {

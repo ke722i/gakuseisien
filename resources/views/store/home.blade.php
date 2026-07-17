@@ -5,14 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>近辺店舗情報マップ</title>
 
-    @vite(['resources/css/store/home.css'])
+    @vite(['resources/css/app.css', 'resources/css/store/home.css'])
 </head>
 
 <body>
 
 <div class="container">
 
-    @include('partials.sidebar', ['active' => 'nearby-shop'])
+    @include('partials.sidebar', ['active' => 'shop'])
 
         <!-- メイン -->
     <main class="main-content">

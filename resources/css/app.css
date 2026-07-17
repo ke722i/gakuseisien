@@ -4,13 +4,46 @@
 
 body {
     margin: 0;
-    font-family: "Yu Gothic", "Hiragino Kaku Gothic ProN", sans-serif;
-    background-color: #f2f2f2;
-    color: #111;
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    background-color: #ffffff;
+    color: #111827;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+button {
+    font-family: inherit;
 }
 
 .app-layout {
     min-height: 100vh;
+    background-color: #ffffff;
+}
+
+.content {
+    width: 100%;
+    padding: 32px 40px;
+}
+
+/* ハンバーガーメニュー */
+.top-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.menu-button {
+    width: 44px;
+    height: 44px;
+    border: none;
+    border-radius: 12px;
+    background-color: #2563eb;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
 }
 
 /* 左サイドバー（PC: アイコンのみの細いレール。ホバーで広がる） */
@@ -96,6 +129,25 @@ body {
     text-decoration: none;
     padding: 14px 20px;
     font-size: 15px;
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+.sidebar-menu a.active {
+    background-color: #1e40af;
+    font-weight: bold;
+}
+
+.logout {
+    margin-top: auto;
+    padding-bottom: 20px;
+}
+
+/* メイン部分（レールの分だけ左に余白） */
+.content {
+    min-height: 100vh;
+    margin-left: 68px;
+    background-color: white;
+    padding: 40px 70px 70px;
 }
 
 /* ログアウトはフォームのボタンなので見た目をリンクに揃える */
@@ -144,57 +196,31 @@ body {
     background-color: rgba(255, 255, 255, 0.15);
 }
 
+.sidebar-menu a:hover,
 .sidebar-menu a.active {
-    background-color: #1e40af;
-    font-weight: bold;
+    background-color: rgba(255, 255, 255, 0.18);
 }
 
 .logout {
-    margin-top: auto;
-    padding-bottom: 20px;
+    position: absolute;
+    bottom: 24px;
+    left: 18px;
+    right: 18px;
 }
 
-/* メイン部分（レールの分だけ左に余白） */
-.content {
-    min-height: 100vh;
-    margin-left: 68px;
-    background-color: white;
-    padding: 40px 70px 70px;
-}
-
-/* スマホ用の開くボタン（PCでは非表示） */
-.menu-button {
-    display: none;
-    position: fixed;
-    top: 14px;
-    left: 14px;
-    z-index: 1100;
-    width: 44px;
-    height: 44px;
-    align-items: center;
-    justify-content: center;
-    border: none;
+.logout a {
+    display: block;
+    padding: 12px 14px;
     border-radius: 10px;
-    background-color: #2563eb;
     color: white;
-    font-size: 22px;
-    cursor: pointer;
+    background-color: rgba(255, 255, 255, 0.16);
 }
 
-/* 旧レイアウト互換用（未使用ページ向けに残す） */
-.top-header {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    margin-bottom: 35px;
-}
-
-/* メニューを開いた時の背景 */
 .overlay {
     display: none;
     position: fixed;
     inset: 0;
-    background-color: rgba(0, 0, 0, 0.25);
+    background-color: rgba(15, 23, 42, 0.45);
     z-index: 900;
 }
 
@@ -510,4 +536,5 @@ body {
         font-size: 13px;
         flex-shrink: 0;
     }
+
 }

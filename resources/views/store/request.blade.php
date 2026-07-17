@@ -5,14 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>店舗申請</title>
-    @vite(['resources/css/store/request.css'])
+    @vite(['resources/css/app.css', 'resources/css/store/request.css'])
 </head>
 
 <body>
 
 <div class="container">
 
-    @include('partials.sidebar', ['active' => 'nearby-shop'])
+    @include('partials.sidebar', ['active' => 'shop'])
 
     <main class="main-content">
 

@@ -36,4 +36,17 @@ class User extends Authenticatable
     {
         return $this->role === 'teacher';
     }
+
+    /**
+     * upvoteのカウント
+     */
+    public function upvotedAnswers()
+    {
+        return $this->belongsToMany(Answer::class, 'answer_user')->withTimestamps();
+    }
+
+    public function questions()
+    {
+        return $this->hasMany(\App\Models\Question::class, 'user_id');
+    }
 }

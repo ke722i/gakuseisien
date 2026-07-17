@@ -10,6 +10,7 @@
 
 <?php
     $today = date("Y-m-d");
+    $user = Auth::user();
 ?>
 
 <body>
@@ -22,36 +23,36 @@
         <!-- メイン画面 -->
         <main class="content">
             <div class="content-header">
-                <h1>欠席・遅刻届</h1>
+                <h1>欠席・遅刻届（生徒用）</h1>
             </div>
 
             <div class="content-inner">
-                <form method="post" action="#">
+                <form method="post" action="{{ route('notification.store') }}">
                     @csrf
                     <div class="grid-2">
                         <div class="panel-left">
-                            <div class="field"><label>学籍番号</label><input type="text" value="234000" disabled></div>
-                            <div class="field"><label>クラス番号</label><input type="text" value="R4SA00" disabled></div>
-                            <div class="field"><label>名前</label><input type="text" value="情報太郎" disabled></div>
-                            <div class="field"><label>日付</label><input type="date" value="<?= $today ?>"></div>
+                            <div class="field"><label>学籍番号</label><input type="text" name="student_number" value="{{ old('student_number', $user?->student_number ?? '') }}" readonly></div>
+                            <div class="field"><label>クラス番号</label><input type="text" name="class_number" value="{{ old('class_number', $user?->class_number ?? '') }}" readonly></div>
+                            <div class="field"><label>名前</label><input type="text" name="student_name" value="{{ old('student_name', $user?->student_name ?? '') }}" readonly></div>
+                            <div class="field"><label>日付</label><input type="date" name="target_date" value="{{ old('target_date', $today) }}"></div>
                             <div class="field"><label>時限</label>
                                 <div class="time-box">
-                                    <label><input type="checkbox">1</label>
-                                    <label><input type="checkbox">2</label>
-                                    <label><input type="checkbox">3</label>
-                                    <label><input type="checkbox">4</label>
+                                    <label><input type="checkbox" name="periods[]" value="1">1</label>
+                                    <label><input type="checkbox" name="periods[]" value="2">2</label>
+                                    <label><input type="checkbox" name="periods[]" value="3">3</label>
+                                    <label><input type="checkbox" name="periods[]" value="4">4</label>
                                 </div>
                             </div>
                         </div>
 
                         <div class="panel-right">
-                            <div class="field"><label>提出日</label><input type="text" value="<?= $today ?>" disabled></div>
-                            <div class="field"><label>担任教師</label><input type="text" value="情報教師" disabled></div>
+                            <div class="field"><label>提出日</label><input type="text" name="submission_date" value="{{ old('submission_date', $today) }}" readonly></div>
+                            <div class="field"><label>担任教師</label><input type="text" name="homeroom_teacher" value="{{ old('homeroom_teacher', $user?->homeroom_teacher ?? '') }}" readonly></div>
                             <div class="field"><label>科目教師</label>
                                 <div class="subject-teacher-group">
                                     <div id="teacher-list" class="teacher-list">
                                         <div class="teacher-row">
-                                            <select name="subject_teachers[]">
+                                            <select name="subject_teacher_1">
                                                 <option>科目教師1</option>
                                                 <option>担当教師2</option>
                                                 <option>担当教師3</option>
@@ -71,9 +72,14 @@
                     <div class="reason-panel">
                         <div class="reason-header">
                             <label>理由</label>
-                            <select class="reason-select"><option>体調不良</option><option>就活</option><option>家庭の事情</option><option>その他</option></select>
+                            <select class="reason-select" name="reason_category">
+                                <option value="体調不良" {{ old('reason_category') === '体調不良' ? 'selected' : '' }}>体調不良</option>
+                                <option value="就活" {{ old('reason_category') === '就活' ? 'selected' : '' }}>就活</option>
+                                <option value="家庭の事情" {{ old('reason_category') === '家庭の事情' ? 'selected' : '' }}>家庭の事情</option>
+                                <option value="その他" {{ old('reason_category') === 'その他' ? 'selected' : '' }}>その他</option>
+                            </select>
                         </div>
-                        <textarea placeholder="テキストを入力"></textarea>
+                        <textarea name="reason_detail" placeholder="テキストを入力">{{ old('reason_detail') }}</textarea>
                     </div>
 
                     <div class="submit-wrap">

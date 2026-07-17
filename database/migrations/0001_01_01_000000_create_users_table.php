@@ -16,8 +16,11 @@ return new class extends Migration
             // ログインID（英数字6〜10文字）。メールアドレスの代わりに本人を識別する。
             $table->string('login_id')->unique();
             $table->string('password');
-            // 役割。'student'（学生）/ 'teacher'（先生）。先生は欠席・遅刻届を全員分閲覧できる想定。
             $table->string('role')->default('student');
+            $table->string('student_number')->nullable(); // 学籍番号（学生のみ）
+            $table->string('class_number')->nullable();   // クラス番号（学生のみ）
+            $table->string('student_name')->nullable();   // 学生の名前（学生のみ）
+            $table->string('homeroom_teacher')->nullable(); // 担任教師
             $table->rememberToken();
             $table->timestamps();
         });

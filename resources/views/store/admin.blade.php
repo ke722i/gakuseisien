@@ -10,7 +10,7 @@
 
 <div class="container">
 
-    @include('partials.sidebar', ['active' => 'nearby-shop'])
+    @include('partials.sidebar', ['active' => 'shop'])
 
     <main class="main">
 

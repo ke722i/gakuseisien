@@ -63,5 +63,40 @@ class DatabaseSeeder extends Seeder
             ['login_id' => 'Teacher'],
             ['password' => Hash::make('123456'), 'role' => 'teacher'],
         );
+
+        // ｛生徒用｝dummyアカウント
+        User::firstOrCreate(
+            ['login_id' => 'nishikawa'],
+            ['password' => Hash::make('nishikawa1'), 'role' => 'student', 'student_number' => '234054', 'class_number' => 'R4SA24', 'student_name' => '西川', 'homeroom_teacher' => '片山先生']
+        );
+
+        User::firstOrCreate(
+            ['login_id' => 'kimura'],
+            ['password' => Hash::make('kimura1'), 'role' => 'student', 'student_number' => '234043', 'class_number' => 'R4SA09', 'student_name' => '木村', 'homeroom_teacher' => '片山先生']
+        );
+
+        User::firstOrCreate(
+            ['login_id' => 'mise'],
+            ['password' => Hash::make('mise1'), 'role' => 'student', 'student_number' => '234001', 'class_number' => 'R1SA01', 'student_name' => '美勢', 'homeroom_teacher' => '江口先生']
+        );
+
+        User::firstOrCreate(
+            ['login_id' => 'miyata'],
+            ['password' => Hash::make('miyata1'), 'role' => 'student', 'student_number' => '234002', 'class_number' => 'R2SC01', 'student_name' => '宮田', 'homeroom_teacher' => '久徳先生']
+        );
+
+        User::firstOrCreate(
+            ['login_id' => 'hujita'],
+            ['password' => Hash::make('hujita1'), 'role' => 'student', 'student_number' => '234003', 'class_number' => 'R3SC01', 'student_name' => '藤田', 'homeroom_teacher' => '古川先生']
+        );
+        
+        // ｛教師用｝dummyアカウント
+        User::firstOrCreate(
+            ['login_id' => 'katayama'],
+            ['password' => Hash::make('katayama1'), 'role' => 'teacher', 'teacher_number' => '001', 'class_number' => 'R4SA00', 'teacher_name' => '片山']
+        );
+
+        // 空き教室予約：1階のフロアマップ用部屋データ
+        $this->call(RoomSeeder::class);
     }
 }
