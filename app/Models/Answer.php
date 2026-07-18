@@ -11,7 +11,6 @@ class Answer extends Model
         'question_id',
         'user_id',
         'content',
-        'is_teacher_approved',
         'upvote_count'
     ];
 

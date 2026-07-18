@@ -10,7 +10,17 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['login_id', 'password', 'role'])]
+#[Fillable([
+    'login_id',
+    'password',
+    'role',
+    'student_number',
+    'class_number',
+    'student_name',
+    'homeroom_teacher',
+    'teacher_number',
+    'teacher_name',
+])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -48,5 +58,11 @@ class User extends Authenticatable
     public function questions()
     {
         return $this->hasMany(\App\Models\Question::class, 'user_id');
+    }
+
+    /** お気に入り登録した店舗 */
+    public function favoriteShops()
+    {
+        return $this->belongsToMany(Shop::class, 'shop_favorites')->withTimestamps();
     }
 }

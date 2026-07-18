@@ -64,7 +64,7 @@ class ForumController extends Controller
             'post_id' => $post->id,
             'parent_id' => $validated['parent_id'] ?? null,
             'user_id' => Auth::id(),
-            'author_name' => Auth::check() ? Auth::user()->login_id : '匿名',
+            'author_name' => Auth::user()->login_id,
             'content' => $validated['content'],
         ]);
 

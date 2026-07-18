@@ -22,7 +22,7 @@
         </header>
 
         <!-- 検索 -->
-        <form method="GET" action="{{ route('nearby.shop') }}">
+        <form method="GET" action="{{ route('store.search') }}">
 
     <section class="search-area">
 
@@ -95,16 +95,25 @@
 
     <div class="menu-buttons">
 
+    @if (Auth::user()?->isTeacher())
     <a href="{{ route('store.admin') }}" class="admin-btn">
         管理者画面
     </a>
+    @endif
 
     <a href="{{ route('store.request') }}" class="request-btn">
         店舗を申請する
     </a>
 
+    @auth
+    {{-- お気に入りのみ表示の切り替え --}}
+    <a href="{{ ($onlyFavorites ?? false) ? route('nearby.shop') : route('nearby.shop', ['favorites' => 1]) }}"
+       class="favorite-filter-btn {{ ($onlyFavorites ?? false) ? 'is-active' : '' }}">
+        {{ ($onlyFavorites ?? false) ? '★ お気に入りのみ表示中' : '☆ お気に入りのみ' }}
+    </a>
+    @endauth
 
-        <div class="content">
+</div>
 
             <!-- 店舗一覧 -->
             <section class="store-grid">
@@ -112,6 +121,16 @@
 @foreach($shops as $shop)
 
 <div class="store-card">
+
+    @auth
+    @php($isFav = $shop->isFavoritedBy(Auth::user()))
+    <form method="POST" action="{{ route('store.favorite.toggle', $shop) }}" class="fav-form">
+        @csrf
+        <button type="submit" class="fav-btn {{ $isFav ? 'is-fav' : '' }}"
+                title="{{ $isFav ? 'お気に入りを解除' : 'お気に入りに追加' }}"
+                aria-label="{{ $isFav ? 'お気に入りを解除' : 'お気に入りに追加' }}">{{ $isFav ? '★' : '☆' }}</button>
+    </form>
+    @endauth
 
     <h3>{{ $shop->name }}</h3>
 
@@ -133,20 +152,32 @@
 
 </section>
 
-        <!-- ページネーション -->
+        <!-- ページネーション（2ページ以上あるときだけ表示） -->
+        @if ($shops->hasPages())
         <section class="pagination">
 
-            <button>＜</button>
+            @if ($shops->onFirstPage())
+                <button disabled>＜</button>
+            @else
+                <a href="{{ $shops->previousPageUrl() }}"><button>＜</button></a>
+            @endif
 
-            <button class="active">1</button>
+            @foreach ($shops->getUrlRange(1, $shops->lastPage()) as $page => $url)
+                @if ($page == $shops->currentPage())
+                    <button class="active">{{ $page }}</button>
+                @else
+                    <a href="{{ $url }}"><button>{{ $page }}</button></a>
+                @endif
+            @endforeach
 
-            <button>2</button>
-
-            <button>3</button>
-
-            <button>＞</button>
+            @if ($shops->hasMorePages())
+                <a href="{{ $shops->nextPageUrl() }}"><button>＞</button></a>
+            @else
+                <button disabled>＞</button>
+            @endif
 
         </section>
+        @endif
 
     </main>
 

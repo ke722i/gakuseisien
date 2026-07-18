@@ -13,6 +13,11 @@ class ForumPostTest extends TestCase
 
     public function test_forum_post_detail_page_is_available(): void
     {
+        $user = User::factory()->create([
+            'login_id' => 'viewer001',
+            'role' => 'student',
+        ]);
+
         $post = Post::create([
             'title' => '落とし物の詳細テスト',
             'content' => '詳細ページの確認用です。',
@@ -21,11 +26,34 @@ class ForumPostTest extends TestCase
             'published_at' => now(),
         ]);
 
+        // 掲示板は学内向けのためログイン必須
+        $this->actingAs($user);
+
         $response = $this->get(route('forum.show', $post));
 
         $response->assertStatus(200);
         $response->assertSee('落とし物の詳細テスト');
         $response->assertSee('詳細ページの確認用です。');
+    }
+
+    public function test_guest_cannot_view_forum(): void
+    {
+        // 要件「学外の一般ユーザーによる閲覧・投稿は対象外」に合わせ、
+        // 未ログインは一覧・詳細ともログイン画面へ誘導される
+        $post = Post::create([
+            'title' => '閲覧制限テスト',
+            'content' => '未ログインでは見えない想定です。',
+            'category' => 'サークル',
+            'posted_by' => '匿名',
+            'published_at' => now(),
+        ]);
+
+        $this->get(route('forum.top'))->assertRedirect(route('login'));
+        $this->get(route('forum.show', $post))->assertRedirect(route('login'));
+        $this->post(route('forum.reply.store', $post), ['content' => '返信'])
+            ->assertRedirect(route('login'));
+
+        $this->assertDatabaseMissing('post_replies', ['content' => '返信']);
     }
 
     public function test_user_can_reply_to_a_post(): void

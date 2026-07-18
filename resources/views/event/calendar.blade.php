@@ -25,9 +25,33 @@
 
             <h1 class="cal-page-title">イベント・締め切りカレンダー</h1>
 
+            {{-- 当日のリマインド（本日開催の予定があるときだけ表示） --}}
+            @if ($todayEvents->isNotEmpty())
+                <div class="cal-reminder">
+                    <span class="cal-reminder-badge">本日</span>
+                    <div class="cal-reminder-body">
+                        <strong>今日の予定があります</strong>
+                        <ul>
+                            @foreach ($todayEvents as $event)
+                                <li>
+                                    <span class="tp-dot {{ $event->categoryClass() }}"></span>
+                                    {{ $event->title }}
+                                    @unless ($event->all_day)（{{ $event->start_at->format('H:i') }}）@endunless
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                </div>
+            @endif
+
+            @if (session('success'))
+                <div class="cal-flash">{{ session('success') }}</div>
+            @endif
+
             <!-- 検索 -->
             <div class="cal-searchbar">
-                <input type="text" id="calSearch" placeholder="予定を検索">
+                <input type="text" id="calSearch" placeholder="予定をキーワードで検索">
+                <input type="date" id="calDateJump" title="日付で移動" aria-label="日付で移動">
             </div>
 
             <div class="cal-layout">
@@ -41,7 +65,9 @@
                     <label class="leg-item"><input type="checkbox" class="leg-cat" data-cat="exam" checked><span class="leg-box exam"></span>試験日</label>
                     <label class="leg-item"><input type="checkbox" class="leg-cat" data-cat="other" checked><span class="leg-box other"></span>その他</label>
 
+                    @if (Auth::user()?->isTeacher())
                     <button type="button" class="cal-add-btn" onclick="openEventModal()">＋ 予定追加</button>
+                    @endif
                 </aside>
 
                 <!-- メインカレンダー -->
@@ -63,7 +89,17 @@
                                 <span class="cal-date {{ $day->dayOfWeek === 0 ? 'sun' : ($day->dayOfWeek === 6 ? 'sat' : '') }}">{{ $day->day }}</span>
                                 <div class="cal-events">
                                     @foreach (($eventsByDate[$key] ?? []) as $event)
-                                        <div class="cal-event {{ $event->categoryClass() }}" data-cat="{{ $event->categoryClass() }}" data-title="{{ $event->title }}">
+                                        <div class="cal-event {{ $event->categoryClass() }}"
+                                             data-cat="{{ $event->categoryClass() }}"
+                                             data-title="{{ $event->title }}"
+                                             data-id="{{ $event->id }}"
+                                             data-category="{{ $event->category }}"
+                                             data-start="{{ $event->start_at->format('Y-m-d\TH:i') }}"
+                                             data-end="{{ $event->end_at?->format('Y-m-d\TH:i') }}"
+                                             data-allday="{{ $event->all_day ? '1' : '0' }}"
+                                             data-location="{{ $event->location }}"
+                                             data-description="{{ $event->description }}"
+                                             @if (Auth::user()?->isTeacher()) data-editable="1" @endif>
                                             <span class="cal-event-title">{{ $event->title }}</span>
                                             @unless ($event->all_day)
                                                 <span class="cal-event-time">({{ $event->start_at->format('H:i') }}@if ($event->end_at)〜{{ $event->end_at->format('H:i') }}@endif)</span>
@@ -118,16 +154,17 @@
         </main>
     </div>
 
-    <!-- 予定追加モーダル -->
+    <!-- 予定追加・編集モーダル -->
     <div class="cal-modal {{ $errors->any() ? 'open' : '' }}" id="eventModal">
         <div class="cal-modal-box">
             <div class="cal-modal-head">
-                <h2>新しい予定の追加</h2>
+                <h2 id="eventModalTitle">新しい予定の追加</h2>
                 <button type="button" class="cal-modal-close" onclick="closeEventModal()">×</button>
             </div>
 
-            <form method="POST" action="{{ route('event.store') }}" class="cal-form">
+            <form method="POST" action="{{ route('event.store') }}" class="cal-form" id="eventForm">
                 @csrf
+                <input type="hidden" name="_method" id="eventMethod" value="">
 
                 @if ($errors->any())
                     <div class="cal-errors">
@@ -177,9 +214,16 @@
                 </div>
 
                 <div class="cal-modal-actions">
+                    <button type="button" class="cal-btn-delete" id="eventDeleteBtn" style="display:none">削除</button>
                     <button type="button" class="cal-btn-cancel" onclick="closeEventModal()">閉じる</button>
-                    <button type="submit" class="cal-btn-submit">追加</button>
+                    <button type="submit" class="cal-btn-submit" id="eventSubmitBtn">追加</button>
                 </div>
+            </form>
+
+            {{-- 削除用の別フォーム（action は JS で設定） --}}
+            <form method="POST" id="eventDeleteForm" style="display:none">
+                @csrf
+                @method('DELETE')
             </form>
         </div>
     </div>
@@ -194,10 +238,80 @@
         }
 
         // モーダル
-        function openEventModal() { document.getElementById('eventModal').classList.add('open'); }
+        const storeUrl = "{{ route('event.store') }}";
+        const eventBaseUrl = "{{ url('event-calendar') }}";
+        const isTeacher = {{ Auth::user()?->isTeacher() ? 'true' : 'false' }};
+
+        function openEventModal() {
+            // 追加モード
+            const form = document.getElementById('eventForm');
+            form.reset();
+            form.action = storeUrl;
+            document.getElementById('eventMethod').value = '';
+            document.getElementById('eventModalTitle').textContent = '新しい予定の追加';
+            document.getElementById('eventSubmitBtn').textContent = '追加';
+            document.getElementById('eventDeleteBtn').style.display = 'none';
+            document.getElementById('eventModal').classList.add('open');
+        }
+
+        function openEditModal(el) {
+            // 編集モード（データ属性からフォームを埋める）
+            const form = document.getElementById('eventForm');
+            const id = el.dataset.id;
+            form.reset();
+            form.action = eventBaseUrl + '/' + id;
+            document.getElementById('eventMethod').value = 'PATCH';
+            document.getElementById('eventModalTitle').textContent = '予定の編集';
+            document.getElementById('eventSubmitBtn').textContent = '更新';
+
+            document.getElementById('title').value = el.dataset.title || '';
+            document.getElementById('category').value = el.dataset.category || '';
+            document.getElementById('start_at').value = el.dataset.start || '';
+            document.getElementById('end_at').value = (el.dataset.end && el.dataset.end !== 'null') ? el.dataset.end : '';
+            document.querySelector('input[name="all_day"]').checked = el.dataset.allday === '1';
+            document.getElementById('location').value = el.dataset.location || '';
+            document.getElementById('description').value = el.dataset.description || '';
+
+            const delBtn = document.getElementById('eventDeleteBtn');
+            delBtn.style.display = '';
+            delBtn.dataset.id = id;
+            delBtn.dataset.title = el.dataset.title || '';
+
+            document.getElementById('eventModal').classList.add('open');
+        }
+
         function closeEventModal() { document.getElementById('eventModal').classList.remove('open'); }
         document.getElementById('eventModal').addEventListener('click', (e) => {
             if (e.target.id === 'eventModal') closeEventModal();
+        });
+
+        // 教職員はカレンダー上の予定をクリックで編集
+        if (isTeacher) {
+            document.querySelectorAll('.cal-event[data-editable="1"]').forEach(el => {
+                el.style.cursor = 'pointer';
+                el.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    openEditModal(el);
+                });
+            });
+        }
+
+        // 削除
+        const eventDeleteBtn = document.getElementById('eventDeleteBtn');
+        eventDeleteBtn?.addEventListener('click', () => {
+            const id = eventDeleteBtn.dataset.id;
+            if (!confirm(`「${eventDeleteBtn.dataset.title}」を削除しますか？`)) return;
+            const delForm = document.getElementById('eventDeleteForm');
+            delForm.action = eventBaseUrl + '/' + id;
+            delForm.submit();
+        });
+
+        // 日付ジャンプ（その月へ移動し、該当日を選択状態にする）
+        document.getElementById('calDateJump')?.addEventListener('change', (e) => {
+            const v = e.target.value;
+            if (!v) return;
+            const [y, m] = v.split('-').map(Number);
+            location.href = `{{ route('event.calendar') }}?year=${y}&month=${m}&focus=${v}`;
         });
 
         // カテゴリ絞り込み + 検索
@@ -248,6 +362,19 @@
                 if (el.dataset.date) renderPanel(el.dataset.date);
             });
         });
+
+        // 日付ジャンプで来たときは、その日を選択表示してハイライトする
+        (function () {
+            const params = new URLSearchParams(location.search);
+            const focus = params.get('focus');
+            if (!focus) return;
+            renderPanel(focus);
+            const cell = document.querySelector(`.cal-cell[data-date="${focus}"]`);
+            if (cell) {
+                cell.classList.add('cal-cell-focus');
+                cell.scrollIntoView({ block: 'center', behavior: 'smooth' });
+            }
+        })();
     </script>
 </body>
 

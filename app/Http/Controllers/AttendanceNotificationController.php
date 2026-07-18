@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
+use App\Models\UserNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB; // 直接データベースを操作するクラスをインポート
@@ -72,6 +74,7 @@ class AttendanceNotificationController extends Controller
         // 1. report_status（受理 or 差し戻し）のバリデーション
         $rules = [
             'report_status' => 'required|string|in:受理,差し戻し',
+            'return_comment' => 'nullable|string|max:1000', // 差し戻し理由コメント
         ];
 
         // 2. 「受理」の場合のみ、attendance_type（ラジオボタン）を必須にする
@@ -89,8 +92,28 @@ class AttendanceNotificationController extends Controller
             ->update([
                 'attendance_type' => $request->input('attendance_type'),
                 'report_status'   => $request->input('report_status'), // 追加：ステータスを更新
+                'return_comment'  => $request->input('return_comment'), // 差し戻しコメントを保存
                 'updated_at'      => now(),
             ]);
+
+        // 4. 提出した学生に結果を通知する
+        //    届は学籍番号しか持たないため、学籍番号からユーザーを逆引きする
+        //    （見つからない場合は通知なしで続行）
+        $report = DB::table('attendance_reports')->find($id);
+        $student = User::where('student_number', $report->student_number)->first();
+
+        $isAccepted = $request->input('report_status') === '受理';
+        $body = $report->target_date . ' 分の届';
+        if (! $isAccepted && $request->filled('return_comment')) {
+            $body .= '／コメント: ' . $request->input('return_comment');
+        }
+
+        UserNotification::send(
+            $student?->id,
+            $isAccepted ? '欠席・遅刻届が受理されました' : '欠席・遅刻届が差し戻されました',
+            $body,
+            route('notification', absolute: false)
+        );
 
         return redirect()->route('notification')->with('success', '届出のステータスを更新しました。');
     }

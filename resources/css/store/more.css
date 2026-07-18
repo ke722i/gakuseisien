@@ -1,9 +1,6 @@
 /* ===================================
    共通設定
 =================================== */
-body {
-    background: red !important;
-}
 * {
     box-sizing: border-box;
 }
@@ -29,20 +26,19 @@ a:hover {
 =================================== */
 
 .container {
-    display: flex;
     min-height: 100vh;
 }
 
+/* サイドバーは app.css の共通部品（固定幅68pxのレール）を使用 */
 .main-content {
-    flex: 1;
-    width: calc(100% - 230px);
+    margin-left: 68px;
     max-width: 1280px;
     padding: 32px;
 }
 
 /* ===================================
    上部操作
-}
+=================================== */
 
 .shop-genre {
     display: inline-block;
@@ -385,9 +381,32 @@ textarea:focus {
     }
 }
 
+/* お気に入りボタン（詳細ページ） */
+.fav-detail-form {
+    margin-top: 12px;
+}
+
+.fav-detail-btn {
+    border: 1px solid #f59e0b;
+    background: #fff;
+    color: #b45309;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.fav-detail-btn.is-fav {
+    background: #f59e0b;
+    color: #fff;
+}
+
 @media (max-width: 700px) {
     .main-content {
-        width: 100%;
+        /* サイドバーがオフキャンバスになるため余白を戻す
+           （margin-left を残すと width:100% と合算して横スクロールになる） */
+        margin-left: 0;
         padding: 18px;
     }
 

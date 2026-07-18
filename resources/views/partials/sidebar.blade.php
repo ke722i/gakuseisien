@@ -12,6 +12,11 @@
 --}}
 @php($active = $active ?? '')
 
+{{-- 未読お知らせ件数（学生のみ）。ホームの「お知らせ」に気づかせるためのバッジ --}}
+@php($sidebarUnread = Auth::check() && !Auth::user()->isTeacher()
+    ? \App\Models\UserNotification::where('user_id', Auth::id())->unread()->count()
+    : 0)
+
 {{-- スマホ用の開くボタン（PCでは非表示） --}}
 <button class="menu-button" id="menuButton" aria-label="メニューを開く">☰</button>
 
@@ -30,7 +35,7 @@
 
     <nav class="sidebar-menu">
         <a href="{{ route('home') }}" class="{{ $active === 'home' ? 'active' : '' }}">
-            <span class="menu-icon">🏠</span><span class="label">ホーム</span>
+            <span class="menu-icon">🏠@if($sidebarUnread > 0)<span class="sidebar-unread-dot" title="未読のお知らせ{{ $sidebarUnread }}件">{{ $sidebarUnread }}</span>@endif</span><span class="label">ホーム</span>
         </a>
         <a href="{{ route('classroom.reservation') }}" class="{{ $active === 'reservation' ? 'active' : '' }}">
             <span class="menu-icon">🏫</span><span class="label">空き教室予約</span>
@@ -57,6 +62,12 @@
         @if(Auth::user()->isTeacher())
         <a href="{{ route('adminReports') }}" class="{{ $active === 'admin_reports' ? 'active' : '' }}" style="background-color: #fff0f0;">
             <span class="menu-icon">🚨</span><span class="label" style="color: #cc3333; font-weight: bold;">通報管理一覧</span>
+        </a>
+        <a href="{{ route('admin.users.index') }}" class="{{ $active === 'admin_users' ? 'active' : '' }}">
+            <span class="menu-icon">👥</span><span class="label">アカウント管理</span>
+        </a>
+        <a href="{{ route('admin.rooms.index') }}" class="{{ $active === 'admin_rooms' ? 'active' : '' }}">
+            <span class="menu-icon">🗝️</span><span class="label">空き教室設定</span>
         </a>
         @endif
         @endauth

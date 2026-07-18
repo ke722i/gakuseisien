@@ -350,7 +350,7 @@ Route::get('/recentnews', function () {
                 'lang' => 'ja',
                 'country' => 'jp',
                 'max' => $limit,
-                'apikey' => trim(env('GNEWS_API_KEY')),
+                'apikey' => trim(config('services.gnews.key') ?? ''),
             ]);
 
         $articles = [];
@@ -367,7 +367,7 @@ Route::get('/recentnews', function () {
                     'lang' => 'ja',
                     'country' => 'jp',
                     'max' => $limit,
-                    'apikey' => trim(env('GNEWS_API_KEY')),
+                    'apikey' => trim(config('services.gnews.key') ?? ''),
                 ]);
 
             if ($searchResponse->successful()) {
@@ -476,9 +476,102 @@ Route::get('/recentnews', function () {
 })->name('recent.news');
 
 // ホームダッシュボード（要ログイン）
+// 学生: 自分の申請状況・お知らせ・直近イベントを表示
+// 先生: 承認待ち件数のインボックスを表示
 Route::get('/home', function () {
-    return view('home');
+    $user = Auth::user();
+    $today = Carbon::today();
+
+    // 直近のイベント・締め切り（今日以降のみ・開始日時順に5件）
+    // 7日以内に追加された予定には New バッジを付けて変更に気づけるようにする
+    $upcomingEvents = App\Models\Event::where('start_at', '>=', $today)
+        ->orderBy('start_at')
+        ->limit(5)
+        ->get()
+        ->map(fn($e) => [
+            'date' => $e->start_at->format('n/j'),
+            'weekday' => ['日', '月', '火', '水', '木', '金', '土'][$e->start_at->dayOfWeek],
+            'time' => $e->all_day ? '終日' : $e->start_at->format('H:i'),
+            'title' => $e->title,
+            'category' => $e->category,
+            'is_new' => $e->created_at->gt(now()->subDays(7)),
+            'days_left' => (int) $today->diffInDays($e->start_at->copy()->startOfDay()),
+        ]);
+
+    if ($user->isTeacher()) {
+        // 先生: 未対応の件数を集めたインボックス
+        $classPrefix = substr($user->class_number ?? '', 0, 4);
+
+        return view('home', [
+            'isTeacher' => true,
+            'upcomingEvents' => $upcomingEvents,
+            'pendingReservations' => App\Models\Reservation::where('status', App\Models\Reservation::STATUS_PENDING)->count(),
+            'pendingShopRequests' => App\Models\ShopRequest::where('status', 'pending')->count(),
+            'pendingAttendance' => $classPrefix === ''
+                ? 0
+                : DB::table('attendance_reports')
+                    ->whereRaw('left(class_number, 4) = ?', [$classPrefix])
+                    ->where('report_status', '未処理')
+                    ->count(),
+        ]);
+    }
+
+    // 学生: 自分の申請状況
+    $statusLabels = [
+        App\Models\Reservation::STATUS_PENDING => '承認待ち',
+        App\Models\Reservation::STATUS_APPROVED => '承認済み',
+        App\Models\Reservation::STATUS_REJECTED => '承認拒否',
+    ];
+
+    $myReservations = App\Models\Reservation::where('user_id', $user->id)
+        ->where('reservation_date', '>=', $today)
+        ->with('room')
+        ->orderBy('reservation_date')
+        ->orderBy('period')
+        ->limit(3)
+        ->get()
+        ->map(fn($r) => [
+            'room' => $r->room?->name ?? '不明',
+            'date' => $r->reservation_date->format('n/j'),
+            'period' => $r->period . '限',
+            'status' => $r->status,
+            'status_label' => $statusLabels[$r->status] ?? '承認待ち',
+        ]);
+
+    // 欠席届: 自分の学籍番号で出した直近の届（学籍番号未設定なら空）
+    $myAttendance = $user->student_number
+        ? DB::table('attendance_reports')
+            ->where('student_number', $user->student_number)
+            ->orderByDesc('created_at')
+            ->limit(2)
+            ->get()
+        : collect();
+
+    // 自分のお知らせ（最新5件 + 未読数）
+    $notifications = App\Models\UserNotification::where('user_id', $user->id)
+        ->orderByDesc('created_at')
+        ->limit(5)
+        ->get();
+    $unreadCount = App\Models\UserNotification::where('user_id', $user->id)->unread()->count();
+
+    return view('home', [
+        'isTeacher' => false,
+        'upcomingEvents' => $upcomingEvents,
+        'myReservations' => $myReservations,
+        'myAttendance' => $myAttendance,
+        'notifications' => $notifications,
+        'unreadCount' => $unreadCount,
+    ]);
 })->name('home')->middleware('auth');
+
+// お知らせを全件既読にする（学生がホームで「すべて既読にする」を押したとき）
+Route::post('/home/notifications/read', function () {
+    App\Models\UserNotification::where('user_id', Auth::id())
+        ->unread()
+        ->update(['read_at' => now()]);
+
+    return redirect()->route('home');
+})->name('home.notifications.read')->middleware('auth');
 
 // ログイン・新規登録画面のルート設定
 Route::get('/login', [AuthController::class, 'show'])->name('login');
@@ -486,6 +579,25 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.attempt');
 Route::get('/register', fn() => app(AuthController::class)->show('register'))->name('register');
 Route::post('/register', [AuthController::class, 'register'])->name('register.attempt');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// アカウント管理（教職員のみ）：ユーザーのCRUD・権限付与・パスワード初期化
+Route::middleware('teacher')->group(function () {
+    Route::get('/admin/users', [App\Http\Controllers\AdminUserController::class, 'index'])->name('admin.users.index');
+    Route::get('/admin/users/create', [App\Http\Controllers\AdminUserController::class, 'create'])->name('admin.users.create');
+    Route::post('/admin/users', [App\Http\Controllers\AdminUserController::class, 'store'])->name('admin.users.store');
+    Route::get('/admin/users/{user}/edit', [App\Http\Controllers\AdminUserController::class, 'edit'])->name('admin.users.edit');
+    Route::patch('/admin/users/{user}', [App\Http\Controllers\AdminUserController::class, 'update'])->name('admin.users.update');
+    Route::delete('/admin/users/{user}', [App\Http\Controllers\AdminUserController::class, 'destroy'])->name('admin.users.destroy');
+    Route::post('/admin/users/{user}/reset-password', [App\Http\Controllers\AdminUserController::class, 'resetPassword'])->name('admin.users.resetPassword');
+
+    // 空き教室設定：教室の登録・編集・削除、利用不可時間帯の設定
+    Route::get('/admin/rooms', [App\Http\Controllers\RoomAdminController::class, 'index'])->name('admin.rooms.index');
+    Route::post('/admin/rooms', [App\Http\Controllers\RoomAdminController::class, 'store'])->name('admin.rooms.store');
+    Route::patch('/admin/rooms/{room}', [App\Http\Controllers\RoomAdminController::class, 'update'])->name('admin.rooms.update');
+    Route::delete('/admin/rooms/{room}', [App\Http\Controllers\RoomAdminController::class, 'destroy'])->name('admin.rooms.destroy');
+    Route::post('/admin/rooms/unavailable', [App\Http\Controllers\RoomAdminController::class, 'storeUnavailable'])->name('admin.rooms.unavailable.store');
+    Route::delete('/admin/rooms/unavailable/{slot}', [App\Http\Controllers\RoomAdminController::class, 'destroyUnavailable'])->name('admin.rooms.unavailable.destroy');
+});
 
 // 空き教室予約ページのルート設定
 // 先生は先生用、学生（未ログイン含む）は学生用ページへ遷移する
@@ -504,6 +616,9 @@ Route::post('/classroom-reservation/room', [RoomReservationController::class, 's
 Route::get('/classroom-reservation/list', [RoomReservationController::class, 'list'])
     ->name('classroom.reservation.list')
     ->middleware('auth');
+Route::patch('/classroom-reservation/{reservation}', [RoomReservationController::class, 'update'])
+    ->name('classroom.reservation.update')
+    ->middleware('auth');
 Route::delete('/classroom-reservation/{reservation}', [RoomReservationController::class, 'destroy'])
     ->name('classroom.reservation.destroy')
     ->middleware('auth');
@@ -518,13 +633,13 @@ Route::patch('/classroom-reservation/{reservation}/approve', [RoomReservationCon
 Route::patch('/classroom-reservation/{reservation}/reject', [RoomReservationController::class, 'reject'])
     ->name('classroom.reservation.reject')
     ->middleware('teacher');
-// 教室一覧予約ページのルート設定
-Route::get('/classroom-reservation/bulk', function () {
-    if (!Auth::check() || !Auth::user()->isTeacher()) {
-        return redirect()->route('classroom.reservation');
-    }
-    return view('reservation.room.bulk-room-reservation');
-})->name('classroom.reservation.bulk');
+// 教室一括予約ページのルート設定（教職員のみ）
+Route::middleware('teacher')->group(function () {
+    Route::get('/classroom-reservation/bulk', [RoomReservationController::class, 'bulk'])
+        ->name('classroom.reservation.bulk');
+    Route::post('/classroom-reservation/bulk', [RoomReservationController::class, 'bulkStore'])
+        ->name('classroom.reservation.bulk.store');
+});
 
 // 掲示板ページのルート設定
 // TODO(掲示板担当): view名が未定のため一旦コメントアウト。
@@ -535,43 +650,39 @@ Route::get('/classroom-reservation/bulk', function () {
 // })->name('board');
 
 // 掲示板画面ルート設定(miyata)
-Route::get('/forum-top', [ForumController::class, 'index'])->name('forum.top');
-Route::get('/forum/create', [ForumController::class, 'create'])->name('forum.create');
-Route::post('/forum', [ForumController::class, 'store'])->name('forum.store');
-Route::get('/forum/{post}', [ForumController::class, 'show'])->name('forum.show');
-
-// 編集・更新・削除はログイン必須（本人チェックはコントローラー側で行う）
+// 要件「学外の一般ユーザーによる閲覧・投稿は対象外」に合わせ、掲示板は
+// 閲覧・投稿・返信すべてログイン必須とする（本人チェックはコントローラー側）。
 Route::middleware('auth')->group(function () {
+    Route::get('/forum-top', [ForumController::class, 'index'])->name('forum.top');
+    Route::get('/forum/create', [ForumController::class, 'create'])->name('forum.create');
+    Route::post('/forum', [ForumController::class, 'store'])->name('forum.store');
+    Route::get('/forum/{post}', [ForumController::class, 'show'])->name('forum.show');
     Route::get('/forum/{post}/edit', [ForumController::class, 'edit'])->name('forum.edit');
     Route::patch('/forum/{post}', [ForumController::class, 'update'])->name('forum.update');
     Route::delete('/forum/{post}', [ForumController::class, 'destroy'])->name('forum.destroy');
+    Route::post('/forum/{post}/reply', [ForumController::class, 'storeReply'])->name('forum.reply.store');
+    Route::patch('/forum/replies/{reply}', [ForumController::class, 'updateReply'])->name('forum.reply.update');
+    Route::delete('/forum/replies/{reply}', [ForumController::class, 'destroyReply'])->name('forum.reply.destroy');
+    Route::post('/forum/{post}/report', [ForumController::class, 'reportPost'])->name('forum.report');
 });
-// 投稿への返信（未ログインは「匿名」として投稿される仕様）
-Route::post('/forum/{post}/reply', [ForumController::class, 'storeReply'])->name('forum.reply.store');
-Route::patch('/forum/replies/{reply}', [ForumController::class, 'updateReply'])->name('forum.reply.update');
-Route::delete('/forum/replies/{reply}', [ForumController::class, 'destroyReply'])->name('forum.reply.destroy');
-Route::post('/forum/{post}/report', [ForumController::class, 'reportPost'])->name('forum.report');
-Route::get('/forum/{post}/edit', [ForumController::class, 'edit'])->name('forum.edit');
-Route::patch('/forum/{post}', [ForumController::class, 'update'])->name('forum.update');
-Route::delete('/forum/{post}', [ForumController::class, 'destroy'])->name('forum.destroy');
 
 // 学内Q&Aページのルート設定
 use App\Http\Controllers\QnaController;
 
 // 固定のURL
 Route::get('/gakunai-qna', [QnaController::class, 'index'])->name('gakunai.qna');
-Route::get('/gakunai-qna/create', [QnaController::class, 'create'])->name('qna.create');
-Route::post('/gakunai-qna/store', [QnaController::class, 'store'])->name('qna.store');
+Route::get('/gakunai-qna/create', [QnaController::class, 'create'])->name('qna.create')->middleware('auth');
+Route::post('/gakunai-qna/store', [QnaController::class, 'store'])->name('qna.store')->middleware('auth');
 Route::get('/gakunai-qna/history', [QnaController::class, 'history'])->name('qna.history');
 Route::get('/gakunai-qna/admin/reports', [QnaController::class, 'adminReports'])
     ->name('adminReports')
     ->middleware('teacher');
 
 // 2. 動的なURL
-Route::delete('/gakunai-qna/{id}', [QnaController::class, 'destroy'])->name('qna.destroy');
+Route::delete('/gakunai-qna/{id}', [QnaController::class, 'destroy'])->name('qna.destroy')->middleware('auth');
 Route::get('/gakunai-qna/{id}', [QnaController::class, 'show'])->name('qna.detail');
-Route::post('/gakunai-qna/{id}/answers', [QnaController::class, 'storeAnswer'])->name('qna.storeAnswer');
-Route::patch('/gakunai-qna/{id}/best-answer/{answer_id}', [QnaController::class, 'selectBestAnswer'])->name('qna.bestAnswer');
+Route::post('/gakunai-qna/{id}/answers', [QnaController::class, 'storeAnswer'])->name('qna.storeAnswer')->middleware('auth');
+Route::patch('/gakunai-qna/{id}/best-answer/{answer_id}', [QnaController::class, 'selectBestAnswer'])->name('qna.bestAnswer')->middleware('auth');
 Route::post('/gakunai-qna/{id}/report', [QnaController::class, 'reportQuestion'])->name('qna.report');
 Route::post('/qna/answers/{answer}/upvote', [App\Http\Controllers\QnaController::class, 'toggleUpvote'])
     ->name('qna.answers.upvote')
@@ -584,7 +695,9 @@ Route::post('/qna/answers/{id}/approve', [QnaController::class, 'approveAnswer']
 // イベント・締め切りカレンダーページのルート設定
 Route::get('/event-calendar', [EventController::class, 'index'])->name('event.calendar');
 Route::get('/event-calendar/day/{date}', [EventController::class, 'day'])->name('event.day');
-Route::post('/event-calendar', [EventController::class, 'store'])->name('event.store');
+Route::post('/event-calendar', [EventController::class, 'store'])->name('event.store')->middleware('teacher');
+Route::patch('/event-calendar/{event}', [EventController::class, 'update'])->name('event.update')->middleware('teacher');
+Route::delete('/event-calendar/{event}', [EventController::class, 'destroy'])->name('event.destroy')->middleware('teacher');
 
 // 欠席・遅刻届ページのルート設定
 Route::get('/notification', function () {
@@ -600,7 +713,16 @@ Route::get('/notification', function () {
         return view('notification.notification_tea', compact('reports', 'classPrefix'));
     }
 
-    return view('notification.notification_stu');
+    // 学生：自分の学籍番号で提出した届の履歴をログ欄に表示する
+    $myReports = $user?->student_number
+        ? DB::table('attendance_reports')
+            ->where('student_number', $user->student_number)
+            ->orderByDesc('created_at')
+            ->limit(5)
+            ->get()
+        : collect();
+
+    return view('notification.notification_stu', compact('myReports'));
 })->name('notification');
 
 // 欠席・遅刻届フォームの送信（POSTリクエスト）を受け付けるURLとコントローラーの紐付け
@@ -609,19 +731,25 @@ Route::post('/notification/store', [AttendanceNotificationController::class, 'st
 
 // 教師が「受理」または「差し戻し」の処理を行うためのURL
 Route::post('/teacher/notification/{id}/decide', [AttendanceNotificationController::class, 'decideNotificationType'])
-    ->name('notification.decide');
-
-// 時事ニュースページのルート設定
-Route::get('/recentnews', function () { //担当者へ、ファイル名違ったら修正してください
-    return view('welcome'); // recentNews.blade.php を呼び出す 
-})->name('recent.news');
+    ->name('notification.decide')
+    ->middleware('teacher');
 
 // 近辺店舗ページのルート設定
 // 近辺店舗情報マップ（一覧 / 詳細 / 申請）
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\ReviewController;
+
+// 一般公開（誰でも閲覧・検索・申請できる）
 Route::get('/nearby-shop', [ShopController::class, 'index'])
     ->name('nearby.shop');
+
+Route::get('/nearby-shop/search', [ShopController::class, 'search'])
+    ->name('store.search');
+
+// 店舗のお気に入り登録・解除（ログイン必須）
+Route::post('/nearby-shop/{shop}/favorite', [ShopController::class, 'toggleFavorite'])
+    ->name('store.favorite.toggle')
+    ->middleware('auth');
 
 Route::get('/nearby-shop/store/{id}', [ShopController::class, 'show'])
     ->name('store.more');
@@ -633,37 +761,34 @@ Route::get('/nearby-shop/request', [ShopController::class, 'request'])
 Route::post('/nearby-shop/request', [ShopController::class, 'storeRequest'])
     ->name('store.request.store');
 
-Route::get('/nearby-shop/admin', [ShopController::class, 'admin'])
-    ->name('store.admin');
+// 店舗管理（先生アカウント専用）
+Route::middleware('teacher')->group(function () {
+    Route::get('/nearby-shop/admin', [ShopController::class, 'admin'])
+        ->name('store.admin');
 
-Route::get('/nearby-shop/request/{id}', [ShopController::class, 'requestMore'])
-    ->name('store.request.more');
+    Route::get('/nearby-shop/request/{id}', [ShopController::class, 'requestMore'])
+        ->name('store.request.more');
 
     // 承認
-Route::post('/nearby-shop/request/{id}/approve', [ShopController::class, 'approve'])
-    ->name('store.request.approve');
+    Route::post('/nearby-shop/request/{id}/approve', [ShopController::class, 'approve'])
+        ->name('store.request.approve');
 
-// 却下
-Route::post('/nearby-shop/request/{id}/reject', [ShopController::class, 'reject'])
-    ->name('store.request.reject');
+    // 却下
+    Route::post('/nearby-shop/request/{id}/reject', [ShopController::class, 'reject'])
+        ->name('store.request.reject');
 
-Route::get('/nearby-shop/admin/edit/{id}', [ShopController::class, 'edit'])
-    ->name('store.edit');
+    Route::get('/nearby-shop/admin/edit/{id}', [ShopController::class, 'edit'])
+        ->name('store.edit');
 
-Route::post('/nearby-shop/admin/update/{id}', [ShopController::class, 'update'])
-    ->name('store.update');
+    Route::post('/nearby-shop/admin/update/{id}', [ShopController::class, 'update'])
+        ->name('store.update');
 
-Route::get('/nearby-shop/admin/edit/{id}', [ShopController::class, 'edit'])
-    ->name('store.edit');
+    Route::post('/nearby-shop/admin/hide/{id}', [ShopController::class, 'hide'])
+        ->name('store.hide');
 
-Route::post('/nearby-shop/admin/update/{id}', [ShopController::class, 'update'])
-    ->name('store.update');
-
-Route::post('/nearby-shop/admin/hide/{id}', [ShopController::class, 'hide'])
-    ->name('store.hide');
-
-Route::post('/nearby-shop/admin/delete/{id}', [ShopController::class, 'destroy'])
-    ->name('store.destroy');
+    Route::post('/nearby-shop/admin/delete/{id}', [ShopController::class, 'destroy'])
+        ->name('store.destroy');
+});
 
 // 口コミ投稿
 Route::post('/nearby-shop/store/{id}/review', [ReviewController::class, 'store'])
