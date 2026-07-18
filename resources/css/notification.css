@@ -11,8 +11,9 @@ body {
     line-height: 1.7;
 }
 
+/* display:flex にするとモバイルでハンバーガーボタンが .content と
+   横並びになり横スクロールが発生する（サイドバーは fixed のため flex 不要） */
 .app-layout {
-    display: flex;
     min-height: 100vh;
 }
 

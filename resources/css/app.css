@@ -23,8 +23,9 @@ button {
     background-color: #ffffff;
 }
 
+/* width:100% を指定すると margin-left:68px（サイドバー分）と合算して
+   横スクロールが発生するため、ブロック要素の自動幅に任せる */
 .content {
-    width: 100%;
     padding: 32px 40px;
 }
 
@@ -175,11 +176,29 @@ button {
 
 /* アイコン枠（画像に差し替えてもレイアウトが崩れないよう幅を固定） */
 .menu-icon {
+    position: relative;
     width: 28px;
     flex-shrink: 0;
     font-size: 20px;
     text-align: center;
     line-height: 1;
+}
+
+/* 未読お知らせ数の赤バッジ（ホームアイコンの右上に重ねる） */
+.sidebar-unread-dot {
+    position: absolute;
+    top: -6px;
+    right: -8px;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    border-radius: 999px;
+    background: #dc2626;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 16px;
+    text-align: center;
 }
 
 /* ラベルは通常は隠し、ホバー展開時にフェード表示 */

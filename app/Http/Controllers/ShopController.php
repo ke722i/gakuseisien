@@ -5,16 +5,69 @@ namespace App\Http\Controllers;
 use App\Models\Shop;
 use App\Models\ShopRequest;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Services\GoogleMapsService;
 
 class ShopController extends Controller
 {
-    // ホーム
-    public function index()
+    /** 店舗申請・店舗更新で共通のバリデーションルール */
+    private function shopValidationRules(): array
     {
-        $shops = Shop::where('is_visible', true)->get();
+        return [
+            'name' => ['required', 'string', 'max:255'],
+            'genre' => ['required', 'string', 'max:100'],
+            'address' => ['required', 'string', 'max:255'],
+            'business_hours' => ['required', 'string', 'max:255'],
+            'budget' => ['required', 'integer', 'min:0'],
+            'distance' => ['required', 'integer', 'min:0'],
+            'payment_method' => ['required', 'string', 'max:100'],
+            'official_url' => ['nullable', 'url', 'max:255'],
+        ];
+    }
 
-        return view('store.home', compact('shops'));
+    // ホーム
+    public function index(Request $request)
+    {
+        $onlyFavorites = $request->boolean('favorites');
+
+        $shops = Shop::where('is_visible', true)
+            // お気に入りのみ表示（ログイン時のみ有効）
+            ->when($onlyFavorites && Auth::check(), function ($query) {
+                $query->whereHas('favoritedBy', fn ($q) => $q->where('users.id', Auth::id()));
+            })
+            ->with('favoritedBy')
+            ->paginate(9)
+            ->withQueryString();
+
+        return view('store.home', compact('shops', 'onlyFavorites'));
+    }
+
+    /**
+     * お気に入りの登録・解除（トグル）。
+     * 非同期（fetch）からもフォーム送信からも呼べるようにする。
+     */
+    public function toggleFavorite(Request $request, Shop $shop)
+    {
+        $user = Auth::user();
+
+        // detach は削除件数を返すので、0 なら未登録だったとみなして attach する
+        $removed = $user->favoriteShops()->detach($shop->id);
+
+        if ($removed === 0) {
+            $user->favoriteShops()->attach($shop->id);
+            $favorited = true;
+        } else {
+            $favorited = false;
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'favorited' => $favorited,
+                'count' => $shop->favoritedBy()->count(),
+            ]);
+        }
+
+        return back()->with('success', $favorited ? 'お気に入りに追加しました。' : 'お気に入りを解除しました。');
     }
 
     // 店舗詳細
@@ -96,16 +149,7 @@ public function show($id, GoogleMapsService $googleMapsService)
     // 店舗申請保存
     public function storeRequest(Request $request)
     {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'genre' => ['required', 'string', 'max:100'],
-            'address' => ['required', 'string', 'max:255'],
-            'business_hours' => ['required', 'string', 'max:255'],
-            'budget' => ['required', 'integer', 'min:0'],
-            'distance' => ['required', 'integer', 'min:0'],
-            'payment_method' => ['required', 'string', 'max:100'],
-            'official_url' => ['nullable', 'url', 'max:255'],
-        ]);
+        $validated = $request->validate($this->shopValidationRules());
 
         ShopRequest::create([
             'name' => $validated['name'],
@@ -181,16 +225,7 @@ public function show($id, GoogleMapsService $googleMapsService)
     {
         $shop = Shop::findOrFail($id);
 
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'genre' => ['required', 'string', 'max:100'],
-            'address' => ['required', 'string', 'max:255'],
-            'business_hours' => ['required', 'string', 'max:255'],
-            'budget' => ['required', 'integer', 'min:0'],
-            'distance' => ['required', 'integer', 'min:0'],
-            'payment_method' => ['required', 'string', 'max:100'],
-            'official_url' => ['nullable', 'url', 'max:255'],
-        ]);
+        $validated = $request->validate($this->shopValidationRules());
 
         $shop->update([
             'name' => $validated['name'],
@@ -273,8 +308,13 @@ public function show($id, GoogleMapsService $googleMapsService)
                 $query->where('payment_method', $paymentMethod);
             })
 
-            ->get();
+            // 検索条件をページ移動後も維持する
+            ->with('favoritedBy')
+            ->paginate(9)
+            ->withQueryString();
 
-        return view('store.home', compact('shops'));
+        $onlyFavorites = false;
+
+        return view('store.home', compact('shops', 'onlyFavorites'));
     }
 }

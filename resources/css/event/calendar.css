@@ -481,3 +481,65 @@
 
     .cal-right { grid-template-columns: 1fr; }
 }
+
+/* ===== 当日リマインド・フラッシュ・日付ジャンプ・編集モーダル（追加分） ===== */
+.cal-reminder {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    background: #fff7ed;
+    border: 1px solid #fed7aa;
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 14px;
+}
+
+.cal-reminder-badge {
+    flex-shrink: 0;
+    background: #ea580c;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 999px;
+}
+
+.cal-reminder-body strong { font-size: 14px; color: #9a3412; }
+.cal-reminder-body ul { margin: 4px 0 0; padding-left: 0; list-style: none; }
+.cal-reminder-body li { font-size: 13px; color: #7c2d12; padding: 2px 0; }
+
+.cal-flash {
+    background: #dcfce7;
+    border: 1px solid #86efac;
+    color: #166534;
+    border-radius: 10px;
+    padding: 10px 16px;
+    margin-bottom: 14px;
+    font-size: 14px;
+}
+
+.cal-searchbar { display: flex; gap: 8px; flex-wrap: wrap; }
+#calDateJump {
+    padding: 8px 10px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.cal-cell-focus {
+    outline: 2px solid #2563eb;
+    outline-offset: -2px;
+    border-radius: 6px;
+}
+
+.cal-btn-delete {
+    background: #fff;
+    border: 1px solid #fca5a5;
+    color: #dc2626;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-right: auto;
+}
+.cal-btn-delete:hover { background: #fef2f2; }

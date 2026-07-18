@@ -105,10 +105,6 @@
                         <input type="hidden" name="reason" id="report-reason-{{ $post->id }}">
                     </form>
                     @endif
-                    <form id="report-form-{{ $post->id }}" action="{{ route('qna.report', $post->id) }}" method="POST" style="display: none;">
-                        @csrf
-                        <input type="hidden" name="reason" id="report-reason-{{ $post->id }}">
-                    </form>
 
                     @if(!$post->best_answer_id)
                     @auth

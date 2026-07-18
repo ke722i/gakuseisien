@@ -2,9 +2,10 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>店舗管理画面</title>
 
-    @vite(['resources/css/store/admin.css'])
+    @vite(['resources/css/app.css', 'resources/css/store/admin.css'])
 </head>
 <body>
 
@@ -16,7 +17,7 @@
 
         <h1>店舗管理</h1>
 
-        <div class="content">
+        <div class="admin-content">
 
             <!-- 店舗一覧 -->
             <section class="store-list">

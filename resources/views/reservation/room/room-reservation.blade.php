@@ -77,87 +77,20 @@
                         <span class="legend-item"><span class="legend-box legend-box--available"></span>＝予約可能</span>
                         <span class="legend-item"><span class="legend-box legend-box--reserved"></span>＝予約不可</span>
                     </div>
-                    @php
-                        // 添付画像のレイアウトに合わせた各階の部屋の表示位置
-                        $roomShapesByFloor = [
-                            1 => [
-                                '101c' => ['x' => 100, 'y' => 40, 'w' => 260, 'h' => 330],
-                                '会議室1' => ['x' => 460, 'y' => 40, 'w' => 180, 'h' => 140],
-                                '会議室2' => ['x' => 650, 'y' => 40, 'w' => 180, 'h' => 140],
-                                '職員室' => ['x' => 460, 'y' => 220, 'w' => 280, 'h' => 230],
-                                '物置' => ['x' => 100, 'y' => 390, 'w' => 120, 'h' => 110],
-                                'EV' => ['x' => 230, 'y' => 390, 'w' => 90, 'h' => 110],
-                                '階段' => ['x' => 330, 'y' => 390, 'w' => 110, 'h' => 110],
-                            ],
-                            2 => [
-                                '202c' => ['x' => 100, 'y' => 40, 'w' => 250, 'h' => 115],
-                                '203c' => ['x' => 100, 'y' => 155, 'w' => 250, 'h' => 115],
-                                '理事長室' => ['x' => 100, 'y' => 270, 'w' => 250, 'h' => 140],
-                                '201c' => ['x' => 390, 'y' => 40, 'w' => 220, 'h' => 250],
-                                '事務室' => ['x' => 630, 'y' => 40, 'w' => 170, 'h' => 140],
-                                '保健室' => ['x' => 630, 'y' => 180, 'w' => 110, 'h' => 45],
-                                'EV' => ['x' => 355, 'y' => 440, 'w' => 60, 'h' => 60],
-                                '階段' => ['x' => 420, 'y' => 380, 'w' => 80, 'h' => 120],
-                                'PS' => ['x' => 505, 'y' => 380, 'w' => 42, 'h' => 120],
-                                '女子トイレ' => ['x' => 552, 'y' => 380, 'w' => 110, 'h' => 120],
-                            ],
-                            3 => [
-                                '301' => ['x' => 100, 'y' => 40, 'w' => 235, 'h' => 130],
-                                '302' => ['x' => 335, 'y' => 40, 'w' => 235, 'h' => 130],
-                                '303' => ['x' => 570, 'y' => 40, 'w' => 185, 'h' => 175],
-                                '304c' => ['x' => 140, 'y' => 220, 'w' => 200, 'h' => 240],
-                                '305' => ['x' => 345, 'y' => 220, 'w' => 160, 'h' => 95],
-                                'EV' => ['x' => 355, 'y' => 440, 'w' => 60, 'h' => 60],
-                                '階段' => ['x' => 420, 'y' => 380, 'w' => 80, 'h' => 120],
-                                'PS' => ['x' => 505, 'y' => 380, 'w' => 42, 'h' => 120],
-                                '男子トイレ' => ['x' => 552, 'y' => 380, 'w' => 110, 'h' => 120],
-                            ],
-                            4 => [
-                                '403c' => ['x' => 110, 'y' => 40, 'w' => 235, 'h' => 250],
-                                '402c' => ['x' => 345, 'y' => 40, 'w' => 225, 'h' => 220],
-                                '401c' => ['x' => 570, 'y' => 40, 'w' => 185, 'h' => 185],
-                                'EV' => ['x' => 355, 'y' => 440, 'w' => 60, 'h' => 60],
-                                '階段' => ['x' => 420, 'y' => 380, 'w' => 80, 'h' => 120],
-                                'PS' => ['x' => 505, 'y' => 380, 'w' => 42, 'h' => 120],
-                                '男子トイレ' => ['x' => 552, 'y' => 380, 'w' => 58, 'h' => 120],
-                                '女子トイレ' => ['x' => 615, 'y' => 380, 'w' => 58, 'h' => 120],
-                            ],
-                            5 => [
-                                '501' => ['x' => 100, 'y' => 40, 'w' => 235, 'h' => 130],
-                                '502' => ['x' => 335, 'y' => 40, 'w' => 235, 'h' => 130],
-                                '503' => ['x' => 570, 'y' => 40, 'w' => 185, 'h' => 175],
-                                '504c' => ['x' => 140, 'y' => 220, 'w' => 200, 'h' => 240],
-                                '505' => ['x' => 345, 'y' => 220, 'w' => 160, 'h' => 95],
-                                'EV' => ['x' => 355, 'y' => 440, 'w' => 60, 'h' => 60],
-                                '階段' => ['x' => 420, 'y' => 380, 'w' => 80, 'h' => 120],
-                                'PS' => ['x' => 505, 'y' => 380, 'w' => 42, 'h' => 120],
-                                '女子トイレ' => ['x' => 552, 'y' => 380, 'w' => 110, 'h' => 120],
-                            ],
-                            6 => [
-                                '601' => ['x' => 100, 'y' => 40, 'w' => 235, 'h' => 130],
-                                '602' => ['x' => 335, 'y' => 40, 'w' => 235, 'h' => 130],
-                                '603' => ['x' => 570, 'y' => 40, 'w' => 185, 'h' => 175],
-                                '604c' => ['x' => 140, 'y' => 220, 'w' => 200, 'h' => 240],
-                                '605' => ['x' => 345, 'y' => 220, 'w' => 160, 'h' => 95],
-                                'EV' => ['x' => 355, 'y' => 440, 'w' => 60, 'h' => 60],
-                                '階段' => ['x' => 420, 'y' => 380, 'w' => 80, 'h' => 120],
-                                'PS' => ['x' => 505, 'y' => 380, 'w' => 42, 'h' => 120],
-                                '男子トイレ' => ['x' => 552, 'y' => 380, 'w' => 110, 'h' => 120],
-                            ],
-                        ];
-                        $roomShapes = $roomShapesByFloor[$floor] ?? [];
-                    @endphp
                     <svg viewBox="0 0 900 560" xmlns="http://www.w3.org/2000/svg" id="floorMapSvg">
                         @foreach ($rooms as $room)
                             @php
-                                $shape = $roomShapes[$room->room_code] ?? ['x' => 0, 'y' => 0, 'w' => 100, 'h' => 100];
+                                // 位置は DB の列（pos_x/pos_y/width/height）を使う
+                                $shape = ['x' => $room->pos_x, 'y' => $room->pos_y, 'w' => $room->width, 'h' => $room->height];
                                 $isReserved = in_array($room->id, $reservedRoomIds, true);
+                                $isUnavailable = in_array($room->id, $unavailableRoomIds ?? [], true);
+                                $blocked = $isReserved || $isUnavailable;
                                 $stateClass = ! $room->is_reservable
                                     ? 'floor-room--utility'
-                                    : ($isReserved ? 'floor-room--reserved' : 'floor-room--available');
+                                    : ($blocked ? 'floor-room--reserved' : 'floor-room--available');
                             @endphp
                             <g class="floor-room {{ $stateClass }}"
-                                @if ($room->is_reservable && ! $isReserved)
+                                @if ($room->is_reservable && ! $blocked)
                                     data-room-id="{{ $room->id }}"
                                     data-room-name="{{ $room->name }}"
                                     tabindex="0"
@@ -169,7 +102,7 @@
                                     $isVertical = $shape['w'] < 65 && $shape['h'] > $shape['w'];
                                 @endphp
                                 <rect x="{{ $shape['x'] }}" y="{{ $shape['y'] }}" width="{{ $shape['w'] }}" height="{{ $shape['h'] }}" rx="6"></rect>
-                                <text x="{{ $shape['x'] + $shape['w'] / 2 }}" y="{{ $shape['y'] + $shape['h'] / 2 }}" text-anchor="middle" dominant-baseline="middle" @if ($isVertical) class="label-vertical" @endif>{{ $room->name }}</text>
+                                <text x="{{ $shape['x'] + $shape['w'] / 2 }}" y="{{ $shape['y'] + $shape['h'] / 2 }}" text-anchor="middle" dominant-baseline="middle" @if ($isVertical) class="label-vertical" @endif>{{ $room->name }}@if ($isUnavailable) <tspan class="unavailable-mark">（利用不可）</tspan>@endif</text>
                             </g>
                         @endforeach
                     </svg>

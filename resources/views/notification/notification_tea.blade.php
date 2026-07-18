@@ -122,10 +122,10 @@
                         <textarea id="detail_reason_detail" placeholder="テキストを入力" disabled></textarea>
                     </div>
 
-                    <!-- 差し戻しコメント -->
+                    <!-- 差し戻しコメント（name がないと送信されないので注意） -->
                     <div class="comment-section">
                         <label class="comment-label">差し戻しコメント</label>
-                        <textarea class="comment-box" placeholder="コメントを入力"></textarea>
+                        <textarea class="comment-box" name="return_comment" placeholder="コメントを入力"></textarea>
                     </div>
 
                     <!-- 理由チェックボックス -->

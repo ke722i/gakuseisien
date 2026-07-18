@@ -13,6 +13,10 @@ class Room extends Model
         'room_type',
         'is_reservable',
         'display_order',
+        'pos_x',
+        'pos_y',
+        'width',
+        'height',
     ];
 
     protected $casts = [

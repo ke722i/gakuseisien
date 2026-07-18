@@ -14,6 +14,9 @@
 /* 1. ヘッダーまわり（横並び） */
 .qna-header-container {
     display: flex;
+    /* タブレット幅でボタン群（flex-shrink:0）が収まらず横スクロールに
+       なるため、入り切らない場合は折り返す */
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 20px;
@@ -123,6 +126,9 @@
     border-radius: 8px;
     /* app.css のカードの角丸と統一 */
     padding: 20px;
+    /* 長いURLや連続文字が枠外にはみ出さないよう折り返す */
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 
 /* カード上部のテキスト・サムネイルエリア */

@@ -7,7 +7,7 @@
 
     <title>{{ $shop->name }}｜店舗詳細</title>
 
-    @vite(['resources/css/store/more.css'])
+    @vite(['resources/css/app.css', 'resources/css/store/more.css'])
 
 </head>
 
@@ -59,6 +59,16 @@
                 <p class="shop-address">
                     {{ $shop->address }}
                 </p>
+
+                @auth
+                @php($isFav = $shop->isFavoritedBy(Auth::user()))
+                <form method="POST" action="{{ route('store.favorite.toggle', $shop) }}" class="fav-detail-form">
+                    @csrf
+                    <button type="submit" class="fav-detail-btn {{ $isFav ? 'is-fav' : '' }}">
+                        {{ $isFav ? '★ お気に入り登録済み' : '☆ お気に入りに追加' }}
+                    </button>
+                </form>
+                @endauth
             </div>
 
             <table class="shop-table">

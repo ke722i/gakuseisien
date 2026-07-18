@@ -140,4 +140,50 @@ class EventController extends Controller
 
         return redirect()->route('event.calendar', ['year' => $d->year, 'month' => $d->month]);
     }
+
+    /**
+     * 予定の編集（教職員のみ）。
+     */
+    public function update(Request $request, Event $event): RedirectResponse
+    {
+        $validated = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'category' => ['required', 'string', 'max:50'],
+            'start_at' => ['required', 'date'],
+            'end_at' => ['nullable', 'date', 'after_or_equal:start_at'],
+            'location' => ['nullable', 'string', 'max:255'],
+            'description' => ['nullable', 'string'],
+        ], [
+            'title.required' => 'タイトルを入力してください。',
+            'start_at.required' => '開始日時を入力してください。',
+            'end_at.after_or_equal' => '終了日時は開始日時以降にしてください。',
+        ]);
+
+        $event->update([
+            'title' => $validated['title'],
+            'category' => $validated['category'],
+            'start_at' => $validated['start_at'],
+            'end_at' => $validated['end_at'] ?? null,
+            'all_day' => $request->boolean('all_day'),
+            'location' => $validated['location'] ?? null,
+            'description' => $validated['description'] ?? null,
+        ]);
+
+        $d = Carbon::parse($validated['start_at']);
+
+        return redirect()->route('event.calendar', ['year' => $d->year, 'month' => $d->month])
+            ->with('success', '予定を更新しました。');
+    }
+
+    /**
+     * 予定の削除（教職員のみ）。
+     */
+    public function destroy(Event $event): RedirectResponse
+    {
+        $d = $event->start_at->copy();
+        $event->delete();
+
+        return redirect()->route('event.calendar', ['year' => $d->year, 'month' => $d->month])
+            ->with('success', '予定を削除しました。');
+    }
 }

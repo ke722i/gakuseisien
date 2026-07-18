@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>教室一括予約</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     @vite(['resources/css/reservation/room/bulk-room-reservation.css','resources/css/app.css','resources/js/app.js'])
 </head>
 
@@ -179,13 +180,8 @@
         </div>
 
         <script>
-            const existingReservations = [{
-                room: "402c",
-                date: "2026/07/15", // テストする際は、この日付が含まれる期間を指定してください
-                period: "1限 9:15-10:45",
-                userName: "山田 太郎",
-                userType: "学生"
-            }];
+            // 重複プレチェック用の既存予約（今日以降・却下以外）をサーバーから受け取る
+            const existingReservations = @json($existingReservations ?? []);
 
             document.addEventListener('DOMContentLoaded', function() {
                 const periodBtns = document.querySelectorAll('.period-btn');
@@ -458,21 +454,46 @@
                     confirmModal.classList.remove("is-open");
                 });
 
-                confirmRegister?.addEventListener("click", () => {
+                confirmRegister?.addEventListener("click", async () => {
 
                     const rows = JSON.parse(confirmModal.dataset.rows || "[]");
+                    const token = document.querySelector('meta[name="csrf-token"]').content;
 
-                    console.log("登録データ", rows);
+                    confirmRegister.disabled = true;
 
-                    // 本来はここでLaravelへ送信
-                    // fetch(...)
+                    try {
+                        const res = await fetch("{{ route('classroom.reservation.bulk.store') }}", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-TOKEN": token,
+                                "Accept": "application/json"
+                            },
+                            body: JSON.stringify({ rows })
+                        });
 
-                    reserveTbody.innerHTML = '';
-                    updateCount();
+                        const data = await res.json();
+                        confirmModal.classList.remove("is-open");
 
-                    confirmModal.classList.remove("is-open");
-
-                    alert("一括登録を完了しました");
+                        if (res.ok) {
+                            reserveTbody.innerHTML = '';
+                            updateCount();
+                            let msg = `一括登録を完了しました（登録 ${data.created} 件`;
+                            if (data.cancelled > 0) msg += `、重複する学生予約 ${data.cancelled} 件を自動キャンセル`;
+                            if (data.skipped_rooms && data.skipped_rooms.length) msg += `、未登録の教室: ${data.skipped_rooms.join('・')}`;
+                            msg += "）";
+                            alert(msg);
+                            // 登録内容を反映するため再読み込み
+                            window.location.reload();
+                        } else {
+                            alert("登録に失敗しました：" + (data.message || res.status));
+                        }
+                    } catch (e) {
+                        confirmModal.classList.remove("is-open");
+                        alert("通信エラーが発生しました：" + e.message);
+                    } finally {
+                        confirmRegister.disabled = false;
+                    }
                 });
 
 
@@ -485,29 +506,41 @@
                     conflictModal.classList.remove('is-open');
                 });
 
-                conflictOverwrite?.addEventListener('click', () => {
+                conflictOverwrite?.addEventListener('click', async () => {
+                    // 上書き = そのままサーバーへ送信（サーバー側が重複する学生予約を自動キャンセルする）
+                    const rows = Array.from(reserveTbody.querySelectorAll('tr')).map(collectRowData);
+                    const token = document.querySelector('meta[name="csrf-token"]').content;
 
-                    const data = JSON.parse(conflictModal.dataset.conflicts || '[]');
+                    conflictOverwrite.disabled = true;
 
-                    data.forEach(c => {
+                    try {
+                        const res = await fetch("{{ route('classroom.reservation.bulk.store') }}", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-TOKEN": token,
+                                "Accept": "application/json"
+                            },
+                            body: JSON.stringify({ rows })
+                        });
+                        const data = await res.json();
+                        conflictModal.classList.remove('is-open');
 
-                        const idx = existingReservations.findIndex(ex =>
-                            ex.room === c.existing.room &&
-                            ex.date === c.existing.date &&
-                            ex.period === c.existing.period
-                        );
-
-                        if (idx !== -1) {
-                            existingReservations.splice(idx, 1);
+                        if (res.ok) {
+                            let msg = `一括登録を完了しました（登録 ${data.created} 件`;
+                            if (data.cancelled > 0) msg += `、重複する学生予約 ${data.cancelled} 件を自動キャンセル`;
+                            msg += "）";
+                            alert(msg);
+                            window.location.reload();
+                        } else {
+                            alert("登録に失敗しました：" + (data.message || res.status));
                         }
-                    });
-
-                    reserveTbody.innerHTML = '';
-                    updateCount();
-
-                    conflictModal.classList.remove('is-open');
-
-                    alert('一括登録（上書き）を完了しました');
+                    } catch (e) {
+                        conflictModal.classList.remove('is-open');
+                        alert("通信エラーが発生しました：" + e.message);
+                    } finally {
+                        conflictOverwrite.disabled = false;
+                    }
                 });
             });
         </script>
