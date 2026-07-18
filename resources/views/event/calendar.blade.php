@@ -44,9 +44,7 @@
                 </div>
             @endif
 
-            @if (session('success'))
-                <div class="cal-flash">{{ session('success') }}</div>
-            @endif
+            {{-- 完了メッセージは共通ポップアップ（partials/toast）で表示する --}}
 
             <!-- 検索 -->
             <div class="cal-searchbar">

@@ -39,17 +39,7 @@
                 <h1>空き教室設定</h1>
             </div>
 
-            @if (session('success'))
-                <div class="flash flash-success">{{ session('success') }}</div>
-            @endif
-            @if (session('error'))
-                <div class="flash flash-error">{{ session('error') }}</div>
-            @endif
-            @if ($errors->any())
-                <div class="flash flash-error">
-                    @foreach ($errors->all() as $e)<div>{{ $e }}</div>@endforeach
-                </div>
-            @endif
+            {{-- 完了メッセージ・エラーは共通ポップアップ（partials/toast）で表示する --}}
 
             {{-- ===== 教室の登録・編集 ===== --}}
             <div class="section-block">

@@ -1,3 +1,8 @@
+// 共通ポップアップ（partials/toast.blade.php で定義）を使う。
+// 読み込み順の問題で未定義の場合だけブラウザ標準にフォールバックする。
+const notify = (message, type = 'success') =>
+    (window.showToast ? window.showToast(message, type) : alert(message));
+
 const teacherList = document.getElementById('teacher-list');
 const addTeacherButton = document.querySelector('.teacher-btn.add');
 const removeTeacherButton = document.querySelector('.teacher-btn.remove');
@@ -152,7 +157,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // 「差し戻し」ボタンをクリックした時
         btnReject.addEventListener('click', function() {
             if (!detailForm.action || detailForm.action.endsWith('""')) {
-                alert('対象の届出を左のリストから選択してください。');
+                notify('対象の届出を左のリストから選択してください。', 'error');
                 return;
             }
             statusInput.value = '差し戻し'; // 隠しフィールドに値をセット
@@ -163,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnApprove.addEventListener('click', function() {
             console.log('ボタン反応あり');
             if (!detailForm.action || detailForm.action.endsWith('""')) {
-                alert('対象の届出を左のリストから選択してください。');
+                notify('対象の届出を左のリストから選択してください。', 'error');
                 return;
             }
             statusInput.value = '受理';   // 隠しフィールドに値をセット

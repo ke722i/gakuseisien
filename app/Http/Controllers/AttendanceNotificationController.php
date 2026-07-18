@@ -18,36 +18,41 @@ class AttendanceNotificationController extends Controller
         $user = Auth::user();
 
         // 1. 入力データのチェック（バリデーション）
+        //    学籍番号・クラス・氏名・担任はアカウント情報を使うため、画面からは受け取らない
         $request->validate([
-            'student_number'   => 'required|string',
             'submission_date'  => 'required|date',
             'target_date'      => 'required|date',
-            'class_number'     => 'required|string',
-            'student_name'     => 'required|string',
-            'homeroom_teacher' => 'required|string',
             'reason_category'  => 'required|string',
-            'subject_teacher_1' => 'nullable|string',
+            // DB側が NOT NULL のため必須（画面のプルダウンは常に値を送る）
+            'subject_teacher_1' => 'required|string',
             // 以下は空欄でもOKな項目
-            'periods'           => 'nullable|array', 
+            'periods'           => 'nullable|array',
             'subject_teacher_2' => 'nullable|string',
             'subject_teacher_3' => 'nullable|string',
             'subject_teacher_4' => 'nullable|string',
             'reason_detail'     => 'nullable|string',
         ]);
 
+        // 学籍番号やクラスが未登録だと担任に届かないため、先に知らせる
+        if (! $user?->student_number || ! $user?->class_number) {
+            return redirect()->back()
+                ->with('error', '学籍番号またはクラス番号が未登録のため提出できません。担任の先生にアカウント情報の登録を依頼してください。');
+        }
+
         // 2. データベースの「attendance_reports」テーブルに書き込む
+        //    本人になりすまして提出できないよう、身元にあたる項目はログイン中のアカウントから取る
         DB::table('attendance_reports')->insert([
-            'student_number'    => $request->input('student_number', $user?->student_number),
+            'student_number'    => $user->student_number,
             'submission_date'   => $request->input('submission_date'),
             'target_date'       => $request->input('target_date'),
-            'class_number'      => $request->input('class_number', $user?->class_number),
-            'student_name'      => $request->input('student_name', $user?->student_name),
-            'homeroom_teacher'  => $request->input('homeroom_teacher', $user?->homeroom_teacher),
-            
+            'class_number'      => $user->class_number,
+            'student_name'      => $user->student_name ?: $user->login_id,
+            'homeroom_teacher'  => $user->homeroom_teacher,
+
             // チェックボックス（配列）をPostgreSQLのJSON型に適合するようJSON文字列に変換して保存
             'periods'           => json_encode($request->input('periods')), 
             
-            'subject_teacher_1' => $request->input('subject_teacher_1'),
+            'subject_teacher_1' => $request->input('subject_teacher_1', ''),
             'subject_teacher_2' => $request->input('subject_teacher_2'),
             'subject_teacher_3' => $request->input('subject_teacher_3'),
             'subject_teacher_4' => $request->input('subject_teacher_4'),
@@ -115,6 +120,12 @@ class AttendanceNotificationController extends Controller
             route('notification', absolute: false)
         );
 
-        return redirect()->route('notification')->with('success', '届出のステータスを更新しました。');
+        // どの操作が完了したのかが分かる文言にする
+        $studentLabel = $report->student_name ?: $report->student_number;
+        $message = $isAccepted
+            ? "{$studentLabel} さんの届出を受理しました。本人に通知を送りました。"
+            : "{$studentLabel} さんの届出を差し戻しました。本人に通知を送りました。";
+
+        return redirect()->route('notification')->with('success', $message);
     }
 }

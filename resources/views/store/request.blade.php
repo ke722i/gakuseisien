@@ -24,11 +24,7 @@
 
         <div class="form-card">
 
-            @if (session('success'))
-                <div class="success-message">
-                    {{ session('success') }}
-                </div>
-            @endif
+            {{-- 完了メッセージは共通ポップアップ（partials/toast）で表示する --}}
 
             @if ($errors->any())
                 <div class="error-message">

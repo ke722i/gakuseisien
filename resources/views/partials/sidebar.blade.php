@@ -60,13 +60,15 @@
         </a>
         @auth
         @if(Auth::user()->isTeacher())
-        <a href="{{ route('adminReports') }}" class="{{ $active === 'admin_reports' ? 'active' : '' }}" style="background-color: #fff0f0;">
-            <span class="menu-icon">🚨</span><span class="label" style="color: #cc3333; font-weight: bold;">通報管理一覧</span>
+        {{-- 管理者向けメニュー。サイドバー内で区切って表示する --}}
+        <span class="menu-divider"><span class="label">管理メニュー</span></span>
+        <a href="{{ route('adminReports') }}" class="menu-admin {{ $active === 'admin_reports' ? 'active' : '' }}">
+            <span class="menu-icon">🚨</span><span class="label">通報管理一覧</span>
         </a>
-        <a href="{{ route('admin.users.index') }}" class="{{ $active === 'admin_users' ? 'active' : '' }}">
+        <a href="{{ route('admin.users.index') }}" class="menu-admin {{ $active === 'admin_users' ? 'active' : '' }}">
             <span class="menu-icon">👥</span><span class="label">アカウント管理</span>
         </a>
-        <a href="{{ route('admin.rooms.index') }}" class="{{ $active === 'admin_rooms' ? 'active' : '' }}">
+        <a href="{{ route('admin.rooms.index') }}" class="menu-admin {{ $active === 'admin_rooms' ? 'active' : '' }}">
             <span class="menu-icon">🗝️</span><span class="label">空き教室設定</span>
         </a>
         @endif
@@ -89,6 +91,9 @@
         </form>
     </div>
 </aside>
+
+{{-- 共通ポップアップ（alertの代わり）。サイドバーはほぼ全画面で読み込まれるためここで一緒に読み込む --}}
+@include('partials.toast')
 
 <script>
     // スマホ用ハンバーガーの開閉。PCはCSSのホバーだけで動くのでJSは不要。

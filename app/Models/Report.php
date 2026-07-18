@@ -20,4 +20,10 @@ class Report extends Model
     {
         return $this->belongsTo(Post::class);
     }
+
+    /** 通報したユーザー */
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

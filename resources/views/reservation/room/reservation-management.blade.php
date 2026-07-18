@@ -19,9 +19,7 @@
                 <h1>予約管理</h1>
             </div>
 
-            @if (session('reservation_success'))
-                <p class="flash-message flash-success">{{ session('reservation_success') }}</p>
-            @endif
+            {{-- 完了メッセージは共通ポップアップ（partials/toast）で表示する --}}
 
             <section class="reservation-selection">
                 <p class="section-description">予約一覧から確認したい予約を選択してください。</p>

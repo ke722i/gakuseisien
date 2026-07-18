@@ -107,7 +107,7 @@
             // プレースホルダーを画像プレビューに書き換える関数
             function showPreview(file) {
                 if (!file.type.startsWith('image/')) {
-                    alert('画像ファイルを選択してください。');
+                    showToast('画像ファイルを選択してください。', 'error');
                     return;
                 }
 

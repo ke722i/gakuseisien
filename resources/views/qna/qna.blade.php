@@ -185,9 +185,9 @@
             event.stopPropagation();
             const url = element.dataset.url;
             navigator.clipboard.writeText(url).then(() => {
-                alert('質問のURLをクリップボードにコピーしました！');
+                showToast('質問のURLをコピーしました', 'success');
             }).catch(err => {
-                alert('URLのコピーに失敗しました。');
+                showToast('URLのコピーに失敗しました。', 'error');
             });
         }
 
@@ -198,7 +198,7 @@
             const reason = prompt("通報する理由を入力してください（スパム、嫌がらせ、公序良俗に反する投稿など）：");
             if (reason === null) return;
             if (reason.trim() === "") {
-                alert("通報理由は必須入力です。");
+                showToast("通報理由は必須入力です。", 'error');
                 return;
             }
             document.getElementById('report-reason-' + id).value = reason;

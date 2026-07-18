@@ -15,6 +15,11 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'teacher' => \App\Http\Middleware\CheckTeacher::class,
         ]);
+
+        // 初期パスワードのままのユーザーは、変更するまで他の画面を使えないようにする
+        $middleware->web(append: [
+            \App\Http\Middleware\EnsurePasswordChanged::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

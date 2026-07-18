@@ -120,9 +120,9 @@
             const url = element.dataset.url;
 
             navigator.clipboard.writeText(url).then(() => {
-                alert('質問のURLをクリップボードにコピーしました！');
+                showToast('質問のURLをコピーしました', 'success');
             }).catch(err => {
-                alert('URLのコピーに失敗しました。');
+                showToast('URLのコピーに失敗しました。', 'error');
             });
         }
     </script>
