@@ -192,17 +192,14 @@ class QnaController extends Controller
             'question_id' => $post->id,
             'user_id' => Auth::id(),
             'reason' => $request->reason,
+            'type' => 'question', // 通報管理一覧で掲示板と区別するため
         ]);
 
         return redirect()->back()->with('success', '通報を受け付けました。ご協力ありがとうございます。');
     }
 
     // 2. 教職員用の通報一覧画面の表示
-    public function adminReports()
-    {
-        $reports = Report::with('question')->latest()->get();
-        return view('admin_reports', compact('reports'))->with('active', 'admin_reports');
-    }
+    // 通報管理一覧は掲示板とQ&Aをまとめて扱うため ReportAdminController へ移設した
 
     public function toggleUpvote(Answer $answer)
     {

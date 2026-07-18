@@ -14,6 +14,7 @@ use Illuminate\Notifications\Notifiable;
     'login_id',
     'password',
     'role',
+    'must_change_password',
     'student_number',
     'class_number',
     'student_name',
@@ -36,7 +37,19 @@ class User extends Authenticatable
     {
         return [
             'password' => 'hashed',
+            'must_change_password' => 'boolean',
         ];
+    }
+
+    /**
+     * 欠席届などで自動入力に使う表示名。
+     * 学生は氏名、教職員は教員名。未設定ならログインIDで代用する。
+     */
+    public function displayName(): string
+    {
+        return $this->isTeacher()
+            ? ($this->teacher_name ?: $this->login_id)
+            : ($this->student_name ?: $this->login_id);
     }
 
     /**

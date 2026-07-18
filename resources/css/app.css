@@ -115,10 +115,26 @@ button {
     display: flex;
 }
 
+/* メニューは可変高さ＋スクロール。項目が増えても下のアカウント欄と重ならない */
 .sidebar-menu {
     display: flex;
     flex-direction: column;
     margin-top: 8px;
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+}
+
+.sidebar-menu::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar-menu::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 3px;
 }
 
 .sidebar-menu a,
@@ -138,9 +154,13 @@ button {
     font-weight: bold;
 }
 
+/* アカウント表示＋ログアウト（サイドバー最下部に固定表示） */
 .logout {
+    flex: 0 0 auto;
     margin-top: auto;
-    padding-bottom: 20px;
+    padding: 10px 0 14px;
+    border-top: 1px solid rgba(255, 255, 255, 0.28);
+    background-color: rgba(0, 0, 0, 0.14);
 }
 
 /* メイン部分（レールの分だけ左に余白） */
@@ -169,9 +189,16 @@ button {
     display: flex;
     align-items: center;
     gap: 16px;
-    padding: 10px 20px 4px;
+    padding: 10px 20px;
     font-size: 13px;
-    color: rgba(255, 255, 255, 0.85);
+    color: rgba(255, 255, 255, 0.9);
+    background-color: transparent;
+}
+
+/* 折りたたみ時もアイコンが中央に揃うようにする */
+.logout .current-user .menu-icon,
+.logout .logout-btn .menu-icon {
+    flex-shrink: 0;
 }
 
 /* アイコン枠（画像に差し替えてもレイアウトが崩れないよう幅を固定） */
@@ -220,19 +247,38 @@ button {
     background-color: rgba(255, 255, 255, 0.18);
 }
 
-.logout {
-    position: absolute;
-    bottom: 24px;
-    left: 18px;
-    right: 18px;
+/* 管理メニューの見出し（折りたたみ時は細い区切り線として見せる） */
+.menu-divider {
+    display: flex;
+    align-items: center;
+    height: 26px;
+    margin: 10px 0 2px;
+    padding: 0 20px;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, 0.75);
+    border-top: 1px solid rgba(255, 255, 255, 0.25);
 }
 
+/* 管理系メニューは左に印を付けて一般メニューと区別する */
+.menu-admin {
+    box-shadow: inset 3px 0 0 rgba(255, 214, 102, 0.9);
+}
+
+/* ここで position:absolute にするとメニュー項目が多いとき（教職員）に
+   メニューと重なるため、上の flex レイアウト（margin-top:auto）に任せる */
+
 .logout a {
-    display: block;
-    padding: 12px 14px;
-    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 12px 20px;
     color: white;
-    background-color: rgba(255, 255, 255, 0.16);
+    text-decoration: none;
+}
+
+.logout a:hover {
+    background-color: rgba(255, 255, 255, 0.15);
 }
 
 .overlay {

@@ -246,6 +246,7 @@ class ForumController extends Controller
             'type' => 'forum_post',
         ]);
 
-        return redirect()->route('forum.show', $post)->with('status', '投稿を通報しました。');
+        // 通報後は対象の投稿を開かず、元の画面のままポップアップだけ表示する
+        return back()->with('status', '投稿を通報しました。教職員が内容を確認します。');
     }
 }

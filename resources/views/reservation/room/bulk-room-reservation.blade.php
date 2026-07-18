@@ -313,19 +313,19 @@
                     const selectedDays = Array.from(weekdayBtns).filter(d => d.classList.contains('active')).map(d => d.dataset.day);
 
                     if (!usage) {
-                        alert('授業名を入力してください');
+                        showToast('授業名を入力してください', 'error');
                         return;
                     }
                     if (selectedPeriods.length === 0) {
-                        alert('時限を1つ以上選択してください');
+                        showToast('時限を1つ以上選択してください', 'error');
                         return;
                     }
                     if (!fromDate || !toDate) {
-                        alert('予約期間を入力してください');
+                        showToast('予約期間を入力してください', 'error');
                         return;
                     }
                     if (selectedDays.length === 0) {
-                        alert('曜日を1つ以上選択してください');
+                        showToast('曜日を1つ以上選択してください', 'error');
                         return;
                     }
 
@@ -393,7 +393,7 @@
                     const rows = Array.from(reserveTbody.querySelectorAll('tr')).map(collectRowData);
 
                     if (rows.length === 0) {
-                        alert('登録する項目がありません');
+                        showToast('登録する項目がありません', 'error');
                         return;
                     }
 
@@ -482,15 +482,15 @@
                             if (data.cancelled > 0) msg += `、重複する学生予約 ${data.cancelled} 件を自動キャンセル`;
                             if (data.skipped_rooms && data.skipped_rooms.length) msg += `、未登録の教室: ${data.skipped_rooms.join('・')}`;
                             msg += "）";
-                            alert(msg);
+                            showToast(msg, 'success');
                             // 登録内容を反映するため再読み込み
                             window.location.reload();
                         } else {
-                            alert("登録に失敗しました：" + (data.message || res.status));
+                            showToast("登録に失敗しました：" + (data.message || res.status), 'error');
                         }
                     } catch (e) {
                         confirmModal.classList.remove("is-open");
-                        alert("通信エラーが発生しました：" + e.message);
+                        showToast("通信エラーが発生しました：" + e.message, 'error');
                     } finally {
                         confirmRegister.disabled = false;
                     }
@@ -530,14 +530,14 @@
                             let msg = `一括登録を完了しました（登録 ${data.created} 件`;
                             if (data.cancelled > 0) msg += `、重複する学生予約 ${data.cancelled} 件を自動キャンセル`;
                             msg += "）";
-                            alert(msg);
+                            showToast(msg, 'success');
                             window.location.reload();
                         } else {
-                            alert("登録に失敗しました：" + (data.message || res.status));
+                            showToast("登録に失敗しました：" + (data.message || res.status), 'error');
                         }
                     } catch (e) {
                         conflictModal.classList.remove('is-open');
-                        alert("通信エラーが発生しました：" + e.message);
+                        showToast("通信エラーが発生しました：" + e.message, 'error');
                     } finally {
                         conflictOverwrite.disabled = false;
                     }

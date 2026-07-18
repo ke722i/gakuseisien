@@ -573,12 +573,22 @@ Route::post('/home/notifications/read', function () {
     return redirect()->route('home');
 })->name('home.notifications.read')->middleware('auth');
 
-// ログイン・新規登録画面のルート設定
+// ログイン画面のルート設定
 Route::get('/login', [AuthController::class, 'show'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.attempt');
-Route::get('/register', fn() => app(AuthController::class)->show('register'))->name('register');
-Route::post('/register', [AuthController::class, 'register'])->name('register.attempt');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+// アカウントは教職員が名簿（CSV）から発行する運用のため、学生のセルフ登録は行わない。
+// 旧URLを踏んでもエラーにならないよう、ログイン画面へ案内する。
+Route::get('/register', fn() => redirect()->route('login')
+    ->with('error', 'アカウントは学校から配布されます。配布されたIDとパスワードでログインしてください。'))
+    ->name('register');
+
+// パスワード変更（初回ログイン時は必須。それ以降も任意で変更可能）
+Route::middleware('auth')->group(function () {
+    Route::get('/password/change', [App\Http\Controllers\PasswordChangeController::class, 'edit'])->name('password.change');
+    Route::post('/password/change', [App\Http\Controllers\PasswordChangeController::class, 'update'])->name('password.change.update');
+});
 
 // アカウント管理（教職員のみ）：ユーザーのCRUD・権限付与・パスワード初期化
 Route::middleware('teacher')->group(function () {
@@ -590,6 +600,10 @@ Route::middleware('teacher')->group(function () {
     Route::delete('/admin/users/{user}', [App\Http\Controllers\AdminUserController::class, 'destroy'])->name('admin.users.destroy');
     Route::post('/admin/users/{user}/reset-password', [App\Http\Controllers\AdminUserController::class, 'resetPassword'])->name('admin.users.resetPassword');
 
+    // 名簿CSVからの一括アカウント発行と、発行結果（初期パスワード付き）のダウンロード
+    Route::post('/admin/users/import', [App\Http\Controllers\AdminUserController::class, 'importCsv'])->name('admin.users.import');
+    Route::get('/admin/users/import/result', [App\Http\Controllers\AdminUserController::class, 'downloadImportResult'])->name('admin.users.import.result');
+
     // 空き教室設定：教室の登録・編集・削除、利用不可時間帯の設定
     Route::get('/admin/rooms', [App\Http\Controllers\RoomAdminController::class, 'index'])->name('admin.rooms.index');
     Route::post('/admin/rooms', [App\Http\Controllers\RoomAdminController::class, 'store'])->name('admin.rooms.store');
@@ -597,6 +611,10 @@ Route::middleware('teacher')->group(function () {
     Route::delete('/admin/rooms/{room}', [App\Http\Controllers\RoomAdminController::class, 'destroy'])->name('admin.rooms.destroy');
     Route::post('/admin/rooms/unavailable', [App\Http\Controllers\RoomAdminController::class, 'storeUnavailable'])->name('admin.rooms.unavailable.store');
     Route::delete('/admin/rooms/unavailable/{slot}', [App\Http\Controllers\RoomAdminController::class, 'destroyUnavailable'])->name('admin.rooms.unavailable.destroy');
+
+    // 通報管理（掲示板・学内Q&A の両方）
+    Route::get('/admin/reports', [App\Http\Controllers\ReportAdminController::class, 'index'])->name('adminReports');
+    Route::delete('/admin/reports/{report}', [App\Http\Controllers\ReportAdminController::class, 'destroy'])->name('admin.reports.destroy');
 });
 
 // 空き教室予約ページのルート設定
@@ -674,9 +692,7 @@ Route::get('/gakunai-qna', [QnaController::class, 'index'])->name('gakunai.qna')
 Route::get('/gakunai-qna/create', [QnaController::class, 'create'])->name('qna.create')->middleware('auth');
 Route::post('/gakunai-qna/store', [QnaController::class, 'store'])->name('qna.store')->middleware('auth');
 Route::get('/gakunai-qna/history', [QnaController::class, 'history'])->name('qna.history');
-Route::get('/gakunai-qna/admin/reports', [QnaController::class, 'adminReports'])
-    ->name('adminReports')
-    ->middleware('teacher');
+// 通報管理は掲示板とQ&Aの両方を扱うため、専用ルートに集約している（下部の /admin/reports を参照）
 
 // 2. 動的なURL
 Route::delete('/gakunai-qna/{id}', [QnaController::class, 'destroy'])->name('qna.destroy')->middleware('auth');
@@ -722,7 +738,13 @@ Route::get('/notification', function () {
             ->get()
         : collect();
 
-    return view('notification.notification_stu', compact('myReports'));
+    // 学籍番号・クラス・氏名・担任はアカウント情報から自動入力する（$user）
+    // 提出日・対象日の初期値は本日（$today）
+    return view('notification.notification_stu', [
+        'myReports' => $myReports,
+        'user' => $user,
+        'today' => now()->toDateString(),
+    ]);
 })->name('notification');
 
 // 欠席・遅刻届フォームの送信（POSTリクエスト）を受け付けるURLとコントローラーの紐付け

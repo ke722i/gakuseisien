@@ -19,12 +19,7 @@
                 <h1>予約一覧</h1>
             </div>
 
-            @if (session('reservation_success'))
-                <p class="flash-message flash-success">{{ session('reservation_success') }}</p>
-            @endif
-            @if (session('reservation_error'))
-                <p class="flash-message flash-error">{{ session('reservation_error') }}</p>
-            @endif
+            {{-- 完了メッセージは共通ポップアップ（partials/toast）で表示する --}}
 
             <section class="reservation-list">
                 @php($reservations = $reservations ?? [])

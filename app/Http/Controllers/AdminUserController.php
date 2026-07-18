@@ -89,15 +89,166 @@ class AdminUserController extends Controller
      */
     public function resetPassword(User $user)
     {
-        // 英字6文字 + 数字2桁（登録時のパスワード規則に沿う形式）
-        $temp = Str::lower(Str::random(6)) . random_int(10, 99);
+        $temp = $this->generateInitialPassword();
 
-        $user->update(['password' => Hash::make($temp)]);
+        $user->update([
+            'password' => Hash::make($temp),
+            // 初期化後は本人にパスワードを変更させる
+            'must_change_password' => true,
+        ]);
 
         return back()->with('reset_password', [
             'login_id' => $user->login_id,
             'password' => $temp,
         ]);
+    }
+
+    /**
+     * 名簿CSVから学生アカウントを一括発行する。
+     *
+     * CSVの列（1行目はヘッダーとして読み飛ばす）:
+     *   学籍番号, 氏名, クラス番号, 担任教師
+     *
+     * ログインIDは学籍番号、初期パスワードはランダム。
+     * 発行結果はセッションに入れ、直後に1度だけCSVでダウンロードできるようにする。
+     */
+    public function importCsv(Request $request)
+    {
+        $request->validate([
+            'roster' => ['required', 'file', 'mimes:csv,txt', 'max:2048'],
+        ], [
+            'roster.required' => 'CSVファイルを選択してください。',
+            'roster.mimes' => 'CSV形式のファイルを選択してください。',
+        ], ['roster' => '名簿ファイル']);
+
+        $path = $request->file('roster')->getRealPath();
+        $handle = fopen($path, 'r');
+        if ($handle === false) {
+            return back()->with('error', 'ファイルを読み込めませんでした。');
+        }
+
+        $created = [];   // 新規発行できたアカウント（平文パスワード付き）
+        $skipped = [];   // 既に存在していた学籍番号
+        $errors = [];    // 形式不正の行
+        $rowNumber = 0;
+
+        // PHP8.4以降は $escape の既定値が変わる警告が出るため明示する
+        while (($row = fgetcsv($handle, 0, ',', '"', '')) !== false) {
+            $rowNumber++;
+
+            // 1行目のヘッダー行は読み飛ばす（学籍番号列が数値でない場合をヘッダーとみなす）
+            if ($rowNumber === 1 && ! preg_match('/^[0-9A-Za-z\-]+$/', trim((string) ($row[0] ?? '')))) {
+                continue;
+            }
+
+            // Excelで保存したCSVはBOMやSJISが混じることがあるため整える
+            $row = array_map(fn ($v) => trim($this->toUtf8((string) $v)), $row);
+
+            [$studentNumber, $studentName, $classNumber, $homeroomTeacher] = array_pad($row, 4, null);
+
+            if ($studentNumber === null || $studentNumber === '' || $studentName === null || $studentName === '') {
+                $errors[] = "{$rowNumber}行目: 学籍番号または氏名が空です。";
+                continue;
+            }
+
+            if (! preg_match('/^[a-zA-Z0-9]{4,20}$/', $studentNumber)) {
+                $errors[] = "{$rowNumber}行目: 学籍番号「{$studentNumber}」は英数字4〜20文字で入力してください。";
+                continue;
+            }
+
+            // 学籍番号 = ログインID。既にあるならスキップ（上書きしない）
+            if (User::where('login_id', $studentNumber)->orWhere('student_number', $studentNumber)->exists()) {
+                $skipped[] = $studentNumber;
+                continue;
+            }
+
+            $password = $this->generateInitialPassword();
+
+            User::create([
+                'login_id' => $studentNumber,
+                'password' => Hash::make($password),
+                'role' => 'student',
+                'must_change_password' => true,
+                'student_number' => $studentNumber,
+                'student_name' => $studentName,
+                'class_number' => $classNumber ?: null,
+                'homeroom_teacher' => $homeroomTeacher ?: null,
+            ]);
+
+            $created[] = [
+                'login_id' => $studentNumber,
+                'student_name' => $studentName,
+                'class_number' => $classNumber,
+                'password' => $password,
+            ];
+        }
+
+        fclose($handle);
+
+        $message = sprintf('%d件のアカウントを発行しました。', count($created));
+        if ($skipped) {
+            $message .= sprintf('（既存のため%d件はスキップ）', count($skipped));
+        }
+
+        return redirect()->route('admin.users.index')
+            ->with('success', $message)
+            ->with('import_result', [
+                'created' => $created,
+                'skipped' => $skipped,
+                'errors' => $errors,
+            ]);
+    }
+
+    /**
+     * 直前の一括発行結果をCSVでダウンロードする（配布用）。
+     * 平文パスワードを含むため、セッションに残っている間だけ取得できる。
+     */
+    public function downloadImportResult(Request $request)
+    {
+        $result = $request->session()->get('import_result');
+
+        if (! $result || empty($result['created'])) {
+            return redirect()->route('admin.users.index')
+                ->with('error', 'ダウンロードできる発行結果がありません。もう一度CSVを取り込んでください。');
+        }
+
+        // 次の画面では取得できないよう、取り出したら消す
+        $request->session()->forget('import_result');
+
+        $filename = 'accounts_' . now()->format('Ymd_His') . '.csv';
+
+        return response()->streamDownload(function () use ($result) {
+            $out = fopen('php://output', 'w');
+            // Excelで文字化けしないようBOMを付ける
+            fwrite($out, "\xEF\xBB\xBF");
+            fputcsv($out, ['ログインID(学籍番号)', '氏名', 'クラス番号', '初期パスワード']);
+            foreach ($result['created'] as $row) {
+                fputcsv($out, [$row['login_id'], $row['student_name'], $row['class_number'], $row['password']]);
+            }
+            fclose($out);
+        }, $filename, ['Content-Type' => 'text/csv']);
+    }
+
+    /**
+     * 初期パスワードを生成する。
+     * 推測されないようランダムにし、既存のパスワード規則（英数字・数字を含む6文字以上）に合わせる。
+     */
+    private function generateInitialPassword(): string
+    {
+        return Str::lower(Str::random(6)) . random_int(10, 99);
+    }
+
+    /** SJISで保存されたCSVでも読めるようUTF-8へ変換する */
+    private function toUtf8(string $value): string
+    {
+        // BOMを除去
+        $value = preg_replace('/^\xEF\xBB\xBF/', '', $value);
+
+        if (! mb_check_encoding($value, 'UTF-8')) {
+            return mb_convert_encoding($value, 'UTF-8', 'SJIS-win, CP932, EUC-JP, UTF-8');
+        }
+
+        return $value;
     }
 
     /** 共通バリデーション */
