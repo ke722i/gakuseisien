@@ -46,7 +46,8 @@
                 <div class="form-group">
                     <label for="title">タイトル</label>
                     <input id="title" name="title" type="text" maxlength="300" placeholder="タイトル" value="{{ old('title') }}" required>
-                    <div class="hint">{{ strlen(old('title', '')) }}/300</div>
+                    <!-- JSから操作できるように id="title-counter" を追加し、PHPのカウントを mb_strlen に変更 -->
+                    <div class="hint" id="title-counter">{{ mb_strlen(old('title', '')) }}/300</div>
                 </div>
 
                 <div class="form-group">
@@ -64,5 +65,21 @@
             </form>
         </main>
     </div>
+
+    <!-- リアルタイム文字数カウント用のJavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const titleInput = document.getElementById('title');
+            const titleCounter = document.getElementById('title-counter');
+
+            if (titleInput && titleCounter) {
+                // 入力（キー入力、コピペなど）があるたびに実行
+                titleInput.addEventListener('input', function() {
+                    const currentLength = this.value.length;
+                    titleCounter.textContent = currentLength + '/300';
+                });
+            }
+        });
+    </script>
 </body>
 </html>
