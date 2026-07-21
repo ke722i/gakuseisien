@@ -16,4 +16,8 @@ class ShopRequest extends Model
         'payment_method',
         'status',
     ];
+
+    protected $casts = [
+    'payment_method' => 'array',
+];
 }

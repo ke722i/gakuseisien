@@ -1,9 +1,7 @@
 /* ===================================
    共通設定
 =================================== */
-body {
-    background: red !important;
-}
+
 * {
     box-sizing: border-box;
 }
@@ -12,11 +10,11 @@ body {
     margin: 0;
     background: #f4f6f9;
     color: #222;
-    font-family: "Yu Gothic", "Meiryo", sans-serif;
+    font-family: "Yu Gothic UI", "Yu Gothic", "Meiryo", sans-serif;
 }
 
 a {
-    color: #2f5bea;
+    color: #2563eb;
     text-decoration: none;
 }
 
@@ -29,40 +27,132 @@ a:hover {
 =================================== */
 
 .container {
-    display: flex;
     min-height: 100vh;
 }
 
 .main-content {
-    flex: 1;
-    width: calc(100% - 230px);
-    max-width: 1280px;
-    padding: 32px;
+    margin-left: 68px;
+    padding: 35px;
 }
 
 /* ===================================
    上部操作
+=================================== */
+
+.top-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.back-btn {
+    color: #2563eb;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.request-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 10px 17px;
+    border-radius: 8px;
+    background: #2563eb;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.request-btn:hover {
+    background: #1d4ed8;
+    text-decoration: none;
+}
+
+/* ===================================
+   メッセージ
+=================================== */
+
+.success-message,
+.error-message {
+    margin-bottom: 22px;
+    padding: 15px 18px;
+    border-radius: 9px;
+    font-size: 14px;
+}
+
+.success-message {
+    border: 1px solid #86efac;
+    background: #f0fdf4;
+    color: #166534;
+}
+
+.error-message {
+    border: 1px solid #fca5a5;
+    background: #fef2f2;
+    color: #991b1b;
+}
+
+.error-message p {
+    margin: 0 0 8px;
+    font-weight: 700;
+}
+
+.error-message ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+/* ===================================
+   共通カード
+=================================== */
+
+.shop-card,
+.map-card,
+.rating-card,
+.review-card {
+    padding: 24px;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+}
+
+.shop-card {
+    margin-bottom: 24px;
+}
+
+/* ===================================
+   店舗情報
+=================================== */
+
+.shop-heading {
+    margin-bottom: 20px;
 }
 
 .shop-genre {
     display: inline-block;
-    margin: 0 0 8px;
+    margin: 0 0 9px;
     padding: 5px 10px;
     border-radius: 999px;
-    background: #eaf0ff;
-    color: #2f5bea;
+    background: #eff6ff;
+    color: #2563eb;
     font-size: 13px;
     font-weight: 700;
 }
 
 .shop-heading h1 {
     margin: 0 0 8px;
+    color: #111827;
     font-size: 30px;
 }
 
 .shop-address {
     margin: 0;
-    color: #68707c;
+    color: #64748b;
+    line-height: 1.7;
 }
 
 .shop-table {
@@ -80,8 +170,14 @@ a:hover {
 
 .shop-table th {
     width: 180px;
-    color: #555e6a;
+    color: #475569;
+    font-size: 14px;
     font-weight: 700;
+}
+
+.shop-table td {
+    color: #334155;
+    font-size: 14px;
 }
 
 .shop-table tr:last-child th,
@@ -90,7 +186,7 @@ a:hover {
 }
 
 .muted-text {
-    color: #8a929c;
+    color: #94a3b8;
 }
 
 /* ===================================
@@ -102,6 +198,7 @@ a:hover {
     grid-template-columns: minmax(0, 1fr) 320px;
     gap: 24px;
     align-items: start;
+    margin-bottom: 24px;
 }
 
 .section-header {
@@ -112,8 +209,12 @@ a:hover {
     margin-bottom: 18px;
 }
 
-.section-header h2 {
+.section-header h2,
+.rating-card h2,
+.review-card h2 {
     margin: 0;
+    color: #111827;
+    font-size: 21px;
 }
 
 .map {
@@ -133,7 +234,7 @@ a:hover {
     display: flex;
     min-height: 320px;
     padding: 32px;
-    border: 2px dashed #cbd2da;
+    border: 2px dashed #cbd5e1;
     border-radius: 10px;
     background: #f8fafc;
     align-items: center;
@@ -144,17 +245,18 @@ a:hover {
 
 .google-placeholder p {
     margin: 5px 0;
-    color: #69727d;
+    color: #64748b;
 }
 
 .placeholder-title {
     margin-bottom: 4px;
-    color: #303843;
+    color: #334155;
     font-size: 18px;
     font-weight: 700;
 }
 
 .google-map-link {
+    font-size: 14px;
     font-weight: 700;
 }
 
@@ -166,13 +268,13 @@ a:hover {
     min-height: 42px;
     padding: 10px 16px;
     border-radius: 8px;
-    background: #2f5bea;
+    background: #2563eb;
     color: #fff;
     font-weight: 700;
 }
 
 .google-map-button:hover {
-    background: #2349c7;
+    background: #1d4ed8;
     text-decoration: none;
 }
 
@@ -181,8 +283,13 @@ a:hover {
     top: 24px;
 }
 
+.rating-card > h2 {
+    margin-bottom: 22px;
+}
+
 .rating-box h3 {
     margin: 0 0 12px;
+    color: #334155;
     font-size: 16px;
 }
 
@@ -193,6 +300,7 @@ a:hover {
 }
 
 .rating-number {
+    color: #111827;
     font-size: 34px;
     line-height: 1;
 }
@@ -206,13 +314,13 @@ a:hover {
 .rating-count,
 .rating-message {
     margin: 10px 0 16px;
-    color: #68707c;
+    color: #64748b;
 }
 
 .rating-divider {
     height: 1px;
     margin: 24px 0;
-    background: #e4e8ed;
+    background: #e2e8f0;
 }
 
 /* ===================================
@@ -227,7 +335,7 @@ a:hover {
 }
 
 .review-count {
-    color: #68707c;
+    color: #64748b;
     font-size: 14px;
 }
 
@@ -238,9 +346,9 @@ a:hover {
 
 .review {
     padding: 18px;
-    border: 1px solid #e2e6eb;
+    border: 1px solid #e2e8f0;
     border-radius: 10px;
-    background: #fafbfc;
+    background: #f8fafc;
 }
 
 .review-header {
@@ -254,18 +362,20 @@ a:hover {
 .anonymous-name {
     display: block;
     margin-bottom: 5px;
+    color: #334155;
     font-size: 14px;
     font-weight: 700;
 }
 
 .review-date {
-    color: #747d88;
+    color: #64748b;
     font-size: 13px;
     white-space: nowrap;
 }
 
 .review-comment {
     margin: 0;
+    color: #334155;
     line-height: 1.8;
     overflow-wrap: anywhere;
     white-space: pre-wrap;
@@ -273,9 +383,9 @@ a:hover {
 
 .no-review {
     padding: 36px 20px;
-    border: 1px dashed #cbd2da;
+    border: 1px dashed #cbd5e1;
     border-radius: 10px;
-    color: #69727d;
+    color: #64748b;
     text-align: center;
 }
 
@@ -293,8 +403,8 @@ a:hover {
 }
 
 .form-description {
-    margin: -8px 0 20px;
-    color: #68707c;
+    margin: 8px 0 20px;
+    color: #64748b;
     font-size: 14px;
 }
 
@@ -309,19 +419,23 @@ a:hover {
 }
 
 .form-group label {
+    color: #334155;
     font-weight: 700;
 }
 
 .required {
     margin-left: 5px;
-    color: #c72c2c;
-    font-size: 12px;
+    padding: 2px 5px;
+    border-radius: 4px;
+    background: #fee2e2;
+    color: #dc2626;
+    font-size: 11px;
 }
 
 select,
 textarea {
     width: 100%;
-    border: 1px solid #bcc4ce;
+    border: 1px solid #cbd5e1;
     border-radius: 8px;
     background: #fff;
     color: #222;
@@ -342,13 +456,13 @@ textarea {
 
 select:focus,
 textarea:focus {
-    border-color: #2f5bea;
-    outline: 3px solid rgb(47 91 234 / 14%);
+    border-color: #2563eb;
+    outline: 3px solid rgba(37, 99, 235, 0.14);
 }
 
 .review-note {
     margin: 0;
-    color: #68707c;
+    color: #64748b;
     font-size: 13px;
     line-height: 1.6;
 }
@@ -358,7 +472,7 @@ textarea:focus {
     min-height: 44px;
     border: none;
     border-radius: 8px;
-    background: #2f5bea;
+    background: #2563eb;
     color: #fff;
     font-size: 15px;
     font-weight: 700;
@@ -366,7 +480,7 @@ textarea:focus {
 }
 
 .review-btn:hover {
-    background: #2349c7;
+    background: #1d4ed8;
 }
 
 /* ===================================
@@ -387,8 +501,8 @@ textarea:focus {
 
 @media (max-width: 700px) {
     .main-content {
-        width: 100%;
-        padding: 18px;
+        margin-left: 0;
+        padding: 75px 16px 24px;
     }
 
     .top-actions {
@@ -433,6 +547,78 @@ textarea:focus {
     .review-header {
         flex-direction: column;
     }
+}
 
-   
+.review-header-right {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.review-menu {
+    position: relative;
+}
+
+.review-menu-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 30px;
+    padding: 0;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: #64748b;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.review-menu-button:hover {
+    background: #e2e8f0;
+    color: #1f2937;
+}
+
+.review-menu-list {
+    position: absolute;
+    z-index: 20;
+    top: 36px;
+    right: 0;
+    display: none;
+    min-width: 110px;
+    overflow: hidden;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.14);
+}
+
+.review-menu-list.is-open {
+    display: block;
+}
+
+.review-menu-list a,
+.review-menu-list button {
+    display: block;
+    width: 100%;
+    padding: 10px 14px;
+    border: none;
+    background: #fff;
+    color: #334155;
+    font: inherit;
+    font-size: 14px;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.review-menu-list a:hover,
+.review-menu-list button:hover {
+    background: #f1f5f9;
+    text-decoration: none;
+}
+
+.review-menu-list button {
+    color: #dc2626;
 }

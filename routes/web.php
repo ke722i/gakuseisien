@@ -669,6 +669,15 @@ Route::post('/nearby-shop/admin/delete/{id}', [ShopController::class, 'destroy']
 Route::post('/nearby-shop/store/{id}/review', [ReviewController::class, 'store'])
     ->name('reviews.store');
 
+Route::get('/reviews/{review}/edit', [ReviewController::class, 'edit'])
+    ->name('reviews.edit');
+
+Route::put('/reviews/{review}', [ReviewController::class, 'update'])
+    ->name('reviews.update');
+
+Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])
+    ->name('reviews.destroy');
+
 
 // 時事ニュース関連のルート（/recentnews, /history）を読み込む
 require __DIR__ . '/news.php';

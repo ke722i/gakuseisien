@@ -11,13 +11,16 @@ class ShopController extends Controller
 {
     // ホーム
     public function index()
-    {
-        $shops = Shop::where('is_visible', true)->get();
+{
+    $shops = Shop::where('is_visible', true)
+        ->paginate(9)
+        ->withQueryString();
 
-        return view('store.home', compact('shops'));
-    }
+    return view('store.shome', compact('shops'));
+}
 
     // 店舗詳細
+// 店舗詳細
 // 店舗詳細
 public function show($id, GoogleMapsService $googleMapsService)
 {
@@ -28,41 +31,56 @@ public function show($id, GoogleMapsService $googleMapsService)
         },
     ])->findOrFail($id);
 
+    // 学生支援.com側の評価
     $reviewCount = $shop->reviews->count();
     $studentRating = $shop->reviews->avg('rating');
 
-    $googleMapsEnabled =
-        !empty(config('services.google_maps.server_key'))
-        && !empty(config('services.google_maps.embed_key'));
+    // Google評価取得用
+    $googlePlacesEnabled =
+        !empty(config('services.google_maps.server_key'));
 
+    // 地図埋め込み用
+    $googleEmbedEnabled =
+        !empty(config('services.google_maps.embed_key'));
+
+    // Google Places APIから店舗情報を取得
     $googlePlace = null;
 
-    if ($googleMapsEnabled) {
+    if ($googlePlacesEnabled) {
         $googlePlace = $googleMapsService->findPlace(
             $shop->name,
             $shop->address
         );
     }
 
+    // Google評価
     $googleRating = $googlePlace['rating'] ?? null;
-    $googleReviewCount = $googlePlace['userRatingCount'] ?? null;
 
-    $googleMapsUrl = $googlePlace['googleMapsUri']
+    // Google評価件数
+    $googleReviewCount =
+        $googlePlace['userRatingCount'] ?? null;
+
+    // Google Mapsへのリンク
+    $googleMapsUrl =
+        $googlePlace['googleMapsUri']
         ?? 'https://www.google.com/maps/search/?api=1&query='
         . urlencode($shop->name . ' ' . $shop->address);
 
+    // 埋め込み地図URL
     $mapEmbedUrl = null;
 
-    if ($googleMapsEnabled) {
+    if ($googleEmbedEnabled) {
         $mapQuery = !empty($googlePlace['id'])
             ? 'place_id:' . $googlePlace['id']
             : $shop->name . ' ' . $shop->address;
 
-        $mapEmbedUrl = 'https://www.google.com/maps/embed/v1/place?'
+        $mapEmbedUrl =
+            'https://www.google.com/maps/embed/v1/place?'
             . http_build_query([
                 'key' => config('services.google_maps.embed_key'),
                 'q' => $mapQuery,
                 'language' => 'ja',
+                'region' => 'jp',
             ]);
     }
 
@@ -70,7 +88,8 @@ public function show($id, GoogleMapsService $googleMapsService)
         'shop',
         'reviewCount',
         'studentRating',
-        'googleMapsEnabled',
+        'googlePlacesEnabled',
+        'googleEmbedEnabled',
         'googleRating',
         'googleReviewCount',
         'googleMapsUrl',
@@ -85,44 +104,31 @@ public function show($id, GoogleMapsService $googleMapsService)
     }
 
     // 管理画面
-    public function admin()
-    {
-        $shops = Shop::all();
-        $requests = ShopRequest::all();
+   public function storeRequest(Request $request)
+{
+    $validated = $request->validate([
+        'name' => ['required', 'string', 'max:255'],
+        'genre' => ['required', 'string', 'max:100'],
+        'address' => ['required', 'string', 'max:255'],
+        'business_hours' => ['required', 'string', 'max:255'],
+        'budget' => ['required', 'integer', 'min:0'],
+        'distance' => ['required', 'integer', 'min:0'],
 
-        return view('store.admin', compact('shops', 'requests'));
-    }
+        'payment_method' => ['required', 'array', 'min:1'],
+        'payment_method.*' => [
+            'string',
+            'in:現金,クレジットカード,交通系IC,QRコード決済,電子マネー',
+        ],
 
-    // 店舗申請保存
-    public function storeRequest(Request $request)
-    {
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'genre' => ['required', 'string', 'max:100'],
-            'address' => ['required', 'string', 'max:255'],
-            'business_hours' => ['required', 'string', 'max:255'],
-            'budget' => ['required', 'integer', 'min:0'],
-            'distance' => ['required', 'integer', 'min:0'],
-            'payment_method' => ['required', 'string', 'max:100'],
-            'official_url' => ['nullable', 'url', 'max:255'],
-        ]);
+        'official_url' => ['nullable', 'url', 'max:255'],
+    ]);
 
-        ShopRequest::create([
-            'name' => $validated['name'],
-            'genre' => $validated['genre'],
-            'address' => $validated['address'],
-            'business_hours' => $validated['business_hours'],
-            'budget' => $validated['budget'],
-            'distance' => $validated['distance'],
-            'payment_method' => $validated['payment_method'],
-            'official_url' => $validated['official_url'] ?? null,
-            'status' => 'pending',
-        ]);
+    ShopRequest::create($validated);
 
-        return redirect()
-            ->route('store.request')
-            ->with('success', '申請しました。');
-    }
+    return redirect()
+        ->route('store.request')
+        ->with('success', '店舗情報を申請しました。');
+}
 
     // 申請詳細画面
     public function requestMore($id)
@@ -177,37 +183,31 @@ public function show($id, GoogleMapsService $googleMapsService)
     }
 
     // 店舗情報更新
-    public function update(Request $request, $id)
-    {
-        $shop = Shop::findOrFail($id);
+    public function update(Request $request, Shop $shop)
+{
+    $validated = $request->validate([
+        'name' => ['required', 'string', 'max:255'],
+        'genre' => ['required', 'string', 'max:100'],
+        'address' => ['required', 'string', 'max:255'],
+        'business_hours' => ['required', 'string', 'max:255'],
+        'budget' => ['required', 'integer', 'min:0'],
+        'distance' => ['required', 'integer', 'min:0'],
 
-        $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'genre' => ['required', 'string', 'max:100'],
-            'address' => ['required', 'string', 'max:255'],
-            'business_hours' => ['required', 'string', 'max:255'],
-            'budget' => ['required', 'integer', 'min:0'],
-            'distance' => ['required', 'integer', 'min:0'],
-            'payment_method' => ['required', 'string', 'max:100'],
-            'official_url' => ['nullable', 'url', 'max:255'],
-        ]);
+        'payment_method' => ['required', 'array', 'min:1'],
+        'payment_method.*' => [
+            'string',
+            'in:現金,クレジットカード,交通系IC,QRコード決済,電子マネー',
+        ],
 
-        $shop->update([
-            'name' => $validated['name'],
-            'genre' => $validated['genre'],
-            'address' => $validated['address'],
-            'business_hours' => $validated['business_hours'],
-            'budget' => $validated['budget'],
-            'distance' => $validated['distance'],
-            'payment_method' => $validated['payment_method'],
-            'official_url' => $validated['official_url'] ?? null,
-        ]);
+        'official_url' => ['nullable', 'url', 'max:255'],
+    ]);
 
-        return redirect()
-            ->route('store.admin')
-            ->with('success', '店舗情報を更新しました。');
-    }
+    $shop->update($validated);
 
+    return redirect()
+        ->route('store.admin')
+        ->with('success', '店舗情報を更新しました。');
+}
     // 表示・非表示切り替え
     public function hide($id)
     {
@@ -273,8 +273,16 @@ public function show($id, GoogleMapsService $googleMapsService)
                 $query->where('payment_method', $paymentMethod);
             })
 
-            ->get();
+            ->paginate(9)
+            ->withQueryString();
 
-        return view('store.home', compact('shops'));
+        return view('store.shome', compact('shops'));
     }
+    public function admin()
+{
+    $requests = ShopRequest::orderBy('created_at', 'desc')->get();
+    $shops = Shop::orderBy('created_at', 'desc')->get();
+
+    return view('store.admin', compact('requests', 'shops'));
+}
 }

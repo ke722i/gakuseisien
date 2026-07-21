@@ -23,6 +23,7 @@ return new class extends Migration
     $table->integer('distance');            // 学校からの距離(m)
     $table->string('payment_method');       // 決済方法
     $table->boolean('is_visible')->default(true); // 表示・非表示
+    $table->string('official_url')->nullable(); //公式サイト
 
     $table->timestamps();
 });

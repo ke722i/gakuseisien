@@ -13,13 +13,14 @@ return new class extends Migration
     {
         Schema::create('reviews', function (Blueprint $table) {
     $table->id();
+    $table->foreignId('shop_id')->constrained()->onDelete('cascade');
 
-    $table->foreignId('shop_id')
-        ->constrained()
-        ->cascadeOnDelete();
-
-    $table->unsignedTinyInteger('rating');
+    $table->integer('rating');
     $table->text('comment');
+
+    // 投稿者本人を識別するためのトークン
+    $table->string('edit_token', 64);
+
     $table->boolean('is_visible')->default(true);
 
     $table->timestamps();

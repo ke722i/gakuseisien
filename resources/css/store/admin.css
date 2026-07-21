@@ -2,224 +2,369 @@
    共通設定
 ========================= */
 
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:"Yu Gothic UI",sans-serif;
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Yu Gothic UI", "Yu Gothic", "Meiryo", sans-serif;
 }
 
-body{
-    background:#eef2f7;
+body {
+    background: #f4f6f9;
+    color: #1f2937;
 }
 
-.container{
-    min-height:100vh;
+.container {
+    min-height: 100vh;
 }
 
 /* =========================
    メイン
-   （サイドバーは app.css の共通部品を使用。
-     固定幅68pxのレール分だけ左に余白をとる）
 ========================= */
 
-.main{
-    margin-left:68px;
-    padding:35px;
+.main {
+    margin-left: 68px;
+    padding: 35px;
+}
+
+.page-header {
+    margin-bottom: 26px;
+}
+
+.back-link {
+    display: inline-block;
+    margin-bottom: 16px;
+    color: #2563eb;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}
+
+.page-header h1 {
+    margin-bottom: 7px;
+    font-size: 28px;
+}
+
+.page-header p {
+    color: #6b7280;
+    font-size: 14px;
+}
+
+/* =========================
+   メッセージ
+========================= */
+
+.success-message {
+    margin-bottom: 24px;
+    padding: 14px 17px;
+    border: 1px solid #86efac;
+    border-radius: 8px;
+    background: #f0fdf4;
+    color: #166534;
+    font-weight: 700;
 }
 
 /* =========================
    左右レイアウト
-   （app.css の .content と衝突しないよう admin-content に改名）
 ========================= */
 
-.admin-content{
-    display:flex;
-    gap:35px;
-    align-items:flex-start;
+.admin-content {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(320px, 1fr);
+    gap: 28px;
+    align-items: start;
 }
 
-.store-list{
-    flex:2;
+.store-list,
+.request-list {
+    min-width: 0;
 }
 
-.request-list{
-    flex:1;
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.section-header h2 {
+    font-size: 21px;
+}
+
+.section-header p {
+    margin-top: 4px;
+    color: #64748b;
+    font-size: 13px;
+}
+
+.card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
 }
 
 /* =========================
-   カード
+   店舗カード
 ========================= */
 
 .card,
-.request-card{
+.request-card {
+    padding: 22px;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+}
 
-    background:white;
-
-    border-radius:12px;
-
-    padding:20px;
-
-    margin-bottom:20px;
-
-    box-shadow:0 5px 15px rgba(0,0,0,.08);
-
+.card-header,
+.request-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 18px;
 }
 
 .card h3,
-.request-card h3{
-
-    margin-bottom:10px;
-
+.request-card h3 {
+    margin-bottom: 8px;
+    color: #111827;
+    font-size: 19px;
 }
 
-.card p,
-.request-card p{
+.genre-label {
+    display: inline-flex;
+    padding: 4px 9px;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #2563eb;
+    font-size: 12px;
+    font-weight: 700;
+}
 
-    margin-bottom:8px;
+/* =========================
+   公開状態
+========================= */
 
-    color:#555;
+.status-badge {
+    flex-shrink: 0;
+    padding: 5px 9px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+}
 
+.status-badge.visible {
+    background: #dcfce7;
+    color: #15803d;
+}
+
+.status-badge.hidden {
+    background: #e5e7eb;
+    color: #4b5563;
+}
+
+.status-badge.pending {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+/* =========================
+   店舗情報
+========================= */
+
+.shop-information {
+    margin-bottom: 20px;
+}
+
+.shop-information div {
+    display: grid;
+    grid-template-columns: 85px 1fr;
+    gap: 8px;
+    padding: 8px 0;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.shop-information dt {
+    color: #475569;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.shop-information dd {
+    margin: 0;
+    color: #475569;
+    font-size: 14px;
+}
+
+.request-information {
+    margin-bottom: 18px;
+}
+
+.request-information p {
+    margin-bottom: 9px;
+    color: #475569;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.request-information strong {
+    display: block;
+    margin-bottom: 2px;
+    color: #334155;
+    font-size: 12px;
 }
 
 /* =========================
    ボタン
 ========================= */
 
-.buttons{
-
-    display:flex;
-
-    gap:10px;
-
-    margin-top:15px;
-
+.buttons,
+.request-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
 }
 
-.buttons button{
-
-    flex:1;
-
-    border:none;
-
-    padding:10px;
-
-    border-radius:6px;
-
-    color:white;
-
-    cursor:pointer;
-
-    font-size:14px;
-
+.buttons form,
+.request-buttons form {
+    display: contents;
 }
 
-.edit{
-
-    background:#2f80ed;
-
+.action-button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 39px;
+    padding: 9px 15px;
+    border: none;
+    border-radius: 7px;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+        transform 0.15s,
+        opacity 0.15s,
+        box-shadow 0.15s;
 }
 
-.edit:hover{
-
-    background:#1565d8;
-
+.buttons .action-button {
+    flex: 1;
+    min-width: 105px;
 }
 
-.hide{
-
-    background:#f39c12;
-
+.request-buttons .action-button {
+    flex: 1;
+    min-width: 75px;
 }
 
-.hide:hover{
-
-    background:#d68910;
-
+.action-button:hover {
+    opacity: 0.88;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(15, 23, 42, 0.15);
 }
 
-.delete{
-
-    background:#e74c3c;
-
+.edit,
+.detail {
+    background: #2563eb;
 }
 
-.delete:hover{
-
-    background:#c0392b;
-
+.hide {
+    background: #d97706;
 }
 
-.approve{
-
-    background:#27ae60;
-
+.show {
+    background: #16a34a;
 }
 
-.approve:hover{
-
-    background:#1f8a4c;
-
+.delete,
+.reject {
+    background: #dc2626;
 }
 
-.reject{
-
-    background:#e74c3c;
-
-}
-
-.reject:hover{
-
-    background:#c0392b;
-
+.approve {
+    background: #16a34a;
 }
 
 /* =========================
-   タイトル
+   空表示
 ========================= */
 
-.store-list h2,
-.request-list h2{
-
-    margin-bottom:20px;
-
+.empty-message {
+    padding: 34px 20px;
+    border: 1px dashed #cbd5e1;
+    border-radius: 12px;
+    background: #ffffff;
+    color: #64748b;
+    text-align: center;
+    font-size: 14px;
 }
 
-.buttons{
-    display:flex;
-    gap:10px;
-    margin-top:15px;
+/* =========================
+   レスポンシブ
+========================= */
+
+@media (max-width: 1050px) {
+    .admin-content {
+        grid-template-columns: 1fr;
+    }
+
+    .request-list {
+        order: -1;
+    }
 }
 
-.buttons button{
-    border:none;
-    padding:10px 16px;
-    border-radius:8px;
-    color:white;
-    cursor:pointer;
-    font-weight:bold;
+@media (max-width: 700px) {
+    .main {
+        margin-left: 0;
+        padding: 75px 16px 24px;
+    }
+
+    .card,
+    .request-card {
+        padding: 18px;
+    }
+
+    .card-header,
+    .request-card-header {
+        flex-direction: column;
+    }
+
+    .buttons,
+    .request-buttons {
+        flex-direction: column;
+    }
+
+    .buttons .action-button,
+    .request-buttons .action-button {
+        width: 100%;
+    }
 }
 
-/* 詳細 */
-.buttons .detail{
-    background:#3498db;
+.payment-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 20px;
+    margin-bottom: 10px;
+    cursor: pointer;
 }
 
-/* 承認 */
-.buttons .approve{
-    background:#2ecc71;
+.payment-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    flex-shrink: 0;
 }
 
-/* 却下 */
-.buttons .reject{
-    background:#e74c3c;
-}
-
-.buttons button:hover{
-    opacity:.85;
-}
-
-.show{
-    background:#28a745;
-    color:#fff;
+.payment-checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 20px;
 }

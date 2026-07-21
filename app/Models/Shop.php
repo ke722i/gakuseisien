@@ -23,4 +23,9 @@ class Shop extends Model
     {
         return $this->hasMany(Review::class);
     }
+
+    protected $casts = [
+    'payment_method' => 'array',
+    'is_visible' => 'boolean',
+];
 }
