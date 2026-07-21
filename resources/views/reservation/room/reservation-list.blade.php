@@ -38,7 +38,7 @@
                                 <div class="reservation-status">{{ $reservation['status_label'] ?? '承認待ち' }}</div>
                                 <button type="button" class="change-button"
                                     onclick='openReservationEdit(@json($reservation))'>変更</button>
-                                <form method="POST" action="{{ route('classroom.reservation.destroy', $reservation['id']) }}" onsubmit="return confirm('この予約を削除しますか？');">
+                                <form method="POST" action="{{ route('classroom.reservation.destroy', $reservation['id']) }}" data-confirm="この予約を削除しますか？">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="delete-button">削除</button>
@@ -75,7 +75,7 @@
                 </div>
                 <div class="resv-field">
                     <label>日付</label>
-                    <input type="date" name="reservation_date" id="resvDate" required>
+                    <input type="date" name="reservation_date" id="resvDate" min="{{ now()->toDateString() }}" required>
                 </div>
                 <div class="resv-field">
                     <label>時限</label>

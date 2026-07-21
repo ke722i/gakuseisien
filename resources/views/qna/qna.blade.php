@@ -191,16 +191,14 @@
             });
         }
 
-        function handleReport(event, element) {
+        async function handleReport(event, element) {
             event.preventDefault();
             event.stopPropagation();
+
             const id = element.dataset.id;
-            const reason = prompt("通報する理由を入力してください（スパム、嫌がらせ、公序良俗に反する投稿など）：");
+            const reason = await promptDialog('通報する理由を入力してください（スパム、嫌がらせ、公序良俗に反する投稿など）');
             if (reason === null) return;
-            if (reason.trim() === "") {
-                showToast("通報理由は必須入力です。", 'error');
-                return;
-            }
+
             document.getElementById('report-reason-' + id).value = reason;
             document.getElementById('report-form-' + id).submit();
         }

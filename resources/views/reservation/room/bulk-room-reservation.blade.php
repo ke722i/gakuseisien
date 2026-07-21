@@ -65,9 +65,10 @@
                     <div class="date-range">
                         <label>予約期間</label>
                         <div class="date-inputs">
-                            <input type="date" id="fromDate">
+                            {{-- 過去日を選べないようにする（サーバー側でも同じ条件を検証している） --}}
+                            <input type="date" id="fromDate" min="{{ now()->toDateString() }}">
                             <span class="tilde">〜</span>
-                            <input type="date" id="toDate">
+                            <input type="date" id="toDate" min="{{ now()->toDateString() }}">
                             <button type="button" id="addToList" class="primary">一覧に追加</button>
                         </div>
                     </div>
@@ -287,11 +288,22 @@
                     return buildConflictDetails(candidate, existingRows).length > 0;
                 }
 
+                // 開始日を選んだら、終了日のカレンダーで開始日より前を選べないようにする
+                document.getElementById('fromDate').addEventListener('change', (e) => {
+                    const toDateEl = document.getElementById('toDate');
+                    toDateEl.min = e.target.value || '{{ now()->toDateString() }}';
+                    if (toDateEl.value && toDateEl.value < e.target.value) {
+                        toDateEl.value = e.target.value;
+                    }
+                });
+
                 addToListBtn.addEventListener('click', () => {
                     const room = document.getElementById('roomSelect').value;
                     const usage = document.getElementById('usageInput').value.trim();
-                    const fromDate = document.getElementById('fromDate').value;
-                    const toDate = document.getElementById('toDate').value;
+                    const fromDateEl = document.getElementById('fromDate');
+                    const toDateEl = document.getElementById('toDate');
+                    const fromDate = fromDateEl.value;
+                    const toDate = toDateEl.value;
                     const selectedPeriods = Array.from(periodBtns).filter(p => p.classList.contains('active')).map(p => p.dataset.label);
                     const selectedDays = Array.from(weekdayBtns).filter(d => d.classList.contains('active')).map(d => d.dataset.day);
 
@@ -305,6 +317,16 @@
                     }
                     if (!fromDate || !toDate) {
                         showToast('予約期間を入力してください', 'error');
+                        return;
+                    }
+                    // 期間の逆転・過去日を防ぐ（サーバー側でも同じ条件を検証している）
+                    if (toDate < fromDate) {
+                        showToast('終了日は開始日以降にしてください', 'error');
+                        return;
+                    }
+                    const todayStr = new Date().toLocaleDateString('sv-SE'); // YYYY-MM-DD
+                    if (fromDate < todayStr) {
+                        showToast('開始日に過去の日付は指定できません', 'error');
                         return;
                     }
                     if (selectedDays.length === 0) {

@@ -34,7 +34,7 @@
                             <div class="field"><label>学籍番号</label><input type="text" name="student_number" value="{{ old('student_number', $user?->student_number ?? '') }}" readonly></div>
                             <div class="field"><label>クラス番号</label><input type="text" name="class_number" value="{{ old('class_number', $user?->class_number ?? '') }}" readonly></div>
                             <div class="field"><label>名前</label><input type="text" name="student_name" value="{{ old('student_name', $user?->student_name ?? '') }}" readonly></div>
-                            <div class="field"><label>日付</label><input type="date" name="target_date" value="{{ old('target_date', $today) }}"></div>
+                            <div class="field"><label>欠席日</label><input type="date" name="target_date" value="{{ old('target_date', $today) }}"></div>
                             <div class="field"><label>時限</label>
                                 <div class="time-box">
                                     <label><input type="checkbox" name="periods[]" value="1">1</label>
@@ -51,12 +51,16 @@
                             <div class="field"><label>科目教師</label>
                                 <div class="subject-teacher-group">
                                     <div id="teacher-list" class="teacher-list">
+                                        {{-- 選択肢は登録済みの教職員から生成する --}}
                                         <div class="teacher-row">
                                             <select name="subject_teacher_1">
-                                                <option>科目教師1</option>
-                                                <option>担当教師2</option>
-                                                <option>担当教師3</option>
-                                                <option>担当教師4</option>
+                                                <option value="">選択してください</option>
+                                                @foreach (($subjectTeachers ?? []) as $teacher)
+                                                    <option value="{{ $teacher }}"
+                                                        {{ old('subject_teacher_1') === $teacher ? 'selected' : '' }}>
+                                                        {{ $teacher }}
+                                                    </option>
+                                                @endforeach
                                             </select>
                                         </div>
                                     </div>

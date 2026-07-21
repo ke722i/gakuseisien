@@ -221,7 +221,7 @@
                                 <!-- 一番上の親コメント -->
                                 <div class="reply-card" onclick="toggleForm('reply', {{ $reply->id }}, event)">
                                     <div style="font-size:0.85rem;color:#6b7280;margin-bottom:0.35rem;">
-                                        {{ $reply->author_name ?? ($reply->user?->login_id ?? '匿名') }} · {{ optional($reply->created_at)->setTimezone('Asia/Tokyo')->format('Y-m-d H:i') }}
+                                        {{ $reply->author_name ?? ($reply->user?->displayNameWithNumber() ?? '匿名') }} · {{ optional($reply->created_at)->setTimezone('Asia/Tokyo')->format('Y-m-d H:i') }}
                                     </div>
                                     <div style="white-space:pre-wrap;line-height:1.6;color:#111827;">{{ $reply->content }}</div>
 
@@ -230,7 +230,7 @@
                                             @if (Auth::id() === $reply->user_id)
                                                 <button type="button" class="btn-text" onclick="toggleForm('edit', {{ $reply->id }}, event)">編集</button>
                                                 <!-- メッセージをフォーマルに修正 -->
-                                                <form method="POST" action="{{ route('forum.reply.destroy', $reply) }}" onsubmit="return confirm('この返信を削除します。よろしいですか？\n※関連する返信もすべて削除されます。');" style="margin:0;">
+                                                <form method="POST" action="{{ route('forum.reply.destroy', $reply) }}" data-confirm="この返信を削除します。よろしいですか？\n※関連する返信もすべて削除されます。" style="margin:0;">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn-text-danger">削除</button>
@@ -274,7 +274,7 @@
                                                 <!-- 子コメントもクリック可能にする -->
                                                 <div class="child-reply-card" onclick="toggleForm('reply', {{ $child->id }}, event)">
                                                     <div style="font-size:0.8rem;color:#6b7280;margin-bottom:0.2rem;">
-                                                        {{ $child->author_name ?? ($child->user?->login_id ?? '匿名') }} · {{ optional($child->created_at)->setTimezone('Asia/Tokyo')->format('Y-m-d H:i') }}
+                                                        {{ $child->author_name ?? ($child->user?->displayNameWithNumber() ?? '匿名') }} · {{ optional($child->created_at)->setTimezone('Asia/Tokyo')->format('Y-m-d H:i') }}
                                                     </div>
                                                     <div style="white-space:pre-wrap;line-height:1.5;color:#374151;font-size:0.9rem;">{{ $child->content }}</div>
 
@@ -283,7 +283,7 @@
                                                             @if (Auth::id() === $child->user_id)
                                                                 <button type="button" class="btn-text" onclick="toggleForm('edit', {{ $child->id }}, event)">編集</button>
                                                                 <!-- メッセージをフォーマルに修正 -->
-                                                                <form method="POST" action="{{ route('forum.reply.destroy', $child) }}" onsubmit="return confirm('この返信を削除してもよろしいですか？');" style="margin:0;">
+                                                                <form method="POST" action="{{ route('forum.reply.destroy', $child) }}" data-confirm="この返信を削除してもよろしいですか？" style="margin:0;">
                                                                     @csrf
                                                                     @method('DELETE')
                                                                     <button type="submit" class="btn-text-danger">削除</button>
@@ -297,7 +297,7 @@
                                                         <form method="POST" action="{{ route('forum.reply.store', $post) }}" style="display:flex; flex-direction:column; gap:0.5rem;">
                                                             @csrf
                                                             <input type="hidden" name="parent_id" value="{{ $reply->id }}">
-                                                            <textarea name="content" placeholder="{{ $child->author_name ?? ($child->user?->login_id ?? '匿名') }} さんへ返信..." required style="border:1px solid #d1d5db;border-radius:0.4rem;padding:0.45rem 0.6rem;width:100%;font-family:inherit;min-height:40px;"></textarea>
+                                                            <textarea name="content" placeholder="{{ $child->author_name ?? ($child->user?->displayNameWithNumber() ?? '匿名') }} さんへ返信..." required style="border:1px solid #d1d5db;border-radius:0.4rem;padding:0.45rem 0.6rem;width:100%;font-family:inherit;min-height:40px;"></textarea>
                                                             <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
                                                                 <button type="button" class="btn-text" onclick="toggleForm('reply', {{ $child->id }}, event)" style="padding:0.4rem 0.8rem;">キャンセル</button>
                                                                 <button type="submit" class="action-btn btn-primary" style="border-radius:9999px;">返信</button>

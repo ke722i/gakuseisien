@@ -80,10 +80,13 @@ class RoomAdminController extends Controller
     {
         $validated = $request->validate([
             'room_id' => ['required', 'exists:rooms,id'],
-            'date' => ['required', 'date'],
+            // 過ぎた日付を利用不可にしても意味がないため当日以降のみ
+            'date' => ['required', 'date', 'after_or_equal:today'],
             'period' => ['required', 'integer', 'min:1', 'max:6'],
             'reason' => ['nullable', 'string', 'max:255'],
-        ], [], [
+        ], [
+            'date.after_or_equal' => '過去の日付は設定できません。',
+        ], [
             'room_id' => '教室',
             'date' => '日付',
             'period' => '時限',

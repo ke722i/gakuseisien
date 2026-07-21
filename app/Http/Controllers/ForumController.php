@@ -143,7 +143,8 @@ class ForumController extends Controller
             'category' => $validated['category'],
             'title' => $validated['title'],
             'content' => $validated['content'] ?? null,
-            'posted_by' => Auth::user()?->login_id ?? '匿名',
+            // 誰の投稿か分かるよう「氏名（学籍番号）」で保存する
+            'posted_by' => Auth::user()?->displayNameWithNumber() ?? '匿名',
             'user_id' => Auth::id(),
             'image_url' => null,
             'published_at' => now(),

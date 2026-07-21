@@ -20,8 +20,10 @@ class AttendanceNotificationController extends Controller
         // 1. 入力データのチェック（バリデーション）
         //    学籍番号・クラス・氏名・担任はアカウント情報を使うため、画面からは受け取らない
         $request->validate([
-            'submission_date'  => 'required|date',
-            'target_date'      => 'required|date',
+            // 提出日は画面の値を信用せずサーバー側の日付を使うため、ここでは検証しない。
+            // 欠席日は、後から出す届（昨日休んだ等）も認めるため過去日を許可する。
+            // ただし極端な未来日は誤入力とみなして弾く（1年先まで）。
+            'target_date'      => 'required|date|before_or_equal:' . now()->addYear()->toDateString(),
             'reason_category'  => 'required|string',
             // DB側が NOT NULL のため必須（画面のプルダウンは常に値を送る）
             'subject_teacher_1' => 'required|string',
@@ -43,7 +45,8 @@ class AttendanceNotificationController extends Controller
         //    本人になりすまして提出できないよう、身元にあたる項目はログイン中のアカウントから取る
         DB::table('attendance_reports')->insert([
             'student_number'    => $user->student_number,
-            'submission_date'   => $request->input('submission_date'),
+            // 提出日は改ざんできないようサーバー側の日付で確定させる
+            'submission_date'   => now()->toDateString(),
             'target_date'       => $request->input('target_date'),
             'class_number'      => $user->class_number,
             'student_name'      => $user->student_name ?: $user->login_id,

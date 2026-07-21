@@ -77,10 +77,13 @@ class RoomReservationController extends Controller
     {
         $validated = $request->validate([
             'room_id' => ['required', 'integer', 'exists:rooms,id'],
-            'reservation_date' => ['required', 'date'],
+            // 過ぎた日付の教室は押さえられない
+            'reservation_date' => ['required', 'date', 'after_or_equal:today'],
             'period' => ['required', 'integer', 'min:1', 'max:6'],
             'reason' => ['nullable', 'string', 'max:1000'],
-        ], [], [
+        ], [
+            'reservation_date.after_or_equal' => '過去の日付は予約できません。',
+        ], [
             'room_id' => '教室',
             'reservation_date' => '日付',
             'period' => '時限',
@@ -195,10 +198,13 @@ class RoomReservationController extends Controller
 
         $validated = $request->validate([
             'room_id' => ['required', 'integer', 'exists:rooms,id'],
-            'reservation_date' => ['required', 'date'],
+            // 変更先も未来（当日を含む）でなければならない
+            'reservation_date' => ['required', 'date', 'after_or_equal:today'],
             'period' => ['required', 'integer', 'min:1', 'max:6'],
             'reason' => ['nullable', 'string', 'max:1000'],
-        ], [], [
+        ], [
+            'reservation_date.after_or_equal' => '過去の日付には変更できません。',
+        ], [
             'room_id' => '教室',
             'reservation_date' => '日付',
             'period' => '時限',
@@ -424,9 +430,13 @@ class RoomReservationController extends Controller
             'rows.*.room' => ['required', 'string'],
             'rows.*.usage' => ['required', 'string', 'max:255'],
             'rows.*.periods' => ['required', 'array', 'min:1'],
-            'rows.*.fromDate' => ['required', 'date'],
-            'rows.*.toDate' => ['required', 'date'],
+            // 過去の日付は予約できない。終了日は開始日以降であること。
+            'rows.*.fromDate' => ['required', 'date', 'after_or_equal:today'],
+            'rows.*.toDate' => ['required', 'date', 'after_or_equal:rows.*.fromDate'],
             'rows.*.selectedDays' => ['required', 'array', 'min:1'],
+        ], [
+            'rows.*.fromDate.after_or_equal' => '開始日に過去の日付は指定できません。',
+            'rows.*.toDate.after_or_equal' => '終了日は開始日以降にしてください。',
         ]);
 
         $created = 0;

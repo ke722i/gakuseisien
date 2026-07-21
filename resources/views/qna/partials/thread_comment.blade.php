@@ -32,7 +32,7 @@ $isSpecial = $isBest || $isApproved;
                 <span class="qna-comment-author">
                     @if($answer->user)
                     @if($answer->user->isTeacher()) 👨‍🏫 教職員 @else 🎓 在学生 @endif
-                    ({{ $answer->user->login_id }})
+                    ({{ $answer->user->displayNameWithNumber() }})
                     @else
                     👥 ゲスト
                     @endif

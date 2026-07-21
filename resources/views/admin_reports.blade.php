@@ -111,7 +111,7 @@
                             @endif
 
                             <form method="POST" action="{{ route('admin.reports.destroy', $report) }}"
-                                  onsubmit="return confirm('この通報を処理済みにしますか？（投稿自体は削除されません）');">
+                                  data-confirm="この通報を処理済みにしますか？（投稿自体は削除されません）">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn-resolve">処理済みにする</button>

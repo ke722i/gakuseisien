@@ -28,9 +28,9 @@
             @csrf
             <div class="field">
                 <label for="login_id_login">ID</label>
-                <input type="text" id="login_id_login" name="login_id" placeholder="例: tanaka01"
+                <input type="text" id="login_id_login" name="login_id" placeholder="例: 234001"
                     value="{{ old('login_id') }}" autocomplete="username">
-                <p class="hint">メールアドレスは不要です。好きな半角英数のIDを決めてください。</p>
+                <p class="hint">学生のIDは学籍番号です。学校から配布されたIDを入力してください。</p>
                 @error('login_id')
                     <p class="error">{{ $message }}</p>
                 @enderror

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Question;
 use App\Models\Answer;
 use App\Models\Report;
+use App\Models\UserNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -173,6 +174,17 @@ class QnaController extends Controller
             'best_answer_id' => $answer_id
         ]);
 
+        // 選ばれた回答者に知らせる（気づかれないまま終わらないようにする）
+        $answer = Answer::find($answer_id);
+        if ($answer && $answer->user_id !== Auth::id()) {
+            UserNotification::send(
+                $answer->user_id,
+                'あなたの回答がベストアンサーに選ばれました',
+                mb_strimwidth($question->title, 0, 60, '…'),
+                route('qna.detail', $question->id, absolute: false)
+            );
+        }
+
         return back()->with('success', 'ベストアンサーを決定しました！');
     }
 
@@ -236,11 +248,18 @@ class QnaController extends Controller
             return back()->with('error', '教職員のみ承認できます。');
         }
 
-        // 💡 確実に更新が動いているか確認するため、明示的に保存します
         $answer->is_approved = true;
         $answer->save();
 
-        // 修正: ベストアンサーIDを更新する処理はここに書かないようにしてください
+        // 承認されたことを回答者に知らせる
+        if ($answer->user_id && $answer->user_id !== Auth::id()) {
+            UserNotification::send(
+                $answer->user_id,
+                'あなたの回答が教職員に承認されました',
+                mb_strimwidth($answer->question?->title ?? '学内Q&A', 0, 60, '…'),
+                route('qna.detail', $answer->question_id, absolute: false)
+            );
+        }
 
         return back()->with('success', '承認しました！');
     }

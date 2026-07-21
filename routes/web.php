@@ -687,26 +687,32 @@ Route::middleware('auth')->group(function () {
 // 学内Q&Aページのルート設定
 use App\Http\Controllers\QnaController;
 
-// 固定のURL
-Route::get('/gakunai-qna', [QnaController::class, 'index'])->name('gakunai.qna');
-Route::get('/gakunai-qna/create', [QnaController::class, 'create'])->name('qna.create')->middleware('auth');
-Route::post('/gakunai-qna/store', [QnaController::class, 'store'])->name('qna.store')->middleware('auth');
-Route::get('/gakunai-qna/history', [QnaController::class, 'history'])->name('qna.history');
-// 通報管理は掲示板とQ&Aの両方を扱うため、専用ルートに集約している（下部の /admin/reports を参照）
+// 学内Q&Aは学校ごとに配布したアカウントで利用する前提のため、
+// 閲覧・検索も含めてすべてログイン必須とする（学外の一般ユーザーは対象外）。
+Route::middleware('auth')->group(function () {
+    // 1. 固定のURL
+    Route::get('/gakunai-qna', [QnaController::class, 'index'])->name('gakunai.qna');
+    Route::get('/gakunai-qna/create', [QnaController::class, 'create'])->name('qna.create');
+    Route::post('/gakunai-qna/store', [QnaController::class, 'store'])->name('qna.store');
+    Route::get('/gakunai-qna/history', [QnaController::class, 'history'])->name('qna.history');
+    // 通報管理は掲示板とQ&Aの両方を扱うため、専用ルートに集約している（下部の /admin/reports を参照）
 
-// 2. 動的なURL
-Route::delete('/gakunai-qna/{id}', [QnaController::class, 'destroy'])->name('qna.destroy')->middleware('auth');
-Route::get('/gakunai-qna/{id}', [QnaController::class, 'show'])->name('qna.detail');
-Route::post('/gakunai-qna/{id}/answers', [QnaController::class, 'storeAnswer'])->name('qna.storeAnswer')->middleware('auth');
-Route::patch('/gakunai-qna/{id}/best-answer/{answer_id}', [QnaController::class, 'selectBestAnswer'])->name('qna.bestAnswer')->middleware('auth');
-Route::post('/gakunai-qna/{id}/report', [QnaController::class, 'reportQuestion'])->name('qna.report');
-Route::post('/qna/answers/{answer}/upvote', [App\Http\Controllers\QnaController::class, 'toggleUpvote'])
-    ->name('qna.answers.upvote')
-    ->middleware('auth');
-Route::delete('/qna/answers/{answer}', [App\Http\Controllers\QnaController::class, 'destroyAnswer'])
-    ->name('qna.destroyAnswer')
-    ->middleware('auth');
-Route::post('/qna/answers/{id}/approve', [QnaController::class, 'approveAnswer'])->name('qna.answers.approve');
+    // 2. 動的なURL
+    Route::delete('/gakunai-qna/{id}', [QnaController::class, 'destroy'])->name('qna.destroy');
+    Route::get('/gakunai-qna/{id}', [QnaController::class, 'show'])->name('qna.detail');
+    Route::post('/gakunai-qna/{id}/answers', [QnaController::class, 'storeAnswer'])->name('qna.storeAnswer');
+    Route::patch('/gakunai-qna/{id}/best-answer/{answer_id}', [QnaController::class, 'selectBestAnswer'])->name('qna.bestAnswer');
+    Route::post('/gakunai-qna/{id}/report', [QnaController::class, 'reportQuestion'])->name('qna.report');
+    Route::post('/qna/answers/{answer}/upvote', [App\Http\Controllers\QnaController::class, 'toggleUpvote'])
+        ->name('qna.answers.upvote');
+    Route::delete('/qna/answers/{answer}', [App\Http\Controllers\QnaController::class, 'destroyAnswer'])
+        ->name('qna.destroyAnswer');
+
+    // 回答の承認は教職員のみ
+    Route::post('/qna/answers/{id}/approve', [QnaController::class, 'approveAnswer'])
+        ->name('qna.answers.approve')
+        ->middleware('teacher');
+});
 
 // イベント・締め切りカレンダーページのルート設定
 Route::get('/event-calendar', [EventController::class, 'index'])->name('event.calendar');
@@ -738,12 +744,23 @@ Route::get('/notification', function () {
             ->get()
         : collect();
 
+    // 科目教師のプルダウンは登録済みの教職員から作る（ダミー文字列を選ばせない）
+    $subjectTeachers = App\Models\User::where('role', 'teacher')
+        ->orderBy('teacher_name')
+        ->get()
+        ->map(fn ($t) => $t->subject
+            ? "{$t->teacher_name}（{$t->subject}）"
+            : $t->teacher_name)
+        ->filter()
+        ->values();
+
     // 学籍番号・クラス・氏名・担任はアカウント情報から自動入力する（$user）
     // 提出日・対象日の初期値は本日（$today）
     return view('notification.notification_stu', [
         'myReports' => $myReports,
         'user' => $user,
         'today' => now()->toDateString(),
+        'subjectTeachers' => $subjectTeachers,
     ]);
 })->name('notification');
 

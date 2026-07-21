@@ -1,7 +1,8 @@
 // 共通ポップアップ（partials/toast.blade.php で定義）を使う。
-// 読み込み順の問題で未定義の場合だけブラウザ標準にフォールバックする。
+// 読み込み順の問題で未定義のときは、ブラウザ標準の alert は使わずコンソールに残すだけにする
+// （alert はページ操作を止めてしまうため、サイト内では使わない方針）。
 const notify = (message, type = 'success') =>
-    (window.showToast ? window.showToast(message, type) : alert(message));
+    (window.showToast ? window.showToast(message, type) : console.warn('[notify]', type, message));
 
 const teacherList = document.getElementById('teacher-list');
 const addTeacherButton = document.querySelector('.teacher-btn.add');
@@ -32,16 +33,19 @@ if (teacherList && addTeacherButton && removeTeacherButton) {
             return;
         }
 
+        // 選択肢はサーバー側で教職員から生成しているため、1行目を複製して使う
+        const templateSelect = teacherList.querySelector('.teacher-row select');
+        if (!templateSelect) {
+            return;
+        }
+
         const row = document.createElement('div');
         row.className = 'teacher-row';
-        row.innerHTML = `
-            <select name="subject_teacher_${rows.length + 1}">
-                <option>科目教師1</option>
-                <option>担当教師2</option>
-                <option>担当教師3</option>
-                <option>担当教師4</option>
-            </select>
-        `;
+
+        const select = templateSelect.cloneNode(true);
+        select.name = `subject_teacher_${rows.length + 1}`;
+        select.selectedIndex = 0; // 追加した行は未選択から始める
+        row.appendChild(select);
 
         teacherList.appendChild(row);
         updateTeacherNames();
@@ -146,13 +150,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const statusInput = document.getElementById('submit_report_status');
     const detailForm = document.getElementById('detail_form');
 
-    // ▼▼▼ ここに console.log を4行追加して保存 ▼▼▼
-    console.log('btnReject:', btnReject);
-    console.log('btnApprove:', btnApprove);
-    console.log('statusInput:', statusInput);
-    console.log('detailForm:', detailForm);
-    // ▲▲▲ 追加ここまで ▲▲▲
-
     if (btnReject && btnApprove && statusInput && detailForm) {
         // 「差し戻し」ボタンをクリックした時
         btnReject.addEventListener('click', function() {
@@ -166,7 +163,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 「受理」ボタンをクリックした時
         btnApprove.addEventListener('click', function() {
-            console.log('ボタン反応あり');
             if (!detailForm.action || detailForm.action.endsWith('""')) {
                 notify('対象の届出を左のリストから選択してください。', 'error');
                 return;

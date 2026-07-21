@@ -193,6 +193,7 @@
                     </div>
                     <div class="cal-field">
                         <label for="end_at">終了</label>
+                        {{-- 終了は開始以降しか選べないようにする（min は開始入力に応じてJSで更新） --}}
                         <input type="datetime-local" id="end_at" name="end_at" value="{{ old('end_at') }}">
                     </div>
                 </div>
@@ -240,6 +241,17 @@
         const eventBaseUrl = "{{ url('event-calendar') }}";
         const isTeacher = {{ Auth::user()?->isTeacher() ? 'true' : 'false' }};
 
+        // 終了は開始以降しか選べないようにする（開始を変えたら終了の下限も更新）
+        const startAtInput = document.getElementById('start_at');
+        const endAtInput = document.getElementById('end_at');
+
+        startAtInput?.addEventListener('change', () => {
+            endAtInput.min = startAtInput.value || '';
+            if (endAtInput.value && startAtInput.value && endAtInput.value < startAtInput.value) {
+                endAtInput.value = startAtInput.value;
+            }
+        });
+
         function openEventModal() {
             // 追加モード
             const form = document.getElementById('eventForm');
@@ -249,6 +261,13 @@
             document.getElementById('eventModalTitle').textContent = '新しい予定の追加';
             document.getElementById('eventSubmitBtn').textContent = '追加';
             document.getElementById('eventDeleteBtn').style.display = 'none';
+
+            // 新規追加は過去日を選べないようにする（編集時は過去の予定も直せるよう解除する）
+            const today = new Date();
+            today.setMinutes(today.getMinutes() - today.getTimezoneOffset());
+            startAtInput.min = today.toISOString().slice(0, 10) + 'T00:00';
+            endAtInput.min = startAtInput.min;
+
             document.getElementById('eventModal').classList.add('open');
         }
 
@@ -262,10 +281,16 @@
             document.getElementById('eventModalTitle').textContent = '予定の編集';
             document.getElementById('eventSubmitBtn').textContent = '更新';
 
+            // 既にある過去の予定も編集できるよう、開始側の下限は外す
+            startAtInput.removeAttribute('min');
+
             document.getElementById('title').value = el.dataset.title || '';
             document.getElementById('category').value = el.dataset.category || '';
             document.getElementById('start_at').value = el.dataset.start || '';
             document.getElementById('end_at').value = (el.dataset.end && el.dataset.end !== 'null') ? el.dataset.end : '';
+
+            // 終了は開始以降のみ（編集時も逆転させない）
+            endAtInput.min = startAtInput.value || '';
             document.querySelector('input[name="all_day"]').checked = el.dataset.allday === '1';
             document.getElementById('location').value = el.dataset.location || '';
             document.getElementById('description').value = el.dataset.description || '';
@@ -296,9 +321,9 @@
 
         // 削除
         const eventDeleteBtn = document.getElementById('eventDeleteBtn');
-        eventDeleteBtn?.addEventListener('click', () => {
+        eventDeleteBtn?.addEventListener('click', async () => {
             const id = eventDeleteBtn.dataset.id;
-            if (!confirm(`「${eventDeleteBtn.dataset.title}」を削除しますか？`)) return;
+            if (!await confirmDialog(`「${eventDeleteBtn.dataset.title}」を削除しますか？`)) return;
             const delForm = document.getElementById('eventDeleteForm');
             delForm.action = eventBaseUrl + '/' + id;
             delForm.submit();

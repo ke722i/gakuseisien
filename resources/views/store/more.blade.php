@@ -333,7 +333,7 @@
                             <form
                                 action="{{ route('reviews.destroy', $review->id) }}"
                                 method="POST"
-                                onsubmit="return confirm('この口コミを削除しますか？');"
+                                data-confirm="この口コミを削除しますか？"
                             >
                                 @csrf
                                 @method('DELETE')

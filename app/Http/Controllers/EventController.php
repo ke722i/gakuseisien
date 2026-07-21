@@ -115,13 +115,15 @@ class EventController extends Controller
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
             'category' => ['required', 'string', 'max:50'],
-            'start_at' => ['required', 'date'],
+            // 新規登録は過去日を受け付けない（編集は過去の予定も直せるよう制限しない）
+            'start_at' => ['required', 'date', 'after_or_equal:today'],
             'end_at' => ['nullable', 'date', 'after_or_equal:start_at'],
             'location' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
         ], [
             'title.required' => 'タイトルを入力してください。',
             'start_at.required' => '開始日時を入力してください。',
+            'start_at.after_or_equal' => '開始日時に過去の日付は指定できません。',
             'end_at.after_or_equal' => '終了日時は開始日時以降にしてください。',
         ]);
 
