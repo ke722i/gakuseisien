@@ -1,10 +1,12 @@
-<!DOCTYPE html> <html lang="ja">
-     <head>
-        <meta charset="UTF-8">
-        <title>店舗管理画面</title>
-        @vite(['resources/css/app.css', 'resources/css/store/admin.css'])
-    </head>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>店舗管理画面</title>
 
+    @vite(['resources/css/app.css', 'resources/css/store/admin.css'])
+</head>
 <body>
 
 <div class="container">
@@ -15,45 +17,52 @@
 
         <h1>店舗管理</h1>
 
-        <!-- 検索 -->
-        <div class="search-box">
-            <input type="text" placeholder="店舗名を検索">
-            <button>検索</button>
-        </div>
-
         <div class="admin-content">
 
             <!-- 店舗一覧 -->
             <section class="store-list">
 
-                <h2>店舗一覧</h2>
+    <h2>店舗一覧</h2>
 
-                @foreach ($shops as $shop)
+    @foreach ($shops as $shop)
 
-                <div class="card">
+    <div class="card">
 
-                    <h3>{{ $shop->name }}</h3>
+        <h3>{{ $shop->name }}</h3>
 
-                    <p>{{ $shop->genre }}</p>
+        <p>{{ $shop->genre }}</p>
 
-                    <p>{{ $shop->business_hours }}</p>
+        <p>{{ $shop->business_hours }}</p>
 
-                    <div class="buttons">
+        <div class="buttons">
 
-                        <button class="edit">編集</button>
+            <a href="{{ route('store.edit', $shop->id) }}">
+                <button class="edit">編集</button>
+            </a>
 
-                        <button class="hide">非表示</button>
+            <form action="{{ route('store.hide', $shop->id) }}" method="POST">
+    @csrf
 
-                        <button class="delete">削除</button>
+    @if($shop->is_visible)
+        <button class="hide">非表示</button>
+    @else
+        <button class="show">表示</button>
+    @endif
 
-                    </div>
+</form>
 
-                </div>
+            <form action="{{ route('store.destroy', $shop->id) }}" method="POST">
+                @csrf
+                <button class="delete">削除</button>
+            </form>
 
-                @endforeach
+        </div>
 
-            </section>
+    </div>
 
+    @endforeach
+
+</section>
             <!-- 申請一覧 -->
             <section class="request-list">
 
@@ -69,9 +78,19 @@
 
                     <div class="buttons">
 
-                        <button class="approve">承認</button>
+                        <a href="{{ route('store.request.more', $request->id) }}">
+                            <button type="button" class="detail">詳細を見る</button>
+                        </a>
 
-                        <button class="reject">却下</button>
+                        <form action="{{ route('store.request.approve', $request->id) }}" method="POST">
+                            @csrf
+                            <button class="approve">承認</button>
+                        </form>
+
+                        <form action="{{ route('store.request.reject', $request->id) }}" method="POST">
+                            @csrf
+                            <button class="reject">却下</button>
+                        </form>
 
                     </div>
 
@@ -88,3 +107,4 @@
 </div>
 
 </body>
+</html>

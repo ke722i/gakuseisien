@@ -23,7 +23,7 @@
         <!-- メイン画面 -->
         <main class="content">
             <div class="content-header">
-                <h1>欠席・遅刻届</h1>
+                <h1>欠席・遅刻届（生徒用）</h1>
             </div>
 
             <div class="content-inner">
@@ -90,8 +90,11 @@
                         <div class="log-wrap">
                             <label class="log-label">ログ</label>
                             <div class="log-box">
-                                <div>提出:yyyy/mm/dd 日付:yyyy/mm/dd 理由:就活</div>
-                                <div>提出:yyyy/mm/dd 日付:yyyy/mm/dd 理由:遅延</div>
+                                @forelse ($myReports ?? [] as $log)
+                                    <div>提出:{{ $log->submission_date }} 日付:{{ $log->target_date }} 理由:{{ $log->reason_category }}（{{ $log->report_status }}）</div>
+                                @empty
+                                    <div>提出履歴はありません。</div>
+                                @endforelse
                             </div>
                         </div>
                     </div>

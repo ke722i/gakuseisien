@@ -22,7 +22,7 @@ return new class extends Migration
     $table->integer('budget');             // 予算
     $table->integer('distance');           // 学校からの距離(m)
     $table->string('payment_method');      // 決済方法
-
+    
     // 申請情報
     $table->string('status')->default('pending');
     // pending：申請中

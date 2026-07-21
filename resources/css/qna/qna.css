@@ -14,6 +14,9 @@
 /* 1. ヘッダーまわり（横並び） */
 .qna-header-container {
     display: flex;
+    /* タブレット幅でボタン群（flex-shrink:0）が収まらず横スクロールに
+       なるため、入り切らない場合は折り返す */
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 20px;
@@ -123,6 +126,9 @@
     border-radius: 8px;
     /* app.css のカードの角丸と統一 */
     padding: 20px;
+    /* 長いURLや連続文字が枠外にはみ出さないよう折り返す */
+    overflow-wrap: break-word;
+    word-break: break-word;
 }
 
 /* カード上部のテキスト・サムネイルエリア */
@@ -364,4 +370,62 @@
     color: #ffffff !important;
     border-color: #111111 !important;
     padding: 8px 20px !important;
+}
+
+/* ==========================================================================
+   画像拡大ポップアップ（モーダル）専用スタイル
+   ========================================================================== */
+.qna-image-popup-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.85);
+    z-index: 10000;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.qna-image-popup-overlay.is-active {
+    display: flex;
+    opacity: 1;
+}
+
+.qna-image-popup-content {
+    max-width: 90%;
+    max-height: 90%;
+    position: relative;
+}
+
+.qna-image-popup-img {
+    max-width: 100%;
+    max-height: 85vh;
+    object-fit: contain;
+    border-radius: 4px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.qna-image-popup-overlay.is-active .qna-image-popup-img {
+    transform: scale(1);
+}
+
+.qna-image-popup-close {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    color: #ffffff;
+    font-size: 30px;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+}
+
+.qna-image-popup-close:hover {
+    color: #cccccc;
 }

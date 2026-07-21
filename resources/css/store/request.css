@@ -13,9 +13,11 @@ body{
     min-height:100vh;
 }
 
-/* メイン
+/* ===================================
+   メイン
    （サイドバーは app.css の共通部品を使用。
-     固定幅68pxのレール分だけ左に余白をとる） */
+     固定幅68pxのレール分だけ左に余白をとる）
+=================================== */
 
 .main-content{
     margin-left:68px;
@@ -126,16 +128,4 @@ textarea{
 
 .submit-btn:hover{
     background:#1b63c4;
-}
-
-.button-area{
-    border:3px solid red;
-}
-
-.submit-btn{
-    background:red;
-}
-
-.reset-btn{
-    background:green;
 }

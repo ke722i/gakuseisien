@@ -35,4 +35,14 @@ return [
         ],
     ],
 
+    'google_maps' => [
+    'server_key' => env('GOOGLE_MAPS_SERVER_KEY'),
+    'embed_key' => env('GOOGLE_MAPS_EMBED_KEY'),
+],
+
+    // 時事ニュース機能（GNews API）。config 経由にすることで config:cache 後も読める。
+    'gnews' => [
+        'key' => env('GNEWS_API_KEY'),
+    ],
+
 ];

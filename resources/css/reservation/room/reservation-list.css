@@ -19,6 +19,20 @@
     gap: 20px;
 }
 
+.flash-message {
+    max-width: 900px;
+    margin: 0 0 20px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+.flash-success {
+    background-color: #ecfdf5;
+    border: 1px solid #34d399;
+    color: #065f46;
+}
+
 .back-button {
     background: none;
     border: none;
@@ -137,6 +151,131 @@
 
 .delete-button:hover {
     background-color: #dc2626;
+}
+
+/* 変更ボタン */
+.change-button {
+    border: none;
+    background-color: #2563eb;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+    transition: background-color 0.16s ease;
+}
+
+.change-button:hover {
+    background-color: #1d4ed8;
+}
+
+.flash-error {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+}
+
+/* 予約変更モーダル */
+.resv-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.45);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.resv-modal.open {
+    display: flex;
+}
+
+.resv-modal-box {
+    background: #fff;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 420px;
+    padding: 24px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+}
+
+.resv-modal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.resv-modal-head h2 {
+    margin: 0;
+    font-size: 18px;
+}
+
+.resv-modal-close {
+    border: none;
+    background: transparent;
+    font-size: 24px;
+    cursor: pointer;
+    color: #64748b;
+}
+
+.resv-field {
+    margin-bottom: 14px;
+}
+
+.resv-field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: #475569;
+    margin-bottom: 6px;
+}
+
+.resv-field input,
+.resv-field select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 14px;
+    box-sizing: border-box;
+}
+
+.resv-note {
+    font-size: 12px;
+    color: #64748b;
+    margin: 0 0 16px;
+}
+
+.resv-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.resv-btn-cancel {
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    color: #475569;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.resv-btn-submit {
+    border: none;
+    background: #2563eb;
+    color: #fff;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.resv-btn-submit:hover {
+    background: #1d4ed8;
 }
 
 .empty-state {
