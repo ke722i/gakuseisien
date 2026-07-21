@@ -138,10 +138,10 @@
             // 本来はLaravelのサーバーAPIにAjaxリクエストを送る箇所
             if (button.classList.contains('approved')) {
                 button.classList.remove('approved');
-                alert('回答の教員承認を解除しました。');
+                showToast('回答の教員承認を解除しました。', 'success');
             } else {
                 button.classList.add('approved');
-                alert('回答を承認しました。！');
+                showToast('回答を承認しました。', 'success');
             }
         }
 
@@ -181,9 +181,9 @@
             event.stopPropagation();
             const url = element.dataset.url;
             navigator.clipboard.writeText(url).then(() => {
-                alert('URLをコピーしました！');
+                showToast('URLをコピーしました', 'success');
             }).catch(err => {
-                alert('コピーに失敗しました。');
+                showToast('コピーに失敗しました。', 'error');
             });
         }
 
@@ -195,7 +195,7 @@
             const reason = prompt("通報する理由を入力してください：");
             if (reason === null) return;
             if (reason.trim() === "") {
-                alert("理由は必須入力です。");
+                showToast("理由は必須入力です。", 'error');
                 return;
             }
             document.getElementById('report-reason-' + id).value = reason;
@@ -208,7 +208,7 @@
 
             const url = button.dataset.url;
             if (!url) {
-                alert("投票するにはログインが必要です。");
+                showToast("投票するにはログインが必要です。", 'error');
                 return;
             }
 
@@ -227,7 +227,7 @@
                 })
                 .then(response => {
                     if (response.status === 401) {
-                        alert("投票するにはログインしてください。");
+                        showToast("投票するにはログインしてください。", 'error');
                         throw new Error("Unauthorized");
                     }
                     return response.json();

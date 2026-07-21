@@ -1,0 +1,69 @@
+# ------------------------------------------------------------
+# Render.com デプロイ設定（Blueprint）
+#   Render ダッシュボードで「New > Blueprint」からこのリポジトリを
+#   指定すると、この定義に沿って Web サービスと Postgres が作成される。
+# ------------------------------------------------------------
+databases:
+  - name: gakuseisien-db
+    databaseName: gakuseisien
+    plan: free            # 無料プラン（本番運用時は要アップグレード検討）
+
+services:
+  - type: web
+    name: gakuseisien
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    # 無料プランはディスク非対応のため、アップロード画像は再デプロイで消える。
+    # 画像を永続化する場合は下記コメントを外して有料ディスクを使うか、S3等に切り替える。
+    # disk:
+    #   name: storage
+    #   mountPath: /app/storage/app/public
+    #   sizeGB: 1
+    envVars:
+      - key: APP_NAME
+        value: gakuseisien
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_KEY
+        sync: false        # デプロイ後、ダッシュボードで `php artisan key:generate --show` の値を設定
+      - key: APP_URL
+        sync: false        # 本番ドメイン（例: https://gakuseisien.onrender.com）を設定
+      - key: LOG_CHANNEL
+        value: stderr      # Renderはstdout/stderrをログ収集する
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        fromDatabase:
+          name: gakuseisien-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: gakuseisien-db
+          property: port
+      - key: DB_DATABASE
+        fromDatabase:
+          name: gakuseisien-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: gakuseisien-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: gakuseisien-db
+          property: password
+      - key: SESSION_DRIVER
+        value: database
+      - key: QUEUE_CONNECTION
+        value: database
+      - key: CACHE_STORE
+        value: database
+      - key: GNEWS_API_KEY
+        sync: false        # 時事ニュース機能を使う場合のみ設定
+      - key: GOOGLE_MAPS_SERVER_KEY
+        sync: false        # 店舗地図を使う場合のみ設定
+      - key: GOOGLE_MAPS_EMBED_KEY
+        sync: false

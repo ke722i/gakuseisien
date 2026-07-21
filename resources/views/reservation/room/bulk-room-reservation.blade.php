@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>教室一括予約</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     @vite(['resources/css/reservation/room/bulk-room-reservation.css','resources/css/app.css','resources/js/app.js'])
 </head>
 
@@ -22,28 +23,11 @@
                 <div class="form-row">
                     <div class="form-item">
                         <label>教室番号・施設名の入力</label>
+                        {{-- 予約可能な教室はDBから生成する（直書きするとDBと食い違い、選んでも登録されない） --}}
                         <select id="roomSelect">
-                            <option value="101c">101c</option>
-                            <option value="201c">201c</option>
-                            <option value="202c">202c</option>
-                            <option value="203c">203c</option>
-                            <option value="301">301</option>
-                            <option value="302">302</option>
-                            <option value="303">303</option>
-                            <option value="304c">304c</option>
-                            <option value="305">305</option>
-                            <option value="401c">401c</option>
-                            <option value="402c">402c</option>
-                            <option value="403c">403c</option>
-                            <option value="501">501</option>
-                            <option value="502">502</option>
-                            <option value="503c">503c</option>
-                            <option value="504c">504c</option>
-                            <option value="505">505</option>
-                            <option value="601">601</option>
-                            <option value="602">602</option>
-                            <option value="603c">603c</option>
-                            <option value="604c">604c</option>
+                            @foreach ($reservableRooms as $room)
+                                <option value="{{ $room->name }}">{{ $room->floor }}階 {{ $room->name }}</option>
+                            @endforeach
                         </select>
                     </div>
 
@@ -179,13 +163,8 @@
         </div>
 
         <script>
-            const existingReservations = [{
-                room: "402c",
-                date: "2026/07/15", // テストする際は、この日付が含まれる期間を指定してください
-                period: "1限 9:15-10:45",
-                userName: "山田 太郎",
-                userType: "学生"
-            }];
+            // 重複プレチェック用の既存予約（今日以降・却下以外）をサーバーから受け取る
+            const existingReservations = @json($existingReservations ?? []);
 
             document.addEventListener('DOMContentLoaded', function() {
                 const periodBtns = document.querySelectorAll('.period-btn');
@@ -317,19 +296,19 @@
                     const selectedDays = Array.from(weekdayBtns).filter(d => d.classList.contains('active')).map(d => d.dataset.day);
 
                     if (!usage) {
-                        alert('授業名を入力してください');
+                        showToast('授業名を入力してください', 'error');
                         return;
                     }
                     if (selectedPeriods.length === 0) {
-                        alert('時限を1つ以上選択してください');
+                        showToast('時限を1つ以上選択してください', 'error');
                         return;
                     }
                     if (!fromDate || !toDate) {
-                        alert('予約期間を入力してください');
+                        showToast('予約期間を入力してください', 'error');
                         return;
                     }
                     if (selectedDays.length === 0) {
-                        alert('曜日を1つ以上選択してください');
+                        showToast('曜日を1つ以上選択してください', 'error');
                         return;
                     }
 
@@ -397,7 +376,7 @@
                     const rows = Array.from(reserveTbody.querySelectorAll('tr')).map(collectRowData);
 
                     if (rows.length === 0) {
-                        alert('登録する項目がありません');
+                        showToast('登録する項目がありません', 'error');
                         return;
                     }
 
@@ -458,21 +437,46 @@
                     confirmModal.classList.remove("is-open");
                 });
 
-                confirmRegister?.addEventListener("click", () => {
+                confirmRegister?.addEventListener("click", async () => {
 
                     const rows = JSON.parse(confirmModal.dataset.rows || "[]");
+                    const token = document.querySelector('meta[name="csrf-token"]').content;
 
-                    console.log("登録データ", rows);
+                    confirmRegister.disabled = true;
 
-                    // 本来はここでLaravelへ送信
-                    // fetch(...)
+                    try {
+                        const res = await fetch("{{ route('classroom.reservation.bulk.store') }}", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-TOKEN": token,
+                                "Accept": "application/json"
+                            },
+                            body: JSON.stringify({ rows })
+                        });
 
-                    reserveTbody.innerHTML = '';
-                    updateCount();
+                        const data = await res.json();
+                        confirmModal.classList.remove("is-open");
 
-                    confirmModal.classList.remove("is-open");
-
-                    alert("一括登録を完了しました");
+                        if (res.ok) {
+                            reserveTbody.innerHTML = '';
+                            updateCount();
+                            let msg = `一括登録を完了しました（登録 ${data.created} 件`;
+                            if (data.cancelled > 0) msg += `、重複する学生予約 ${data.cancelled} 件を自動キャンセル`;
+                            if (data.skipped_rooms && data.skipped_rooms.length) msg += `、未登録の教室: ${data.skipped_rooms.join('・')}`;
+                            msg += "）";
+                            showToast(msg, 'success');
+                            // 登録内容を反映するため再読み込み
+                            window.location.reload();
+                        } else {
+                            showToast("登録に失敗しました：" + (data.message || res.status), 'error');
+                        }
+                    } catch (e) {
+                        confirmModal.classList.remove("is-open");
+                        showToast("通信エラーが発生しました：" + e.message, 'error');
+                    } finally {
+                        confirmRegister.disabled = false;
+                    }
                 });
 
 
@@ -485,29 +489,41 @@
                     conflictModal.classList.remove('is-open');
                 });
 
-                conflictOverwrite?.addEventListener('click', () => {
+                conflictOverwrite?.addEventListener('click', async () => {
+                    // 上書き = そのままサーバーへ送信（サーバー側が重複する学生予約を自動キャンセルする）
+                    const rows = Array.from(reserveTbody.querySelectorAll('tr')).map(collectRowData);
+                    const token = document.querySelector('meta[name="csrf-token"]').content;
 
-                    const data = JSON.parse(conflictModal.dataset.conflicts || '[]');
+                    conflictOverwrite.disabled = true;
 
-                    data.forEach(c => {
+                    try {
+                        const res = await fetch("{{ route('classroom.reservation.bulk.store') }}", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "X-CSRF-TOKEN": token,
+                                "Accept": "application/json"
+                            },
+                            body: JSON.stringify({ rows })
+                        });
+                        const data = await res.json();
+                        conflictModal.classList.remove('is-open');
 
-                        const idx = existingReservations.findIndex(ex =>
-                            ex.room === c.existing.room &&
-                            ex.date === c.existing.date &&
-                            ex.period === c.existing.period
-                        );
-
-                        if (idx !== -1) {
-                            existingReservations.splice(idx, 1);
+                        if (res.ok) {
+                            let msg = `一括登録を完了しました（登録 ${data.created} 件`;
+                            if (data.cancelled > 0) msg += `、重複する学生予約 ${data.cancelled} 件を自動キャンセル`;
+                            msg += "）";
+                            showToast(msg, 'success');
+                            window.location.reload();
+                        } else {
+                            showToast("登録に失敗しました：" + (data.message || res.status), 'error');
                         }
-                    });
-
-                    reserveTbody.innerHTML = '';
-                    updateCount();
-
-                    conflictModal.classList.remove('is-open');
-
-                    alert('一括登録（上書き）を完了しました');
+                    } catch (e) {
+                        conflictModal.classList.remove('is-open');
+                        showToast("通信エラーが発生しました：" + e.message, 'error');
+                    } finally {
+                        conflictOverwrite.disabled = false;
+                    }
                 });
             });
         </script>

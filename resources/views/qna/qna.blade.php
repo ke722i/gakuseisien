@@ -105,10 +105,6 @@
                         <input type="hidden" name="reason" id="report-reason-{{ $post->id }}">
                     </form>
                     @endif
-                    <form id="report-form-{{ $post->id }}" action="{{ route('qna.report', $post->id) }}" method="POST" style="display: none;">
-                        @csrf
-                        <input type="hidden" name="reason" id="report-reason-{{ $post->id }}">
-                    </form>
 
                     @if(!$post->best_answer_id)
                     @auth
@@ -189,9 +185,9 @@
             event.stopPropagation();
             const url = element.dataset.url;
             navigator.clipboard.writeText(url).then(() => {
-                alert('質問のURLをクリップボードにコピーしました！');
+                showToast('質問のURLをコピーしました', 'success');
             }).catch(err => {
-                alert('URLのコピーに失敗しました。');
+                showToast('URLのコピーに失敗しました。', 'error');
             });
         }
 
@@ -202,7 +198,7 @@
             const reason = prompt("通報する理由を入力してください（スパム、嫌がらせ、公序良俗に反する投稿など）：");
             if (reason === null) return;
             if (reason.trim() === "") {
-                alert("通報理由は必須入力です。");
+                showToast("通報理由は必須入力です。", 'error');
                 return;
             }
             document.getElementById('report-reason-' + id).value = reason;

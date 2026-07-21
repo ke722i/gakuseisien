@@ -14,6 +14,7 @@ class ShopRequest extends Model
         'budget',
         'distance',
         'payment_method',
+        'official_url',
         'status',
     ];
 

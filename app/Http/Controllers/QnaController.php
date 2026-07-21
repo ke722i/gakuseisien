@@ -91,8 +91,11 @@ class QnaController extends Controller
         // 指定されたIDの質問を探し、なければ404エラーを出す
         $question = Question::findOrFail($id);
 
-        // 💡 今後は「自分が投稿した質問だけ消せる」というチェックをここに入れますが、
-        // 現段階では開発用に誰でも消せるようにしておきます。
+        // 投稿者本人または教職員のみ削除できる
+        if (Auth::id() !== $question->user_id && ! Auth::user()?->isTeacher()) {
+            abort(403, 'この質問を削除する権限がありません。');
+        }
+
         $question->delete();
 
         // 削除が完了したら、一覧画面に戻る
@@ -160,6 +163,11 @@ class QnaController extends Controller
         // 対象の質問を取得
         $question = Question::findOrFail($id);
 
+        // 質問の投稿者本人または教職員のみベストアンサーを選べる
+        if (Auth::id() !== $question->user_id && ! Auth::user()?->isTeacher()) {
+            abort(403, 'ベストアンサーを選ぶ権限がありません。');
+        }
+
         // best_answer_id 列に選ばれた回答のIDを保存して更新
         $question->update([
             'best_answer_id' => $answer_id
@@ -184,17 +192,14 @@ class QnaController extends Controller
             'question_id' => $post->id,
             'user_id' => Auth::id(),
             'reason' => $request->reason,
+            'type' => 'question', // 通報管理一覧で掲示板と区別するため
         ]);
 
         return redirect()->back()->with('success', '通報を受け付けました。ご協力ありがとうございます。');
     }
 
     // 2. 教職員用の通報一覧画面の表示
-    public function adminReports()
-    {
-        $reports = Report::with('question')->latest()->get();
-        return view('admin_reports', compact('reports'))->with('active', 'admin_reports');
-    }
+    // 通報管理一覧は掲示板とQ&Aをまとめて扱うため ReportAdminController へ移設した
 
     public function toggleUpvote(Answer $answer)
     {

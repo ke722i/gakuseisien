@@ -135,6 +135,264 @@
     line-height: 2;
 }
 
+/* ステータスバッジ（予約・届の状態表示） */
+.status-badge {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.status-pending,
+.status-att-pending {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-approved,
+.status-att-accepted {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.status-rejected,
+.status-att-returned {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+/* 差し戻しコメント（先生からの返信理由） */
+.return-comment {
+    display: block;
+    margin: 4px 0 0 4px;
+    padding: 6px 10px;
+    background: #fff7ed;
+    border-left: 3px solid #f97316;
+    font-size: 13px;
+    color: #7c2d12;
+}
+
+/* お知らせ（today-card 右側） */
+.notice-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.unread-badge {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: #dc2626;
+    color: #fff;
+    font-size: 12px;
+    vertical-align: middle;
+}
+
+.read-all-btn {
+    border: 1px solid #166534;
+    background: transparent;
+    color: #166534;
+    border-radius: 6px;
+    padding: 4px 10px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.read-all-btn:hover {
+    background: rgba(22, 101, 52, 0.08);
+}
+
+.notice-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.notice-list li a {
+    display: block;
+    padding: 7px 8px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #111;
+}
+
+.notice-list li a:hover {
+    background: rgba(255, 255, 255, 0.55);
+}
+
+.notice-list .is-unread .notice-title {
+    font-weight: 700;
+}
+
+.unread-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #dc2626;
+    margin-right: 6px;
+    vertical-align: middle;
+}
+
+.notice-title {
+    display: block;
+    font-size: 14px;
+}
+
+.notice-body {
+    display: block;
+    font-size: 13px;
+    color: #444;
+    margin-top: 2px;
+}
+
+.notice-time {
+    display: block;
+    font-size: 11px;
+    color: #666;
+    margin-top: 2px;
+}
+
+.notice-empty,
+.list-empty {
+    font-size: 14px;
+    color: #555;
+    margin: 4px 0;
+    padding: 4px 0;
+    list-style: none;
+}
+
+/* 先生用：対応待ちインボックス */
+.inbox-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.inbox-list li a {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #111;
+    font-size: 15px;
+}
+
+.inbox-list li a:hover {
+    background: rgba(255, 255, 255, 0.55);
+}
+
+.count-badge {
+    padding: 2px 12px;
+    border-radius: 999px;
+    background: #e5e7eb;
+    color: #555;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.count-badge.has-items {
+    background: #dc2626;
+    color: #fff;
+}
+
+/* イベント一覧 */
+.events-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.events-list li {
+    padding: 6px 0;
+    font-size: 15px;
+}
+
+.events-list .date {
+    font-weight: 700;
+    margin-right: 4px;
+}
+
+.events-list .time {
+    color: #555;
+    margin-right: 6px;
+}
+
+.new-badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: #2563eb;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.deadline-badge {
+    display: inline-block;
+    margin-left: 6px;
+    padding: 1px 8px;
+    border-radius: 999px;
+    background: #fee2e2;
+    color: #991b1b;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* カード下部の「もっと見る」リンク */
+.card-more-link {
+    display: inline-block;
+    margin-top: 10px;
+    font-size: 13px;
+    color: #2563eb;
+    text-decoration: none;
+}
+
+.card-more-link:hover {
+    text-decoration: underline;
+}
+
+/* クイックアクション（スマホでのサイドバー代わり） */
+.quick-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+.quick-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 8px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    text-decoration: none;
+    color: #111;
+    font-size: 20px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.quick-item span {
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.quick-item:hover {
+    border-color: #2563eb;
+}
+
 /* 右上ウィジェット用の予約スペース（内容未定なので空にしておく） */
 .home-side {
     min-height: 120px;
@@ -160,6 +418,10 @@
 
     .home-bottom {
         grid-template-columns: 1fr;
+    }
+
+    .quick-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
 
     /* 内容未定の予約スペースはスマホでは畳む */

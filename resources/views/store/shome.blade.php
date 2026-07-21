@@ -24,8 +24,8 @@
             <h1>近辺店舗情報マップ</h1>
         </header>
 
-        {{-- 検索 --}}
-        <form method="GET" action="{{ route('nearby.shop') }}">
+        {{-- 検索（絞り込みは search() が担当するため store.search へ送る） --}}
+        <form method="GET" action="{{ route('store.search') }}">
 
             <section class="search-area">
 
@@ -115,14 +115,16 @@
         {{-- 管理・申請ボタン --}}
         <div class="menu-buttons">
 
-            <a href="{{ route('store.admin') }}" class="action-card admin-btn">
-                <span class="icon">⚙️</span>
+            @if (Auth::user()?->isTeacher())
+                <a href="{{ route('store.admin') }}" class="action-card admin-btn">
+                    <span class="icon">⚙️</span>
 
-                <span>
-                    <strong>管理者画面</strong>
-                    <small>店舗と申請を管理</small>
-                </span>
-            </a>
+                    <span>
+                        <strong>管理者画面</strong>
+                        <small>店舗と申請を管理</small>
+                    </span>
+                </a>
+            @endif
 
             <a href="{{ route('store.request') }}" class="action-card request-btn">
                 <span class="icon">➕</span>
@@ -135,6 +137,16 @@
 
         </div>
 
+        @auth
+            {{-- お気に入りのみ表示の切り替え --}}
+            <a
+                href="{{ ($onlyFavorites ?? false) ? route('nearby.shop') : route('nearby.shop', ['favorites' => 1]) }}"
+                class="favorite-filter-btn {{ ($onlyFavorites ?? false) ? 'is-active' : '' }}"
+            >
+                {{ ($onlyFavorites ?? false) ? '★ お気に入りのみ表示中' : '☆ お気に入りのみ' }}
+            </a>
+        @endauth
+
         {{-- 店舗一覧 --}}
         <div class="store-content">
 
@@ -143,6 +155,25 @@
                 @forelse($shops as $shop)
 
                     <article class="store-card">
+
+                        @auth
+                            {{-- お気に入りボタン（CSS側で カード右上に絶対配置される） --}}
+                            @php($isFav = $shop->isFavoritedBy(Auth::user()))
+                            <form
+                                method="POST"
+                                action="{{ route('store.favorite.toggle', $shop) }}"
+                                class="fav-form"
+                            >
+                                @csrf
+
+                                <button
+                                    type="submit"
+                                    class="fav-btn {{ $isFav ? 'is-fav' : '' }}"
+                                    title="{{ $isFav ? 'お気に入りを解除' : 'お気に入りに追加' }}"
+                                    aria-label="{{ $isFav ? 'お気に入りを解除' : 'お気に入りに追加' }}"
+                                >{{ $isFav ? '★' : '☆' }}</button>
+                            </form>
+                        @endauth
 
                         <h3>{{ $shop->name }}</h3>
 
