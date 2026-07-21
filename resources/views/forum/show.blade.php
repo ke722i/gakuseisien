@@ -274,33 +274,6 @@
                         </div>
                     </section>
                 @endif
-
-                @auth
-                    <div style="margin-top:1.5rem;display:flex;gap:0.75rem;flex-wrap:wrap;">
-                        @if (Auth::user()->isTeacher())
-                            <form method="POST" action="{{ route('forum.destroy', $post) }}" onsubmit="return confirm('この投稿を削除しますか？');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="action-btn btn-danger">削除</button>
-                            </form>
-                        @elseif (Auth::id() === $post->user_id)
-                            <a href="{{ route('forum.edit', $post) }}" class="action-btn btn-secondary" style="text-decoration:none;">編集</a>
-                            <form method="POST" action="{{ route('forum.destroy', $post) }}" onsubmit="return confirm('削除しますか？');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="action-btn btn-danger">削除</button>
-                            </form>
-                        @endif
-
-                        @if (!Auth::user()->isTeacher())
-                            <form method="POST" action="{{ route('forum.report', $post) }}" onsubmit="return confirm('この投稿を通報しますか？');" style="display:inline-block;">
-                                @csrf
-                                <input type="hidden" name="reason" value="不適切な投稿です。">
-                                <button type="submit" class="action-btn btn-warning">通報する</button>
-                            </form>
-                        @endif
-                    </div>
-                @endauth
             </div>
 
             <aside class="post-detail-sidebar">
