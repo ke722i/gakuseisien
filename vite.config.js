@@ -26,7 +26,7 @@ export default defineConfig({
                 'resources/css/qna/create.css',
                 'resources/css/qna/detail.css',
                 'resources/css/qna/history.css',
-                'resources/css/store/home.css',
+                'resources/css/store/shome.css',
                 'resources/css/store/more.css',
                 'resources/css/store/request.css',
                 'resources/css/store/admin.css',

@@ -140,38 +140,53 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="payment_method">決済方法</label>
+    <label>決済方法</label>
 
-                    <select id="payment_method" name="payment_method" required>
-                        <option value="">選択してください</option>
-                        <option value="現金" @selected(old('payment_method') === '現金')>
-                            現金
-                        </option>
-                        <option value="クレジット" @selected(old('payment_method') === 'クレジット')>
-                            クレジット
-                        </option>
-                        <option value="PayPay" @selected(old('payment_method') === 'PayPay')>
-                            PayPay
-                        </option>
-                        <option value="電子マネー" @selected(old('payment_method') === '電子マネー')>
-                            電子マネー
-                        </option>
-                        <option value="その他" @selected(old('payment_method') === 'その他')>
-                            その他
-                        </option>
-                    </select>
-                </div>
+    @php
+        $selectedPayments = old('payment_method', []);
+    @endphp
 
-                <div class="form-group">
-                    <label for="official_url">公式URL</label>
-                    <input
-                        type="url"
-                        id="official_url"
-                        name="official_url"
-                        value="{{ old('official_url') }}"
-                        placeholder="https://example.com"
-                    >
-                </div>
+    <div class="payment-checkbox-group">
+        @foreach ([
+            '現金',
+            'クレジットカード',
+            '交通系IC',
+            'QRコード決済',
+            '電子マネー'
+        ] as $payment)
+            <label class="payment-checkbox">
+                <input
+                    type="checkbox"
+                    name="payment_method[]"
+                    value="{{ $payment }}"
+                    @checked(in_array($payment, $selectedPayments))
+                >
+
+                <span>{{ $payment }}</span>
+            </label>
+        @endforeach
+    </div>
+
+    @error('payment_method')
+        <p class="error-message">{{ $message }}</p>
+    @enderror
+</div>
+
+    @error('payment_method')
+        <p class="error-message">{{ $message }}</p>
+    @enderror
+</div>
+
+                <div class="form-group optional">
+    <label for="official_url">公式URL</label>
+    <input
+        type="url"
+        id="official_url"
+        name="official_url"
+        value="{{ old('official_url') }}"
+        placeholder="https://example.com"
+    >
+</div>
 
                 <div class="button-area">
                     <button type="reset" class="reset-btn">クリア</button>

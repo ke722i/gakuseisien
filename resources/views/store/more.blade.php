@@ -7,7 +7,10 @@
 
     <title>{{ $shop->name }}｜店舗詳細</title>
 
-    @vite(['resources/css/app.css', 'resources/css/store/more.css'])
+    @vite([
+        'resources/css/app.css',
+        'resources/css/store/more.css'
+    ])
 
 </head>
 
@@ -116,55 +119,55 @@
 
             <section class="map-card">
 
-                <div class="section-header">
-                    <h2>地図</h2>
+    <div class="section-header">
+        <h2>地図</h2>
 
-                    <a
-                        href="{{ $googleMapsUrl }}"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="google-map-link"
-                    >
-                        Google Mapsで開く
-                    </a>
-                </div>
+        <a
+            href="{{ $googleMapsUrl }}"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="google-map-link"
+        >
+            Google Mapsで開く
+        </a>
+    </div>
 
-                @if ($googleMapsEnabled && $mapEmbedUrl)
+    @if ($googleEmbedEnabled && $mapEmbedUrl)
 
-                    <div class="map">
-                        <iframe
-                            src="{{ $mapEmbedUrl }}"
-                            title="{{ $shop->name }}の地図"
-                            loading="lazy"
-                            allowfullscreen
-                            referrerpolicy="strict-origin-when-cross-origin">
-                        </iframe>
-                    </div>
+        <div class="map">
+            <iframe
+                src="{{ $mapEmbedUrl }}"
+                title="{{ $shop->name }}の地図"
+                loading="lazy"
+                allowfullscreen
+                referrerpolicy="strict-origin-when-cross-origin">
+            </iframe>
+        </div>
 
-                @else
+    @else
 
-                    <div class="google-placeholder">
-                        <p class="placeholder-title">
-                            Google Maps連携準備中
-                        </p>
+        <div class="google-placeholder">
+            <p class="placeholder-title">
+                Google Maps連携準備中
+            </p>
 
-                        <p>
-                            APIキーを設定すると、この場所に店舗の地図が表示されます。
-                        </p>
+            <p>
+                APIキーを設定すると地図が表示されます。
+            </p>
 
-                        <a
-                            href="{{ $googleMapsUrl }}"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="google-map-button"
-                        >
-                            Google Mapsで検索する
-                        </a>
-                    </div>
+            <a
+                href="{{ $googleMapsUrl }}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="google-map-button"
+            >
+                Google Mapsで検索する
+            </a>
+        </div>
 
-                @endif
+    @endif
 
-            </section>
+</section>
 
             <section class="rating-card">
 
@@ -172,51 +175,50 @@
 
                 <div class="rating-box">
 
-                    <h3>Google Maps評価</h3>
+    <h3>Google Maps評価</h3>
 
-                    @if (!$googleMapsEnabled)
+    @if (!$googlePlacesEnabled)
 
-                        <p class="rating-message">
-                            APIキー設定後にGoogle評価が表示されます。
-                        </p>
+        <p class="rating-message">
+            APIキー設定後にGoogle評価が表示されます。
+        </p>
 
-                    @elseif ($googleRating !== null)
+    @elseif ($googleRating !== null)
 
-                        <div class="rating-score-row">
-                            <strong class="rating-number">
-                                {{ number_format($googleRating, 1) }}
-                            </strong>
+        <div class="rating-score-row">
+            <strong class="rating-number">
+                {{ number_format($googleRating, 1) }}
+            </strong>
 
-                            <span class="rating-stars">
-                                @for ($i = 1; $i <= 5; $i++)
-                                    {{ $i <= round($googleRating) ? '★' : '☆' }}
-                                @endfor
-                            </span>
-                        </div>
+            <span class="rating-stars">
+                @for ($i = 1; $i <= 5; $i++)
+                    {{ $i <= round($googleRating) ? '★' : '☆' }}
+                @endfor
+            </span>
+        </div>
 
-                        <p class="rating-count">
-                            {{ number_format($googleReviewCount ?? 0) }}件の評価
-                        </p>
+        <p class="rating-count">
+            {{ number_format($googleReviewCount ?? 0) }}件の評価
+        </p>
 
-                    @else
+    @else
 
-                        <p class="rating-message">
-                            Google評価を取得できませんでした。
-                        </p>
+        <p class="rating-message">
+            Google評価を取得できませんでした。
+        </p>
 
-                    @endif
+    @endif
 
-                    <a
-                        href="{{ $googleMapsUrl }}"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="google-map-button"
-                    >
-                        Google Mapsで見る
-                    </a>
+    <a
+        href="{{ $googleMapsUrl }}"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="google-map-button"
+    >
+        Google Mapsで見る
+    </a>
 
-                </div>
-
+</div>
                 <div class="rating-divider"></div>
 
                 <div class="rating-box">
@@ -271,36 +273,89 @@
 
                     @forelse ($shop->reviews as $review)
 
-                        <article class="review">
+    @php
+        $editableReviews = session('editable_reviews', []);
 
-                            <div class="review-header">
+        $canEditReview =
+            isset($editableReviews[$review->id]) &&
+            !empty($review->edit_token) &&
+            hash_equals(
+                $review->edit_token,
+                $editableReviews[$review->id]
+            );
+    @endphp
 
-                                <div>
-                                    <span class="anonymous-name">
-                                        匿名の学生
-                                    </span>
+    <article class="review">
 
-                                    <strong class="review-stars">
-                                        @for ($i = 1; $i <= 5; $i++)
-                                            {{ $i <= $review->rating ? '★' : '☆' }}
-                                        @endfor
-                                    </strong>
-                                </div>
+        <div class="review-header">
 
-                                <time
-                                    datetime="{{ $review->created_at->toDateString() }}"
-                                    class="review-date"
-                                >
-                                    {{ $review->created_at->format('Y年n月j日') }}
-                                </time>
+            <div>
+                <span class="anonymous-name">
+                    匿名の学生
+                </span>
 
-                            </div>
+                <strong class="review-stars">
+                    @for ($i = 1; $i <= 5; $i++)
+                        {{ $i <= $review->rating ? '★' : '☆' }}
+                    @endfor
+                </strong>
+            </div>
 
-                            <p class="review-comment">
-                                {{ $review->comment }}
-                            </p>
+            <div class="review-header-right">
 
-                        </article>
+                <time
+                    datetime="{{ $review->created_at->toDateString() }}"
+                    class="review-date"
+                >
+                    {{ $review->created_at->format('Y年n月j日') }}
+                </time>
+
+                @if ($canEditReview)
+                    <div class="review-menu">
+
+                        <button
+                            type="button"
+                            class="review-menu-button"
+                            aria-label="口コミの操作メニュー"
+                            onclick="toggleReviewMenu({{ $review->id }})"
+                        >
+                            ・・・
+                        </button>
+
+                        <div
+                            id="review-menu-{{ $review->id }}"
+                            class="review-menu-list"
+                        >
+                            <a href="{{ route('reviews.edit', $review->id) }}">
+                                編集
+                            </a>
+
+                            <form
+                                action="{{ route('reviews.destroy', $review->id) }}"
+                                method="POST"
+                                onsubmit="return confirm('この口コミを削除しますか？');"
+                            >
+                                @csrf
+                                @method('DELETE')
+
+                                <button type="submit">
+                                    削除
+                                </button>
+                            </form>
+                        </div>
+
+                    </div>
+                @endif
+
+            </div>
+
+        </div>
+
+        <p class="review-comment">
+            {{ $review->comment }}
+        </p>
+
+    </article>
 
                     @empty
 
@@ -393,7 +448,42 @@
 
     </main>
 
+        </div>
+
+    </main>
+
 </div>
+
+<script>
+    function toggleReviewMenu(reviewId) {
+        const targetMenu = document.getElementById(
+            `review-menu-${reviewId}`
+        );
+
+        document
+            .querySelectorAll('.review-menu-list')
+            .forEach(menu => {
+                if (menu !== targetMenu) {
+                    menu.classList.remove('is-open');
+                }
+            });
+
+        targetMenu.classList.toggle('is-open');
+    }
+
+    document.addEventListener('click', function (event) {
+        if (!event.target.closest('.review-menu')) {
+            document
+                .querySelectorAll('.review-menu-list')
+                .forEach(menu => {
+                    menu.classList.remove('is-open');
+                });
+        }
+    });
+</script>
+
+</body>
+</html>
 
 </body>
 

@@ -18,6 +18,12 @@ class Shop extends Model
         'is_visible',
     ];
 
+    // 決済方法は複数選択（チェックボックス）のため配列として扱う
+    protected $casts = [
+        'payment_method' => 'array',
+        'is_visible' => 'boolean',
+    ];
+
     // 1店舗に対して複数の口コミ
     public function reviews()
     {

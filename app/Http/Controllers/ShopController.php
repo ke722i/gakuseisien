@@ -10,7 +10,10 @@ use App\Services\GoogleMapsService;
 
 class ShopController extends Controller
 {
-    /** 店舗申請・店舗更新で共通のバリデーションルール */
+    /**
+     * 店舗申請・店舗更新で共通のバリデーションルール。
+     * 決済方法は画面上チェックボックスの複数選択のため配列で受け取る。
+     */
     private function shopValidationRules(): array
     {
         return [
@@ -20,7 +23,13 @@ class ShopController extends Controller
             'business_hours' => ['required', 'string', 'max:255'],
             'budget' => ['required', 'integer', 'min:0'],
             'distance' => ['required', 'integer', 'min:0'],
-            'payment_method' => ['required', 'string', 'max:100'],
+
+            'payment_method' => ['required', 'array', 'min:1'],
+            'payment_method.*' => [
+                'string',
+                'in:現金,クレジットカード,交通系IC,QRコード決済,電子マネー',
+            ],
+
             'official_url' => ['nullable', 'url', 'max:255'],
         ];
     }
@@ -39,7 +48,7 @@ class ShopController extends Controller
             ->paginate(9)
             ->withQueryString();
 
-        return view('store.home', compact('shops', 'onlyFavorites'));
+        return view('store.shome', compact('shops', 'onlyFavorites'));
     }
 
     /**
@@ -71,65 +80,80 @@ class ShopController extends Controller
     }
 
     // 店舗詳細
-// 店舗詳細
-public function show($id, GoogleMapsService $googleMapsService)
-{
-    $shop = Shop::with([
-        'reviews' => function ($query) {
-            $query->where('is_visible', true)
-                ->latest();
-        },
-    ])->findOrFail($id);
+    public function show($id, GoogleMapsService $googleMapsService)
+    {
+        $shop = Shop::with([
+            'reviews' => function ($query) {
+                $query->where('is_visible', true)
+                    ->latest();
+            },
+        ])->findOrFail($id);
 
-    $reviewCount = $shop->reviews->count();
-    $studentRating = $shop->reviews->avg('rating');
+        // 学生支援.com側の評価
+        $reviewCount = $shop->reviews->count();
+        $studentRating = $shop->reviews->avg('rating');
 
-    $googleMapsEnabled =
-        !empty(config('services.google_maps.server_key'))
-        && !empty(config('services.google_maps.embed_key'));
+        // Google評価取得用
+        $googlePlacesEnabled =
+            !empty(config('services.google_maps.server_key'));
 
-    $googlePlace = null;
+        // 地図埋め込み用
+        $googleEmbedEnabled =
+            !empty(config('services.google_maps.embed_key'));
 
-    if ($googleMapsEnabled) {
-        $googlePlace = $googleMapsService->findPlace(
-            $shop->name,
-            $shop->address
-        );
+        // Google Places APIから店舗情報を取得
+        $googlePlace = null;
+
+        if ($googlePlacesEnabled) {
+            $googlePlace = $googleMapsService->findPlace(
+                $shop->name,
+                $shop->address
+            );
+        }
+
+        // Google評価
+        $googleRating = $googlePlace['rating'] ?? null;
+
+        // Google評価件数
+        $googleReviewCount =
+            $googlePlace['userRatingCount'] ?? null;
+
+        // Google Mapsへのリンク
+        $googleMapsUrl =
+            $googlePlace['googleMapsUri']
+            ?? 'https://www.google.com/maps/search/?api=1&query='
+            . urlencode($shop->name . ' ' . $shop->address);
+
+        // 埋め込み地図URL
+        $mapEmbedUrl = null;
+
+        if ($googleEmbedEnabled) {
+            $mapQuery = !empty($googlePlace['id'])
+                ? 'place_id:' . $googlePlace['id']
+                : $shop->name . ' ' . $shop->address;
+
+            $mapEmbedUrl =
+                'https://www.google.com/maps/embed/v1/place?'
+                . http_build_query([
+                    'key' => config('services.google_maps.embed_key'),
+                    'q' => $mapQuery,
+                    'language' => 'ja',
+                    'region' => 'jp',
+                ]);
+        }
+
+        return view('store.more', compact(
+            'shop',
+            'reviewCount',
+            'studentRating',
+            'googlePlacesEnabled',
+            'googleEmbedEnabled',
+            'googleRating',
+            'googleReviewCount',
+            'googleMapsUrl',
+            'mapEmbedUrl'
+        ));
     }
-
-    $googleRating = $googlePlace['rating'] ?? null;
-    $googleReviewCount = $googlePlace['userRatingCount'] ?? null;
-
-    $googleMapsUrl = $googlePlace['googleMapsUri']
-        ?? 'https://www.google.com/maps/search/?api=1&query='
-        . urlencode($shop->name . ' ' . $shop->address);
-
-    $mapEmbedUrl = null;
-
-    if ($googleMapsEnabled) {
-        $mapQuery = !empty($googlePlace['id'])
-            ? 'place_id:' . $googlePlace['id']
-            : $shop->name . ' ' . $shop->address;
-
-        $mapEmbedUrl = 'https://www.google.com/maps/embed/v1/place?'
-            . http_build_query([
-                'key' => config('services.google_maps.embed_key'),
-                'q' => $mapQuery,
-                'language' => 'ja',
-            ]);
-    }
-
-    return view('store.more', compact(
-        'shop',
-        'reviewCount',
-        'studentRating',
-        'googleMapsEnabled',
-        'googleRating',
-        'googleReviewCount',
-        'googleMapsUrl',
-        'mapEmbedUrl'
-    ));
-}
 
     // 申請画面
     public function request()
@@ -137,35 +161,16 @@ public function show($id, GoogleMapsService $googleMapsService)
         return view('store.request');
     }
 
-    // 管理画面
-    public function admin()
-    {
-        $shops = Shop::all();
-        $requests = ShopRequest::all();
-
-        return view('store.admin', compact('shops', 'requests'));
-    }
-
     // 店舗申請保存
     public function storeRequest(Request $request)
     {
         $validated = $request->validate($this->shopValidationRules());
 
-        ShopRequest::create([
-            'name' => $validated['name'],
-            'genre' => $validated['genre'],
-            'address' => $validated['address'],
-            'business_hours' => $validated['business_hours'],
-            'budget' => $validated['budget'],
-            'distance' => $validated['distance'],
-            'payment_method' => $validated['payment_method'],
-            'official_url' => $validated['official_url'] ?? null,
-            'status' => 'pending',
-        ]);
+        ShopRequest::create($validated);
 
         return redirect()
             ->route('store.request')
-            ->with('success', '申請しました。');
+            ->with('success', '店舗情報を申請しました。');
     }
 
     // 申請詳細画面
@@ -221,22 +226,11 @@ public function show($id, GoogleMapsService $googleMapsService)
     }
 
     // 店舗情報更新
-    public function update(Request $request, $id)
+    public function update(Request $request, Shop $shop)
     {
-        $shop = Shop::findOrFail($id);
-
         $validated = $request->validate($this->shopValidationRules());
 
-        $shop->update([
-            'name' => $validated['name'],
-            'genre' => $validated['genre'],
-            'address' => $validated['address'],
-            'business_hours' => $validated['business_hours'],
-            'budget' => $validated['budget'],
-            'distance' => $validated['distance'],
-            'payment_method' => $validated['payment_method'],
-            'official_url' => $validated['official_url'] ?? null,
-        ]);
+        $shop->update($validated);
 
         return redirect()
             ->route('store.admin')
@@ -303,18 +297,26 @@ public function show($id, GoogleMapsService $googleMapsService)
                 $query->where('distance', '<=', $distance);
             })
 
-            // 決済方法
+            // 決済方法（配列カラムのため部分一致で判定する）
             ->when($paymentMethod, function ($query) use ($paymentMethod) {
-                $query->where('payment_method', $paymentMethod);
+                $query->where('payment_method', 'like', "%{$paymentMethod}%");
             })
 
-            // 検索条件をページ移動後も維持する
             ->with('favoritedBy')
+            // 検索条件をページ移動後も維持する
             ->paginate(9)
             ->withQueryString();
 
         $onlyFavorites = false;
 
-        return view('store.home', compact('shops', 'onlyFavorites'));
+        return view('store.shome', compact('shops', 'onlyFavorites'));
+    }
+
+    public function admin()
+    {
+        $requests = ShopRequest::orderBy('created_at', 'desc')->get();
+        $shops = Shop::orderBy('created_at', 'desc')->get();
+
+        return view('store.admin', compact('requests', 'shops'));
     }
 }

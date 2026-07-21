@@ -428,4 +428,45 @@
     .home-side {
         display: none;
     }
+
+    /* =========================
+   近辺店舗情報マップ
+   共通サイドバーとの重なり対策
+========================= */
+
+.main-content {
+    margin-left: 72px;
+    width: calc(100% - 72px);
+    min-height: 100vh;
+    padding: 32px;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 1;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+}
+
+/* 店舗一覧が画面幅からはみ出さないようにする */
+.content,
+.store-grid,
+.search-area,
+.filter-area,
+.menu-buttons {
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* タブレット・スマホ */
+@media (max-width: 700px) {
+    .main-content {
+        margin-left: 0;
+        width: 100%;
+        padding: 72px 16px 24px;
+    }
+}
 }

@@ -1,131 +1,291 @@
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:"Yu Gothic",sans-serif;
+/* ===================================
+   共通設定
+=================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Yu Gothic", "Meiryo", sans-serif;
 }
 
-body{
-    background:#f4f6f9;
+body {
+    background: #f4f6f9;
+    color: #1f2937;
 }
 
-.container{
-    min-height:100vh;
+.container {
+    min-height: 100vh;
 }
 
 /* ===================================
-   メイン
+   メインコンテンツ
    （サイドバーは app.css の共通部品を使用。
      固定幅68pxのレール分だけ左に余白をとる）
 =================================== */
 
-.main-content{
-    margin-left:68px;
-    padding:35px;
+.main-content {
+    margin-left: 68px;
+    padding: 35px;
 }
 
-.back-btn{
-    text-decoration:none;
-    color:#2d7be7;
-    font-weight:bold;
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    margin-bottom: 18px;
+    color: #2563eb;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
 }
 
-h1{
-    margin:20px 0 30px;
+.back-btn:hover {
+    text-decoration: underline;
 }
 
-/* フォーム */
-
-.form-card{
-    background:white;
-    border-radius:12px;
-    padding:35px;
-    box-shadow:0 3px 8px rgba(0,0,0,.1);
-    max-width:900px;
+h1 {
+    margin-bottom: 8px;
+    font-size: 28px;
 }
 
-.form-group{
-    margin-bottom:25px;
+h1::after {
+    content: "新しく掲載したい店舗の情報を入力してください。";
+    display: block;
+    margin-top: 8px;
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 400;
 }
 
-.form-group label{
-    display:block;
-    margin-bottom:8px;
-    font-weight:bold;
+/* ===================================
+   フォームカード
+=================================== */
+
+.form-card {
+    width: 100%;
+    max-width: 850px;
+    margin-top: 28px;
+    padding: 36px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 16px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.07);
+}
+
+/* ===================================
+   メッセージ
+=================================== */
+
+.success-message {
+    margin-bottom: 24px;
+    padding: 14px 16px;
+    border: 1px solid #86efac;
+    border-radius: 8px;
+    background: #f0fdf4;
+    color: #166534;
+    font-weight: 700;
+}
+
+.error-message {
+    margin-bottom: 24px;
+    padding: 14px 18px;
+    border: 1px solid #fca5a5;
+    border-radius: 8px;
+    background: #fef2f2;
+    color: #991b1b;
+}
+
+.error-message ul {
+    padding-left: 20px;
+}
+
+.error-message li + li {
+    margin-top: 6px;
+}
+
+/* ===================================
+   フォーム項目
+=================================== */
+
+.form-group {
+    margin-bottom: 24px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #374151;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.form-group label::after {
+    content: "必須";
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: #fee2e2;
+    color: #dc2626;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.form-group label::after {
+    content: "必須";
+    display: inline-block;
+    margin-left: 8px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: #fee2e2;
+    color: #dc2626;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.form-group.optional label::after {
+    content: "任意";
+    background: #e5e7eb;
+    color: #6b7280;
 }
 
 input,
 select,
-textarea{
-
-    width:100%;
-    padding:12px;
-    border:1px solid #ccc;
-    border-radius:8px;
-    font-size:15px;
-
+textarea {
+    width: 100%;
+    min-height: 46px;
+    padding: 11px 13px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #111827;
+    font-size: 15px;
+    transition:
+        border-color 0.2s,
+        box-shadow 0.2s;
 }
 
-textarea{
-    resize:vertical;
+input::placeholder,
+textarea::placeholder {
+    color: #9ca3af;
 }
 
-/* チェックボックス */
-
-.checkbox-group{
-    display:flex;
-    gap:20px;
-    flex-wrap:wrap;
+input:hover,
+select:hover,
+textarea:hover {
+    border-color: #94a3b8;
 }
 
-.checkbox-group label{
-    display:flex;
-    align-items:center;
-    gap:6px;
-    font-weight:normal;
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: #2563eb;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
 }
 
-.checkbox-group input{
-    width:auto;
+textarea {
+    min-height: 120px;
+    resize: vertical;
 }
 
-/* ボタン */
+/* ===================================
+   ボタン
+=================================== */
 
-.button-area{
-
-    display:flex;
-    justify-content:flex-end;
-    gap:15px;
-    margin-top:40px;
-
+.button-area {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 34px;
+    padding-top: 24px;
+    border-top: 1px solid #e5e7eb;
 }
 
-.reset-btn{
-
-    background:#999;
-    color:white;
-    border:none;
-    padding:12px 28px;
-    border-radius:8px;
-    cursor:pointer;
-
+.reset-btn,
+.submit-btn {
+    min-width: 130px;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+        background 0.2s,
+        transform 0.2s,
+        box-shadow 0.2s;
 }
 
-.submit-btn{
-
-    background:#2d7be7;
-    color:white;
-    border:none;
-    padding:12px 28px;
-    border-radius:8px;
-    cursor:pointer;
-
+.reset-btn {
+    background: #64748b;
 }
 
-.reset-btn:hover{
-    background:#777;
+.reset-btn:hover {
+    background: #475569;
 }
 
-.submit-btn:hover{
-    background:#1b63c4;
+.submit-btn {
+    background: #2563eb;
+}
+
+.submit-btn:hover {
+    background: #1d4ed8;
+}
+
+.reset-btn:hover,
+.submit-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
+}
+
+/* ===================================
+   レスポンシブ
+=================================== */
+
+@media (max-width: 700px) {
+    .main-content {
+        margin-left: 0;
+        padding: 75px 16px 24px;
+    }
+
+    .form-card {
+        padding: 24px 18px;
+    }
+
+    h1 {
+        font-size: 24px;
+    }
+
+    .button-area {
+        flex-direction: column-reverse;
+    }
+
+    .reset-btn,
+    .submit-btn {
+        width: 100%;
+    }
+}
+
+.payment-checkbox {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 20px;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.payment-checkbox input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.payment-checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 20px;
 }
