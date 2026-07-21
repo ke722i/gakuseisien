@@ -400,7 +400,16 @@ class RoomReservationController extends Controller
             ])
             ->values();
 
-        return view('reservation.room.bulk-room-reservation', ['existingReservations' => $existing]);
+        // 選択肢はDBの予約可能な教室から生成する（Bladeへの直書きだとDBと食い違うため）
+        $reservableRooms = Room::where('is_reservable', true)
+            ->orderBy('floor')
+            ->orderBy('display_order')
+            ->get(['name', 'floor']);
+
+        return view('reservation.room.bulk-room-reservation', [
+            'existingReservations' => $existing,
+            'reservableRooms' => $reservableRooms,
+        ]);
     }
 
     /**
