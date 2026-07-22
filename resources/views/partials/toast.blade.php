@@ -38,7 +38,115 @@
 
 <div id="toastArea" class="toast-area" aria-live="polite" aria-atomic="true"></div>
 
+{{-- 確認・入力ダイアログ（ブラウザ標準の confirm/prompt の置き換え） --}}
+<div id="appDialog" class="app-dialog" role="dialog" aria-modal="true" aria-labelledby="appDialogMessage" hidden>
+    <div class="app-dialog-backdrop" data-dialog-cancel></div>
+
+    <div class="app-dialog-panel">
+        <p id="appDialogMessage" class="app-dialog-message"></p>
+
+        <label id="appDialogInputWrap" class="app-dialog-input-wrap" hidden>
+            <span class="app-dialog-input-label">理由</span>
+            <textarea id="appDialogInput" class="app-dialog-input" rows="3"></textarea>
+        </label>
+
+        <div class="app-dialog-actions">
+            <button type="button" class="app-dialog-btn cancel" data-dialog-cancel>キャンセル</button>
+            <button type="button" class="app-dialog-btn ok" id="appDialogOk">OK</button>
+        </div>
+    </div>
+</div>
+
 <style>
+    .app-dialog {
+        position: fixed;
+        inset: 0;
+        z-index: 4000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+    }
+
+    .app-dialog[hidden] { display: none; }
+
+    .app-dialog-backdrop {
+        position: absolute;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.45);
+    }
+
+    .app-dialog-panel {
+        position: relative;
+        width: 100%;
+        max-width: 420px;
+        padding: 22px;
+        border-radius: 14px;
+        background: #ffffff;
+        box-shadow: 0 20px 50px rgba(15, 23, 42, 0.28);
+    }
+
+    .app-dialog-message {
+        margin: 0 0 18px;
+        font-size: 15px;
+        line-height: 1.7;
+        color: #111827;
+        white-space: pre-wrap;
+        word-break: break-word;
+    }
+
+    .app-dialog-input-wrap { display: block; margin-bottom: 18px; }
+
+    /*
+       display:block は hidden 属性より優先されるため、明示的に打ち消す。
+       これがないと、入力欄を使わない確認ダイアログでも入力欄が出てしまう。
+    */
+    .app-dialog-input-wrap[hidden] { display: none; }
+
+    .app-dialog-input-label {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 13px;
+        font-weight: 700;
+        color: #374151;
+    }
+
+    .app-dialog-input {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 14px;
+        font-family: inherit;
+        resize: vertical;
+    }
+
+    .app-dialog-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    .app-dialog-btn {
+        min-width: 96px;
+        padding: 10px 16px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .app-dialog-btn.cancel { background: #e5e7eb; color: #374151; }
+    .app-dialog-btn.cancel:hover { background: #d1d5db; }
+    .app-dialog-btn.ok { background: #dc2626; color: #ffffff; }
+    .app-dialog-btn.ok:hover { background: #b91c1c; }
+
+    @media (max-width: 700px) {
+        .app-dialog-actions { flex-direction: column-reverse; }
+        .app-dialog-btn { width: 100%; }
+    }
+
     .toast-area {
         position: fixed;
         right: 20px;
@@ -165,5 +273,114 @@
         // サーバー側のフラッシュメッセージを起動時にポップアップ表示する
         const flashes = @json($toastFlashes ?? []);
         flashes.forEach(f => window.showToast(f.message, f.type));
+    })();
+
+    /*
+     * 確認・入力ダイアログ。
+     * ブラウザ標準の confirm()/prompt() は見た目が統一できないうえ、
+     * 表示中はページ操作が完全に止まってしまうため使わない。
+     *
+     * 使い方:
+     *   if (await confirmDialog('削除しますか？')) { ... }
+     *   const reason = await promptDialog('通報理由を入力してください');
+     *   // キャンセル時は confirmDialog=false / promptDialog=null
+     *
+     * フォームは属性だけで確認を付けられる:
+     *   <form data-confirm="削除しますか？"> ... </form>
+     *   <form data-confirm="..." data-confirm-input="reason"> ... </form>
+     *     → 入力欄付き。入力値は name="reason" の hidden に入れて送信する。
+     */
+    (function () {
+        const dialog = document.getElementById('appDialog');
+        if (!dialog) return;
+
+        const messageEl = dialog.querySelector('#appDialogMessage');
+        const inputWrap = dialog.querySelector('#appDialogInputWrap');
+        const inputEl = dialog.querySelector('#appDialogInput');
+        const okBtn = dialog.querySelector('#appDialogOk');
+
+        let resolveCurrent = null;
+
+        function close(result) {
+            dialog.hidden = true;
+            const resolve = resolveCurrent;
+            resolveCurrent = null;
+            if (resolve) resolve(result);
+        }
+
+        function open({ message, withInput }) {
+            messageEl.textContent = message;
+            inputWrap.hidden = !withInput;
+            inputEl.value = '';
+
+            dialog.hidden = false;
+            // 入力欄があるときはそこへ、なければOKへフォーカスする
+            (withInput ? inputEl : okBtn).focus();
+
+            return new Promise(resolve => { resolveCurrent = resolve; });
+        }
+
+        okBtn.addEventListener('click', () => {
+            if (!inputWrap.hidden) {
+                const value = inputEl.value.trim();
+                if (value === '') {
+                    window.showToast('理由を入力してください。', 'error');
+                    return;
+                }
+                close(value);
+                return;
+            }
+            close(true);
+        });
+
+        dialog.querySelectorAll('[data-dialog-cancel]').forEach(el => {
+            el.addEventListener('click', () => close(inputWrap.hidden ? false : null));
+        });
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape' && !dialog.hidden) {
+                close(inputWrap.hidden ? false : null);
+            }
+        });
+
+        /** 確認ダイアログ。OKなら true、キャンセルなら false を返す */
+        window.confirmDialog = message => open({ message, withInput: false });
+
+        /** 入力ダイアログ。入力値、キャンセルなら null を返す */
+        window.promptDialog = message => open({ message, withInput: true });
+
+        // data-confirm が付いたフォームの送信を横取りして確認を挟む
+        document.addEventListener('submit', async e => {
+            const form = e.target;
+            if (!(form instanceof HTMLFormElement)) return;
+
+            const message = form.dataset.confirm;
+            if (!message || form.dataset.confirmed === 'yes') return;
+
+            e.preventDefault();
+
+            const inputName = form.dataset.confirmInput;
+            const answer = inputName
+                ? await window.promptDialog(message)
+                : await window.confirmDialog(message);
+
+            if (answer === false || answer === null) return;
+
+            // 入力値は hidden にして一緒に送る
+            if (inputName) {
+                let hidden = form.querySelector(`input[type="hidden"][name="${inputName}"]`);
+                if (!hidden) {
+                    hidden = document.createElement('input');
+                    hidden.type = 'hidden';
+                    hidden.name = inputName;
+                    form.appendChild(hidden);
+                }
+                hidden.value = answer;
+            }
+
+            // 二重確認を避けてから本来の送信を行う
+            form.dataset.confirmed = 'yes';
+            form.submit();
+        });
     })();
 </script>

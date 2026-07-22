@@ -24,7 +24,7 @@
                 <div class="qna-card-header" style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                     <div style="display: flex; gap: 10px; align-items: center;">
                         <span style="font-weight: bold; color: #333;">
-                            {{ $post->user ? $post->user->login_id : 'ゲストユーザー' }}
+                            {{ $post->user ? $post->user->displayNameWithNumber() : 'ゲストユーザー' }}
                         </span>
                         <span class="qna-post-time" style="color: #666;">
                             {{ $post->created_at->format('Y/m/d H:i') }}
@@ -131,24 +131,10 @@
             }
         }
 
-        // 教員承認マークのアクティブ切り替え（教員アカウントでのみ機能）
-        function handleTeacherApprove(event, answerId) {
-            event.preventDefault();
-            const button = event.currentTarget;
-            // 本来はLaravelのサーバーAPIにAjaxリクエストを送る箇所
-            if (button.classList.contains('approved')) {
-                button.classList.remove('approved');
-                showToast('回答の教員承認を解除しました。', 'success');
-            } else {
-                button.classList.add('approved');
-                showToast('回答を承認しました。', 'success');
-            }
-        }
-
         // コメント・リプライの削除
-        function handleDeleteComment(event, answerId) {
+        async function handleDeleteComment(event, answerId) {
             event.preventDefault();
-            if (confirm('このコメント（および配下のリプライ）を本当に削除しますか？')) {
+            if (await confirmDialog('このコメント（および配下のリプライ）を本当に削除しますか？')) {
                 document.getElementById(`delete-form-${answerId}`).submit();
             }
         }
@@ -188,18 +174,42 @@
         }
 
         // 通報
-        function handleReport(event, element) {
+        // 送信用フォームはこの場で組み立てる（画面に隠しフォームを置かなくても動くようにするため）
+        async function submitReport(event, actionUrl) {
             event.preventDefault();
             event.stopPropagation();
-            const id = element.dataset.id;
-            const reason = prompt("通報する理由を入力してください：");
+
+            const reason = await promptDialog('通報する理由を入力してください（スパム、嫌がらせ、公序良俗に反する投稿など）');
             if (reason === null) return;
-            if (reason.trim() === "") {
-                showToast("理由は必須入力です。", 'error');
-                return;
-            }
-            document.getElementById('report-reason-' + id).value = reason;
-            document.getElementById('report-form-' + id).submit();
+
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = actionUrl;
+            form.style.display = 'none';
+
+            const token = document.createElement('input');
+            token.type = 'hidden';
+            token.name = '_token';
+            token.value = '{{ csrf_token() }}';
+
+            const reasonInput = document.createElement('input');
+            reasonInput.type = 'hidden';
+            reasonInput.name = 'reason';
+            reasonInput.value = reason;
+
+            form.append(token, reasonInput);
+            document.body.appendChild(form);
+            form.submit();
+        }
+
+        /** 質問への通報 */
+        function handleReport(event, element) {
+            return submitReport(event, '{{ url('/gakunai-qna') }}/' + element.dataset.id + '/report');
+        }
+
+        /** 回答（コメント）への通報。質問とは別の宛先に送る */
+        function handleAnswerReport(event, answerId) {
+            return submitReport(event, '{{ url('/qna/answers') }}/' + answerId + '/report');
         }
 
         // 投票（Upvote）ボタンの非同期通信処理（Ajax/Fetch）

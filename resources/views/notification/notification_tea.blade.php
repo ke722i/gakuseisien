@@ -35,8 +35,13 @@
                                     };
                                 @endphp
                                 <div class="submission-item {{ $statusClass }}" data-report="{{ json_encode($report) }}" style="cursor: pointer;">
+                                    {{-- 提出日と欠席日は別物なので、取り違えないよう両方出す --}}
                                     <div class="summary-item">
-                                        <span class="summary-label">日付</span>
+                                        <span class="summary-label">欠席日</span>
+                                        <span class="summary-value">{{ $report->target_date }}</span>
+                                    </div>
+                                    <div class="summary-item">
+                                        <span class="summary-label">提出日</span>
                                         <span class="summary-value">{{ $report->submission_date }}</span>
                                     </div>
                                     <div class="summary-item">
@@ -90,7 +95,7 @@
                             <div class="field"><label>学籍番号</label><input type="text" id="detail_student_number" disabled></div>
                             <div class="field"><label>クラス番号</label><input type="text" id="detail_class_number" disabled></div>
                             <div class="field"><label>名前</label><input type="text" id="detail_student_name" disabled></div>
-                            <div class="field"><label>日付</label><input type="date" id="detail_target_date" disabled></div>
+                            <div class="field"><label>欠席日</label><input type="date" id="detail_target_date" disabled></div>
                             <div class="field"><label>時限</label>
                                 <div class="time-box">
                                     <label><input type="checkbox" id="detail_period_1" disabled>1</label>

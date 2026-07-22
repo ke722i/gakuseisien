@@ -33,8 +33,9 @@ a:hover {
 /* サイドバーは app.css の共通部品（固定幅68pxのレール）を使用 */
 .main-content {
     margin-left: 68px;
-    max-width: 1280px; /* 大画面で間延びしないように上限を設ける */
     padding: 35px;
+    max-width: 1280px;
+    padding: 32px;
 }
 
 /* ===================================
@@ -524,10 +525,12 @@ textarea:focus {
 
 @media (max-width: 700px) {
     .main-content {
+        margin-left: 0;
+        padding: 75px 16px 24px;
         /* サイドバーがオフキャンバスになるため余白を戻す
            （margin-left を残すと width:100% と合算して横スクロールになる） */
         margin-left: 0;
-        padding: 75px 16px 24px;
+        padding: 18px;
     }
 
     .top-actions {

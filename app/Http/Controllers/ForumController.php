@@ -41,7 +41,8 @@ class ForumController extends Controller
 
     public function show(Post $post)
     {
-        $post->load(['replies.user']);
+        // 画面では返信とその子返信・投稿者名までたどるため、まとめて読み込む
+        $post->load(['replies.user', 'replies.children.user']);
 
         // 同じカテゴリの関連投稿を取得（自分の投稿を除く、最新5件）
         $relatedPosts = Post::where('category', $post->category)
@@ -143,7 +144,8 @@ class ForumController extends Controller
             'category' => $validated['category'],
             'title' => $validated['title'],
             'content' => $validated['content'] ?? null,
-            'posted_by' => Auth::user()?->login_id ?? '匿名',
+            // 誰の投稿か分かるよう「氏名（学籍番号）」で保存する
+            'posted_by' => Auth::user()?->displayNameWithNumber() ?? '匿名',
             'user_id' => Auth::id(),
             'image_url' => null,
             'published_at' => now(),
@@ -199,6 +201,12 @@ class ForumController extends Controller
             'content' => 'nullable|string',
         ]);
 
+        // 新規作成時と同じ制限をかける。
+        // これがないと、一度別カテゴリで投稿してから編集で落とし物に変えられてしまう
+        if (($validated['category'] ?? '') === '落とし物') {
+            return back()->withErrors(['category' => '落とし物の投稿は教職員のみ作成できます。'])->withInput();
+        }
+
         $post->update([
             'category' => $validated['category'],
             'title' => $validated['title'],
@@ -235,9 +243,23 @@ class ForumController extends Controller
             abort(403);
         }
 
+        // 学内Q&Aの通報と条件をそろえる
+        if ($post->user_id === Auth::id()) {
+            return back()->with('error', '自分の投稿を通報することはできません。');
+        }
+
         $validated = $request->validate([
             'reason' => 'required|string|max:1000',
         ]);
+
+        // 同じ投稿を何度も通報できないようにする
+        $alreadyReported = Report::where('post_id', $post->id)
+            ->where('user_id', Auth::id())
+            ->exists();
+
+        if ($alreadyReported) {
+            return back()->with('error', 'この投稿はすでに通報済みです。');
+        }
 
         Report::create([
             'post_id' => $post->id,

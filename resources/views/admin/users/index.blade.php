@@ -114,12 +114,12 @@
                                 <td>
                                     <div class="row-actions">
                                         <a href="{{ route('admin.users.edit', $u) }}" class="act-edit">編集</a>
-                                        <form method="POST" action="{{ route('admin.users.resetPassword', $u) }}" onsubmit="return confirm('{{ $u->login_id }} のパスワードを初期化しますか？');">
+                                        <form method="POST" action="{{ route('admin.users.resetPassword', $u) }}" data-confirm="{{ $u->login_id }} のパスワードを初期化しますか？">
                                             @csrf
                                             <button type="submit" class="act-reset">PW初期化</button>
                                         </form>
                                         @if ($u->id !== auth()->id())
-                                            <form method="POST" action="{{ route('admin.users.destroy', $u) }}" onsubmit="return confirm('{{ $u->login_id }} を削除しますか？この操作は取り消せません。');">
+                                            <form method="POST" action="{{ route('admin.users.destroy', $u) }}" data-confirm="{{ $u->login_id }} を削除しますか？この操作は取り消せません。">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="act-delete">削除</button>

@@ -8,9 +8,10 @@
     <title>{{ $shop->name }}｜店舗詳細</title>
 
     @vite([
-        'resources/css/app.css',
-        'resources/css/store/more.css'
-    ])
+    'resources/css/app.css',
+    'resources/css/store/more.css'
+])
+    @vite(['resources/css/app.css', 'resources/css/store/more.css'])
 
 </head>
 

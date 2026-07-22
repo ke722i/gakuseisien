@@ -9,11 +9,17 @@ class Report extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['question_id', 'user_id', 'reason', 'post_id', 'type'];
+    protected $fillable = ['question_id', 'user_id', 'reason', 'post_id', 'answer_id', 'type'];
 
     public function question()
     {
         return $this->belongsTo(Question::class);
+    }
+
+    /** 通報対象の回答（Q&Aの回答への通報のみ） */
+    public function answer()
+    {
+        return $this->belongsTo(Answer::class);
     }
 
     public function post()

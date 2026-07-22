@@ -1,129 +1,120 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>店舗詳細</title>
-    @vite(['resources/css/store/more.css'])
+
+    <title>{{ $shopRequest->name }}｜申請内容</title>
+
+    @vite([
+        'resources/css/app.css',
+        'resources/css/store/more.css'
+    ])
 </head>
 
 <body>
 
 <div class="container">
 
-    @include('partials.sidebar', ['active' => 'nearby-shop'])
+    @include('partials.sidebar', ['active' => 'shop'])
 
-    <!-- メイン -->
     <main class="main-content">
 
-        <a href="{{ route('nearby.shop') }}" class="back-btn">← 一覧へ戻る</a>
-          <a href="{{ route('store.request') }}" class="request-btn">
-        店舗を申請する
-    </a>
-        <h1>ラーメン〇〇（店舗ID：{{ $id }}）</h1>
-
-        <div class="detail-wrapper">
-
-            <!-- 店舗情報 -->
-            <section class="info-card">
-
-                <h2>店舗情報</h2>
-
-                <table>
-
-                    <tr>
-                        <th>評価</th>
-                        <td>★★★★★ (4.8)</td>
-                    </tr>
-
-                    <tr>
-                        <th>ジャンル</th>
-                        <td>ラーメン</td>
-                    </tr>
-
-                    <tr>
-                        <th>営業時間</th>
-                        <td>11:00～22:00</td>
-                    </tr>
-
-                    <tr>
-                        <th>住所</th>
-                        <td>大阪市〇〇区〇〇</td>
-                    </tr>
-
-                    <tr>
-                        <th>学校からの距離</th>
-                        <td>徒歩3分</td>
-                    </tr>
-
-                    <tr>
-                        <th>平均価格</th>
-                        <td>800円</td>
-                    </tr>
-
-                    <tr>
-                        <th>決済方法</th>
-                        <td>現金・PayPay</td>
-                    </tr>
-
-                    <tr>
-                        <th>公式URL</th>
-                        <td>
-                            <a href="#">https://sample.jp</a>
-                        </td>
-                    </tr>
-
-                </table>
-
-            </section>
-
-            <!-- 地図 -->
-            <section class="map-card">
-
-                <h2>地図</h2>
-
-                <div class="map">
-                    <iframe
-                        src="https://www.google.com/maps/embed?pb=..."
-                        width="100%"
-                        height="400"
-                        style="border:0;"
-                        allowfullscreen=""
-                        loading="lazy">
-                    </iframe>
-                </div>
-
-            </section>
-
+        <div class="top-actions">
+            <a href="{{ route('store.admin') }}" class="back-btn">
+                ← 店舗管理へ戻る
+            </a>
         </div>
 
-        <!-- 口コミ -->
+        <section class="shop-card">
 
-        <section class="review-card">
+            <span class="shop-genre">{{ $shopRequest->genre }}</span>
 
-            <h2>口コミ</h2>
+            <h1 class="shop-heading">{{ $shopRequest->name }}</h1>
 
-            <div class="review">
+            <p class="shop-address">
+                {{ $shopRequest->address }}
+            </p>
 
-                <strong>★★★★★</strong>
+            <table class="shop-table">
 
-                <p>学生でも入りやすく、量も多くて満足でした！</p>
+                <tr>
+                    <th>営業時間</th>
+                    <td>{{ $shopRequest->business_hours }}</td>
+                </tr>
+
+                <tr>
+                    <th>学校からの距離</th>
+                    <td>{{ number_format($shopRequest->distance) }} m</td>
+                </tr>
+
+                <tr>
+                    <th>平均価格</th>
+                    <td>{{ number_format($shopRequest->budget) }} 円</td>
+                </tr>
+
+                <tr>
+                    <th>決済方法</th>
+                    {{-- 複数選択のため配列で保存されている。古いデータは文字列のこともある --}}
+                    <td>
+                        {{ is_array($shopRequest->payment_method)
+                            ? implode('、', $shopRequest->payment_method)
+                            : $shopRequest->payment_method }}
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>公式サイト</th>
+                    <td>
+                        @if ($shopRequest->official_url)
+                            <a
+                                href="{{ $shopRequest->official_url }}"
+                                target="_blank"
+                                rel="noopener"
+                            >
+                                {{ $shopRequest->official_url }}
+                            </a>
+                        @else
+                            <span class="muted-text">登録なし</span>
+                        @endif
+                    </td>
+                </tr>
+
+                <tr>
+                    <th>申請日時</th>
+                    <td>{{ $shopRequest->created_at->format('Y年n月j日 H:i') }}</td>
+                </tr>
+
+            </table>
+
+            <div class="request-actions">
+
+                <form
+                    action="{{ route('store.request.approve', $shopRequest->id) }}"
+                    method="POST"
+                    data-confirm="この申請を承認しますか？"
+                >
+                    @csrf
+
+                    <button type="submit" class="action-button approve">
+                        承認する
+                    </button>
+                </form>
+
+                <form
+                    action="{{ route('store.request.reject', $shopRequest->id) }}"
+                    method="POST"
+                    data-confirm="この申請を却下しますか？"
+                >
+                    @csrf
+
+                    <button type="submit" class="action-button reject">
+                        却下する
+                    </button>
+                </form>
 
             </div>
-
-            <div class="review">
-
-                <strong>★★★★☆</strong>
-
-                <p>店員さんの対応が丁寧でした。</p>
-
-            </div>
-
-            <button class="review-btn">
-
-                口コミを書く
-
-            </button>
 
         </section>
 
@@ -132,4 +123,5 @@
 </div>
 
 </body>
+
 </html>

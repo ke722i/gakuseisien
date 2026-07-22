@@ -143,24 +143,27 @@
                                     
                                     <div class="dropdown-menu" id="dropdown-{{ $post->id }}">
                                         @if (Auth::user()->isTeacher())
-                                            <form method="POST" action="{{ route('forum.destroy', $post) }}" onsubmit="return confirm('この投稿を削除しますか？');" style="margin:0;">
+                                            <form method="POST" action="{{ route('forum.destroy', $post) }}" data-confirm="この投稿を削除しますか？" style="margin:0;">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="dropdown-item text-danger" style="position: relative; z-index: 11;">全員分削除</button>
                                             </form>
                                         @elseif (Auth::id() === $post->user_id)
                                             <a href="{{ route('forum.edit', $post) }}" class="dropdown-item" style="position: relative; z-index: 11;">編集する</a>
-                                            <form method="POST" action="{{ route('forum.destroy', $post) }}" onsubmit="return confirm('削除しますか？');" style="margin:0;">
+                                            <form method="POST" action="{{ route('forum.destroy', $post) }}" data-confirm="削除しますか？" style="margin:0;">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="dropdown-item text-danger" style="position: relative; z-index: 11;">削除する</button>
                                             </form>
                                         @endif
 
-                                        @if (!Auth::user()->isTeacher())
-                                            <form method="POST" action="{{ route('forum.report', $post) }}" onsubmit="return confirm('この投稿を通報しますか？');" style="margin:0;">
+                                        {{-- 自分の投稿は通報できない（学内Q&Aと同じ扱い） --}}
+                                        @if (!Auth::user()->isTeacher() && Auth::id() !== $post->user_id)
+                                            {{-- 通報理由は自由記述（data-confirm-input で入力欄付きダイアログを出す） --}}
+                                            <form method="POST" action="{{ route('forum.report', $post) }}"
+                                                  data-confirm="この投稿を通報します。理由を入力してください（スパム、嫌がらせ、公序良俗に反する投稿など）"
+                                                  data-confirm-input="reason" style="margin:0;">
                                                 @csrf
-                                                <input type="hidden" name="reason" value="不適切な投稿です。">
                                                 <button type="submit" class="dropdown-item text-warning" style="position: relative; z-index: 11;">通報する</button>
                                             </form>
                                         @endif

@@ -86,7 +86,7 @@
                                         <button type="submit" class="primary-btn" style="padding:8px 16px">保存</button>
                                     </div>
                                 </form>
-                                <form method="POST" action="{{ route('admin.rooms.destroy', $room) }}" onsubmit="return confirm('{{ $room->name }} を削除しますか？');" style="margin-top:8px">
+                                <form method="POST" action="{{ route('admin.rooms.destroy', $room) }}" data-confirm="{{ $room->name }} を削除しますか？" style="margin-top:8px">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="cancel-btn" style="padding:8px 16px;color:#dc2626;border-color:#fca5a5">この教室を削除</button>
@@ -133,7 +133,7 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div><label>日付</label><input type="date" name="date" required></div>
+                            <div><label>日付</label><input type="date" name="date" min="{{ now()->toDateString() }}" required></div>
                             <div>
                                 <label>時限</label>
                                 <select name="period" required>

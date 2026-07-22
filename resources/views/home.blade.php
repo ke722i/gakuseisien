@@ -26,7 +26,9 @@
                     <section class="card today-card">
                         <div class="today-left">
                             <p class="today-date" id="todayDate"></p>
-                            <p class="today-greeting" id="greeting">こんにちは！</p>
+                            {{-- 名前は data 属性で渡し、時間帯に応じた挨拶をJS側で組み立てる --}}
+                            <p class="today-greeting" id="greeting"
+                               data-name="{{ Auth::user()?->displayName() }}">こんにちは！</p>
                             <p class="today-clock" id="clock"></p>
                         </div>
                         <div class="today-right">
@@ -196,7 +198,9 @@
                 const greetingEl = document.getElementById('greeting');
                 if (greetingEl) {
                     const h = now.getHours();
-                    greetingEl.textContent = h < 11 ? 'おはようございます！' : (h < 17 ? 'こんにちは！' : 'こんばんは！');
+                    const word = h < 11 ? 'おはようございます' : (h < 17 ? 'こんにちは' : 'こんばんは');
+                    const name = greetingEl.dataset.name;
+                    greetingEl.textContent = name ? `${name} さん、${word}！` : `${word}！`;
                 }
             }
 

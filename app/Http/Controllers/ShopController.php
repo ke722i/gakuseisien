@@ -158,7 +158,34 @@ class ShopController extends Controller
     // 申請画面
     public function request()
     {
-        return view('store.request');
+        // キー未設定の環境では案内文とオートコンプリートを出さず、手入力のみにする
+        $placeSearchEnabled = !empty(config('services.google_maps.server_key'));
+
+        $distanceAutoFillEnabled = $placeSearchEnabled
+            && config('services.school.latitude') !== null
+            && config('services.school.latitude') !== ''
+            && config('services.school.longitude') !== null
+            && config('services.school.longitude') !== '';
+
+        return view('store.request', compact(
+            'placeSearchEnabled',
+            'distanceAutoFillEnabled'
+        ));
+    }
+
+    /**
+     * 申請フォームの店舗名オートコンプリート用。
+     * 入力中のキーワードでGoogle Placesを検索し、各入力欄に流し込む値を返す。
+     */
+    public function placeSearch(Request $request, GoogleMapsService $googleMapsService)
+    {
+        $validated = $request->validate([
+            'keyword' => ['required', 'string', 'max:100'],
+        ]);
+
+        return response()->json([
+            'candidates' => $googleMapsService->searchPlaceCandidates($validated['keyword']),
+        ]);
     }
 
     // 店舗申請保存

@@ -12,6 +12,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
+        // Render等のPaaSはロードバランサーでHTTPSを終端するため、
+        // これがないと全リクエストが同一IP・HTTP接続として扱われ、
+        // アクセス制限（throttle）が利用者ごとに効かず、
+        // セッションCookieのSecure属性も付かなくなる。
+        $middleware->trustProxies(at: '*');
+
         $middleware->alias([
             'teacher' => \App\Http\Middleware\CheckTeacher::class,
         ]);

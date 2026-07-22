@@ -20,8 +20,10 @@ class ReportAdminController extends Controller
             $type = 'all';
         }
 
-        $reports = Report::with(['question', 'post', 'user'])
-            ->when($type !== 'all', fn ($q) => $q->where('type', $type))
+        $reports = Report::with(['question', 'post', 'answer', 'user'])
+            // 学内Q&Aのタブでは、質問と回答の通報をまとめて表示する
+            ->when($type === 'question', fn ($q) => $q->whereIn('type', ['question', 'answer']))
+            ->when($type === 'forum_post', fn ($q) => $q->where('type', 'forum_post'))
             ->latest()
             ->get();
 
@@ -29,7 +31,7 @@ class ReportAdminController extends Controller
         $counts = [
             'all' => Report::count(),
             'forum_post' => Report::where('type', 'forum_post')->count(),
-            'question' => Report::where('type', 'question')->count(),
+            'question' => Report::whereIn('type', ['question', 'answer'])->count(),
         ];
 
         return view('admin_reports', [

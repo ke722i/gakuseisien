@@ -618,14 +618,16 @@ Route::middleware('teacher')->group(function () {
 });
 
 // 空き教室予約ページのルート設定
-// 先生は先生用、学生（未ログイン含む）は学生用ページへ遷移する
+// 先生は先生用、学生は学生用ページへ遷移する（校内の利用状況のため要ログイン）
 Route::get('/classroom-reservation', function () {
     $view = Auth::user()?->isTeacher() ? 'reservation.home.teacher' : 'reservation.home.student';
     return view($view);
-})->name('classroom.reservation');
+})->name('classroom.reservation')->middleware('auth');
 
 // 空き教室予約・詳細ページのルート設定（フロアマップ表示・予約作成）
-Route::get('/classroom-reservation/room', [RoomReservationController::class, 'index'])->name('classroom.reservation.room');
+Route::get('/classroom-reservation/room', [RoomReservationController::class, 'index'])
+    ->name('classroom.reservation.room')
+    ->middleware('auth');
 Route::post('/classroom-reservation/room', [RoomReservationController::class, 'store'])
     ->name('classroom.reservation.store')
     ->middleware('auth');
@@ -687,30 +689,40 @@ Route::middleware('auth')->group(function () {
 // 学内Q&Aページのルート設定
 use App\Http\Controllers\QnaController;
 
-// 固定のURL
-Route::get('/gakunai-qna', [QnaController::class, 'index'])->name('gakunai.qna');
-Route::get('/gakunai-qna/create', [QnaController::class, 'create'])->name('qna.create')->middleware('auth');
-Route::post('/gakunai-qna/store', [QnaController::class, 'store'])->name('qna.store')->middleware('auth');
-Route::get('/gakunai-qna/history', [QnaController::class, 'history'])->name('qna.history');
-// 通報管理は掲示板とQ&Aの両方を扱うため、専用ルートに集約している（下部の /admin/reports を参照）
+// 学内Q&Aは学校ごとに配布したアカウントで利用する前提のため、
+// 閲覧・検索も含めてすべてログイン必須とする（学外の一般ユーザーは対象外）。
+Route::middleware('auth')->group(function () {
+    // 1. 固定のURL
+    Route::get('/gakunai-qna', [QnaController::class, 'index'])->name('gakunai.qna');
+    Route::get('/gakunai-qna/create', [QnaController::class, 'create'])->name('qna.create');
+    Route::post('/gakunai-qna/store', [QnaController::class, 'store'])->name('qna.store');
+    Route::get('/gakunai-qna/history', [QnaController::class, 'history'])->name('qna.history');
+    // 通報管理は掲示板とQ&Aの両方を扱うため、専用ルートに集約している（下部の /admin/reports を参照）
 
-// 2. 動的なURL
-Route::delete('/gakunai-qna/{id}', [QnaController::class, 'destroy'])->name('qna.destroy')->middleware('auth');
-Route::get('/gakunai-qna/{id}', [QnaController::class, 'show'])->name('qna.detail');
-Route::post('/gakunai-qna/{id}/answers', [QnaController::class, 'storeAnswer'])->name('qna.storeAnswer')->middleware('auth');
-Route::patch('/gakunai-qna/{id}/best-answer/{answer_id}', [QnaController::class, 'selectBestAnswer'])->name('qna.bestAnswer')->middleware('auth');
-Route::post('/gakunai-qna/{id}/report', [QnaController::class, 'reportQuestion'])->name('qna.report');
-Route::post('/qna/answers/{answer}/upvote', [App\Http\Controllers\QnaController::class, 'toggleUpvote'])
-    ->name('qna.answers.upvote')
-    ->middleware('auth');
-Route::delete('/qna/answers/{answer}', [App\Http\Controllers\QnaController::class, 'destroyAnswer'])
-    ->name('qna.destroyAnswer')
-    ->middleware('auth');
-Route::post('/qna/answers/{id}/approve', [QnaController::class, 'approveAnswer'])->name('qna.answers.approve');
+    // 2. 動的なURL
+    Route::delete('/gakunai-qna/{id}', [QnaController::class, 'destroy'])->name('qna.destroy');
+    Route::get('/gakunai-qna/{id}', [QnaController::class, 'show'])->name('qna.detail');
+    Route::post('/gakunai-qna/{id}/answers', [QnaController::class, 'storeAnswer'])->name('qna.storeAnswer');
+    Route::patch('/gakunai-qna/{id}/best-answer/{answer_id}', [QnaController::class, 'selectBestAnswer'])->name('qna.bestAnswer');
+    Route::post('/gakunai-qna/{id}/report', [QnaController::class, 'reportQuestion'])->name('qna.report');
+    Route::post('/qna/answers/{answer}/upvote', [App\Http\Controllers\QnaController::class, 'toggleUpvote'])
+        ->name('qna.answers.upvote');
+    // 回答への通報は質問への通報と別経路にする（同じIDの質問と取り違えないため）
+    Route::post('/qna/answers/{answer}/report', [QnaController::class, 'reportAnswer'])
+        ->name('qna.answers.report');
+    Route::delete('/qna/answers/{answer}', [App\Http\Controllers\QnaController::class, 'destroyAnswer'])
+        ->name('qna.destroyAnswer');
+
+    // 回答の承認は教職員のみ
+    Route::post('/qna/answers/{id}/approve', [QnaController::class, 'approveAnswer'])
+        ->name('qna.answers.approve')
+        ->middleware('teacher');
+});
 
 // イベント・締め切りカレンダーページのルート設定
-Route::get('/event-calendar', [EventController::class, 'index'])->name('event.calendar');
-Route::get('/event-calendar/day/{date}', [EventController::class, 'day'])->name('event.day');
+// 学内の予定を外部に見せないよう、閲覧にもログインを必須にする
+Route::get('/event-calendar', [EventController::class, 'index'])->name('event.calendar')->middleware('auth');
+Route::get('/event-calendar/day/{date}', [EventController::class, 'day'])->name('event.day')->middleware('auth');
 Route::post('/event-calendar', [EventController::class, 'store'])->name('event.store')->middleware('teacher');
 Route::patch('/event-calendar/{event}', [EventController::class, 'update'])->name('event.update')->middleware('teacher');
 Route::delete('/event-calendar/{event}', [EventController::class, 'destroy'])->name('event.destroy')->middleware('teacher');
@@ -738,18 +750,30 @@ Route::get('/notification', function () {
             ->get()
         : collect();
 
+    // 科目教師のプルダウンは登録済みの教職員から作る（ダミー文字列を選ばせない）
+    $subjectTeachers = App\Models\User::where('role', 'teacher')
+        ->orderBy('teacher_name')
+        ->get()
+        ->map(fn ($t) => $t->subject
+            ? "{$t->teacher_name}（{$t->subject}）"
+            : $t->teacher_name)
+        ->filter()
+        ->values();
+
     // 学籍番号・クラス・氏名・担任はアカウント情報から自動入力する（$user）
     // 提出日・対象日の初期値は本日（$today）
     return view('notification.notification_stu', [
         'myReports' => $myReports,
         'user' => $user,
         'today' => now()->toDateString(),
+        'subjectTeachers' => $subjectTeachers,
     ]);
-})->name('notification');
+})->name('notification')->middleware('auth');
 
 // 欠席・遅刻届フォームの送信（POSTリクエスト）を受け付けるURLとコントローラーの紐付け
 Route::post('/notification/store', [AttendanceNotificationController::class, 'storeNotification'])
-    ->name('notification.store');
+    ->name('notification.store')
+    ->middleware('auth');
 
 // 教師が「受理」または「差し戻し」の処理を行うためのURL
 Route::post('/teacher/notification/{id}/decide', [AttendanceNotificationController::class, 'decideNotificationType'])
@@ -778,6 +802,12 @@ Route::get('/nearby-shop/store/{id}', [ShopController::class, 'show'])
 
 Route::get('/nearby-shop/request', [ShopController::class, 'request'])
     ->name('store.request');
+
+// 申請フォームの店舗名オートコンプリート。
+// 1回ごとにGoogle Placesへ課金されるため、ログイン必須＋回数制限をかけている。
+Route::get('/nearby-shop/place-search', [ShopController::class, 'placeSearch'])
+    ->name('store.place.search')
+    ->middleware(['auth', 'throttle:30,1']);
 
 // 店舗申請を保存
 Route::post('/nearby-shop/request', [ShopController::class, 'storeRequest'])

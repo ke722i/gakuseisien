@@ -16,12 +16,17 @@ function initQnaFeatures() {
 
     // 2. 「一覧に戻る」ボタンを押したときの離脱警告（投稿画面用）
     if (backBtn && titleInput && bodyTextarea) {
-        backBtn.addEventListener('click', (event) => {
-            if (titleInput.value.trim() !== "" || bodyTextarea.value.trim() !== "") {
-                const confirmLeave = confirm("入力中の内容は破棄されますが、一覧に戻ってもよろしいですか？");
-                if (!confirmLeave) {
-                    event.preventDefault();
-                }
+        backBtn.addEventListener('click', async (event) => {
+            if (titleInput.value.trim() === "" && bodyTextarea.value.trim() === "") {
+                return;
+            }
+
+            // 共通ダイアログは非同期のため、一旦遷移を止めてから確認する
+            event.preventDefault();
+
+            const ok = await confirmDialog("入力中の内容は破棄されますが、一覧に戻ってもよろしいですか？");
+            if (ok) {
+                window.location.href = backBtn.href || backBtn.dataset.href;
             }
         });
     }

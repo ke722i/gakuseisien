@@ -2,15 +2,27 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\SlotAlreadyReservedException;
 use App\Models\Reservation;
 use App\Models\Room;
 use App\Models\RoomUnavailableSlot;
 use App\Models\UserNotification;
+use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class RoomReservationController extends Controller
 {
+    /**
+     * 予約枠の一意制約（reservations_active_slot_unique）に違反したかどうか。
+     * ほぼ同時に同じ枠へ申請が来た場合に発生する。
+     */
+    private function isSlotConflictError(QueryException $e): bool
+    {
+        return str_contains($e->getMessage(), 'reservations_active_slot_unique');
+    }
+
     /** 時限ごとの時刻表示（list / manage で共用） */
     private const PERIOD_TIMES = [
         1 => '(9:15〜10:45)',
@@ -77,10 +89,13 @@ class RoomReservationController extends Controller
     {
         $validated = $request->validate([
             'room_id' => ['required', 'integer', 'exists:rooms,id'],
-            'reservation_date' => ['required', 'date'],
+            // 過ぎた日付の教室は押さえられない
+            'reservation_date' => ['required', 'date', 'after_or_equal:today'],
             'period' => ['required', 'integer', 'min:1', 'max:6'],
             'reason' => ['nullable', 'string', 'max:1000'],
-        ], [], [
+        ], [
+            'reservation_date.after_or_equal' => '過去の日付は予約できません。',
+        ], [
             'room_id' => '教室',
             'reservation_date' => '日付',
             'period' => '時限',
@@ -106,33 +121,54 @@ class RoomReservationController extends Controller
 
         $isTeacher = Auth::user()->isTeacher();
 
-        $conflicts = Reservation::where('room_id', $room->id)
-            ->where('reservation_date', $validated['reservation_date'])
-            ->where('period', $validated['period'])
-            ->where('status', '!=', Reservation::STATUS_REJECTED)
-            ->with(['user', 'room'])
-            ->get();
+        try {
+            // 重複確認から登録までを1つの処理としてまとめる。
+            // 同時申請でどちらも「空き」と判定してしまうのを防ぐため、
+            // 既存予約は行ロックを取ってから読む。
+            $cancelled = DB::transaction(function () use ($room, $validated, $isTeacher) {
+                $conflicts = Reservation::where('room_id', $room->id)
+                    ->where('reservation_date', $validated['reservation_date'])
+                    ->where('period', $validated['period'])
+                    ->where('status', '!=', Reservation::STATUS_REJECTED)
+                    ->lockForUpdate()
+                    ->with(['user', 'room'])
+                    ->get();
 
-        // 既に教職員が押さえている枠は誰も上書きできない
-        $teacherHeld = $conflicts->first(fn ($c) => $c->user && $c->user->isTeacher());
-        // 学生は既存予約（学生・教職員問わず）がある枠は予約できない
-        if ($teacherHeld || (! $isTeacher && $conflicts->isNotEmpty())) {
+                // 既に教職員が押さえている枠は誰も上書きできない
+                $teacherHeld = $conflicts->first(fn ($c) => $c->user && $c->user->isTeacher());
+                // 学生は既存予約（学生・教職員問わず）がある枠は予約できない
+                if ($teacherHeld || (! $isTeacher && $conflicts->isNotEmpty())) {
+                    throw new SlotAlreadyReservedException();
+                }
+
+                // 優先予約制御：教職員予約は重複する学生予約を自動キャンセルし、即確定にする
+                $cancelled = $isTeacher ? $this->cancelStudentConflicts($conflicts) : 0;
+
+                Reservation::create([
+                    'room_id' => $room->id,
+                    'user_id' => Auth::id(),
+                    'reservation_date' => $validated['reservation_date'],
+                    'period' => $validated['period'],
+                    'reason' => $validated['reason'] ?? null,
+                    'status' => $isTeacher ? Reservation::STATUS_APPROVED : Reservation::STATUS_PENDING,
+                ]);
+
+                return $cancelled;
+            });
+        } catch (SlotAlreadyReservedException) {
             return back()
                 ->withInput()
                 ->with('reservation_error', 'この教室・日時はすでに予約されています。');
+        } catch (QueryException $e) {
+            if (! $this->isSlotConflictError($e)) {
+                throw $e;
+            }
+
+            // ロックをすり抜けたごく僅かな同時申請は、データベース側の制約で止まる
+            return back()
+                ->withInput()
+                ->with('reservation_error', 'ほぼ同時に他の予約が入りました。別の時間帯を選んでください。');
         }
-
-        // 優先予約制御：教職員予約は重複する学生予約を自動キャンセルし、即確定にする
-        $cancelled = $isTeacher ? $this->cancelStudentConflicts($conflicts) : 0;
-
-        Reservation::create([
-            'room_id' => $room->id,
-            'user_id' => Auth::id(),
-            'reservation_date' => $validated['reservation_date'],
-            'period' => $validated['period'],
-            'reason' => $validated['reason'] ?? null,
-            'status' => $isTeacher ? Reservation::STATUS_APPROVED : Reservation::STATUS_PENDING,
-        ]);
 
         $message = $isTeacher
             ? '教室を予約しました。' . ($cancelled > 0 ? "（重複する学生予約{$cancelled}件を自動キャンセルしました）" : '')
@@ -195,10 +231,13 @@ class RoomReservationController extends Controller
 
         $validated = $request->validate([
             'room_id' => ['required', 'integer', 'exists:rooms,id'],
-            'reservation_date' => ['required', 'date'],
+            // 変更先も未来（当日を含む）でなければならない
+            'reservation_date' => ['required', 'date', 'after_or_equal:today'],
             'period' => ['required', 'integer', 'min:1', 'max:6'],
             'reason' => ['nullable', 'string', 'max:1000'],
-        ], [], [
+        ], [
+            'reservation_date.after_or_equal' => '過去の日付には変更できません。',
+        ], [
             'room_id' => '教室',
             'reservation_date' => '日付',
             'period' => '時限',
@@ -218,33 +257,48 @@ class RoomReservationController extends Controller
             return back()->with('reservation_error', 'この教室・日時は利用できない時間帯です。');
         }
 
-        // 自分自身（今編集中の予約）以外の重複を確認
-        $conflicts = Reservation::where('room_id', $room->id)
-            ->where('reservation_date', $validated['reservation_date'])
-            ->where('period', $validated['period'])
-            ->where('status', '!=', Reservation::STATUS_REJECTED)
-            ->where('id', '!=', $reservation->id)
-            ->with(['user', 'room'])
-            ->get();
-
         $isTeacher = Auth::user()->isTeacher();
-        $teacherHeld = $conflicts->first(fn ($c) => $c->user && $c->user->isTeacher());
-        if ($teacherHeld || (! $isTeacher && $conflicts->isNotEmpty())) {
+
+        try {
+            // 新規予約と同じく、重複確認から更新までをまとめて行う
+            DB::transaction(function () use ($room, $validated, $reservation, $isTeacher) {
+                // 自分自身（今編集中の予約）以外の重複を確認
+                $conflicts = Reservation::where('room_id', $room->id)
+                    ->where('reservation_date', $validated['reservation_date'])
+                    ->where('period', $validated['period'])
+                    ->where('status', '!=', Reservation::STATUS_REJECTED)
+                    ->where('id', '!=', $reservation->id)
+                    ->lockForUpdate()
+                    ->with(['user', 'room'])
+                    ->get();
+
+                $teacherHeld = $conflicts->first(fn ($c) => $c->user && $c->user->isTeacher());
+                if ($teacherHeld || (! $isTeacher && $conflicts->isNotEmpty())) {
+                    throw new SlotAlreadyReservedException();
+                }
+
+                if ($isTeacher) {
+                    $this->cancelStudentConflicts($conflicts);
+                }
+
+                $reservation->update([
+                    'room_id' => $room->id,
+                    'reservation_date' => $validated['reservation_date'],
+                    'period' => $validated['period'],
+                    'reason' => $validated['reason'] ?? null,
+                    // 学生の変更は再承認が必要。教職員の変更は承認済みのまま。
+                    'status' => $isTeacher ? Reservation::STATUS_APPROVED : Reservation::STATUS_PENDING,
+                ]);
+            });
+        } catch (SlotAlreadyReservedException) {
             return back()->with('reservation_error', '変更先の教室・日時はすでに予約されています。');
-        }
+        } catch (QueryException $e) {
+            if (! $this->isSlotConflictError($e)) {
+                throw $e;
+            }
 
-        if ($isTeacher) {
-            $this->cancelStudentConflicts($conflicts);
+            return back()->with('reservation_error', 'ほぼ同時に他の予約が入りました。別の時間帯を選んでください。');
         }
-
-        $reservation->update([
-            'room_id' => $room->id,
-            'reservation_date' => $validated['reservation_date'],
-            'period' => $validated['period'],
-            'reason' => $validated['reason'] ?? null,
-            // 学生の変更は再承認が必要。教職員の変更は承認済みのまま。
-            'status' => $isTeacher ? Reservation::STATUS_APPROVED : Reservation::STATUS_PENDING,
-        ]);
 
         return redirect()->route('classroom.reservation.list')
             ->with('reservation_success', '予約を変更しました。' . ($isTeacher ? '' : '再度承認をお待ちください。'));
@@ -255,7 +309,21 @@ class RoomReservationController extends Controller
      */
     public function destroy(Reservation $reservation)
     {
-        abort_if($reservation->user_id !== Auth::id(), 403);
+        // 変更（update）と条件をそろえる。教職員は学生の予約も取り消せる。
+        $isOwn = $reservation->user_id === Auth::id();
+        abort_if(! $isOwn && ! Auth::user()->isTeacher(), 403);
+
+        // 他人の予約を取り消す場合は、本人が気づけるよう知らせる
+        if (! $isOwn) {
+            $reservation->loadMissing(['room']);
+
+            UserNotification::send(
+                $reservation->user_id,
+                '教室予約がキャンセルされました',
+                $this->reservationSummary($reservation) . '／教職員により取り消されました。',
+                route('classroom.reservation.list', absolute: false)
+            );
+        }
 
         $reservation->delete();
 
@@ -421,12 +489,18 @@ class RoomReservationController extends Controller
     {
         $data = $request->validate([
             'rows' => ['required', 'array', 'min:1'],
+            // 教室はIDで受け取る（名前が同じ教室が別フロアにあっても取り違えないため）
+            'rows.*.roomId' => ['required', 'integer', 'exists:rooms,id'],
             'rows.*.room' => ['required', 'string'],
             'rows.*.usage' => ['required', 'string', 'max:255'],
             'rows.*.periods' => ['required', 'array', 'min:1'],
-            'rows.*.fromDate' => ['required', 'date'],
-            'rows.*.toDate' => ['required', 'date'],
+            // 過去の日付は予約できない。終了日は開始日以降であること。
+            'rows.*.fromDate' => ['required', 'date', 'after_or_equal:today'],
+            'rows.*.toDate' => ['required', 'date', 'after_or_equal:rows.*.fromDate'],
             'rows.*.selectedDays' => ['required', 'array', 'min:1'],
+        ], [
+            'rows.*.fromDate.after_or_equal' => '開始日に過去の日付は指定できません。',
+            'rows.*.toDate.after_or_equal' => '終了日は開始日以降にしてください。',
         ]);
 
         $created = 0;
@@ -434,7 +508,7 @@ class RoomReservationController extends Controller
         $skippedRooms = [];
 
         foreach ($data['rows'] as $row) {
-            $room = Room::where('name', $row['room'])->first();
+            $room = Room::find($row['roomId']);
             if (! $room || ! $room->is_reservable) {
                 $skippedRooms[] = $row['room'];
                 continue;
@@ -474,29 +548,48 @@ class RoomReservationController extends Controller
                             continue;
                         }
 
-                        $slotReservations = Reservation::where('room_id', $room->id)
-                            ->where('reservation_date', $date)
-                            ->where('period', $period)
-                            ->where('status', '!=', Reservation::STATUS_REJECTED)
-                            ->with(['user', 'room'])
-                            ->get();
+                        try {
+                            // 1枠ごとに、重複確認から登録までをまとめて行う
+                            $cancelled += DB::transaction(function () use ($room, $date, $period, $row) {
+                                $slotReservations = Reservation::where('room_id', $room->id)
+                                    ->where('reservation_date', $date)
+                                    ->where('period', $period)
+                                    ->where('status', '!=', Reservation::STATUS_REJECTED)
+                                    ->lockForUpdate()
+                                    ->with(['user', 'room'])
+                                    ->get();
 
-                        // 既に教職員が押さえている枠は二重登録しない
-                        if ($slotReservations->first(fn ($c) => $c->user && $c->user->isTeacher())) {
+                                // 既に教職員が押さえている枠は二重登録しない
+                                if ($slotReservations->first(fn ($c) => $c->user && $c->user->isTeacher())) {
+                                    throw new SlotAlreadyReservedException();
+                                }
+
+                                // 重複する学生予約を自動キャンセル
+                                $slotCancelled = $this->cancelStudentConflicts($slotReservations);
+
+                                Reservation::create([
+                                    'room_id' => $room->id,
+                                    'user_id' => Auth::id(),
+                                    'reservation_date' => $date,
+                                    'period' => $period,
+                                    'reason' => $row['usage'],
+                                    'status' => Reservation::STATUS_APPROVED,
+                                ]);
+
+                                return $slotCancelled;
+                            });
+                        } catch (SlotAlreadyReservedException) {
+                            // 教職員が既に押さえている枠は飛ばして次へ進む
+                            continue;
+                        } catch (QueryException $e) {
+                            if (! $this->isSlotConflictError($e)) {
+                                throw $e;
+                            }
+
+                            // 同時申請で埋まった枠は飛ばし、残りの登録は続行する
                             continue;
                         }
 
-                        // 重複する学生予約を自動キャンセル
-                        $cancelled += $this->cancelStudentConflicts($slotReservations);
-
-                        Reservation::create([
-                            'room_id' => $room->id,
-                            'user_id' => Auth::id(),
-                            'reservation_date' => $date,
-                            'period' => $period,
-                            'reason' => $row['usage'],
-                            'status' => Reservation::STATUS_APPROVED,
-                        ]);
                         $created++;
                     }
                 }

@@ -32,7 +32,7 @@ $isSpecial = $isBest || $isApproved;
                 <span class="qna-comment-author">
                     @if($answer->user)
                     @if($answer->user->isTeacher()) 👨‍🏫 教職員 @else 🎓 在学生 @endif
-                    ({{ $answer->user->login_id }})
+                    ({{ $answer->user->displayNameWithNumber() }})
                     @else
                     👥 ゲスト
                     @endif
@@ -78,7 +78,7 @@ $isSpecial = $isBest || $isApproved;
                 @endif
 
                 @if(Auth::id() !== $answer->user_id)
-                <button type="button" class="qna-action-btn" onclick="handleReport(event, '{{ $answer->id }}')">🏳️ 通報</button>
+                <button type="button" class="qna-action-btn" onclick="handleAnswerReport(event, '{{ $answer->id }}')">🏳️ 通報</button>
                 @endif
 
                 @if($isTeacher && !$answer->is_approved && !$post->best_answer_id)

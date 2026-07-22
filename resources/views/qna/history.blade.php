@@ -45,7 +45,7 @@
                 <div class="qna-card-footer" style="display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;">
                     <a href="{{ route('qna.detail', $post->id) }}#comment-section" style="text-decoration: none;">
                         <button type="button" class="qna-icon-btn" title="comments" style="cursor: pointer; font-size: 13px;">
-                            💬 コメント {{ $post->answers->count() }}件
+                            💬 コメント {{ $post->answers_count }}件
                         </button>
                     </a>
 
@@ -55,8 +55,9 @@
                     </button>
 
                     @if(empty($post->best_answer_id))
-                    <a href="{{ route('qna.detail', $post->id) }}?action=select_best" class="qna-history-btn" style="font-size: 12px; padding: 4px 8px; background-color: #007bff; color: #fff; text-decoration: none; border-radius: 4px; display: inline-block;">
-                        解決する
+                    {{-- ベストアンサーは詳細画面の各回答から選ぶ --}}
+                    <a href="{{ route('qna.detail', $post->id) }}" class="qna-history-btn" style="font-size: 12px; padding: 4px 8px; background-color: #007bff; color: #fff; text-decoration: none; border-radius: 4px; display: inline-block;">
+                        回答から選ぶ
                     </a>
                     @else
                     <button class="qna-history-btn" style="font-size: 12px; padding: 4px 8px; background-color: #6c757d; color: #fff; opacity: 0.5; cursor: not-allowed; border: none; border-radius: 4px;" disabled>

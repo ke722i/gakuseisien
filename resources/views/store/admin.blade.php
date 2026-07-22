@@ -135,7 +135,7 @@
                                 <form
                                     action="{{ route('store.destroy', $shop->id) }}"
                                     method="POST"
-                                    onsubmit="return confirm('この店舗を削除しますか？');"
+                                    data-confirm="この店舗を削除しますか？"
                                 >
                                     @csrf
 
@@ -219,7 +219,7 @@
                                 <form
                                     action="{{ route('store.request.approve', $request->id) }}"
                                     method="POST"
-                                    onsubmit="return confirm('この申請を承認しますか？');"
+                                    data-confirm="この申請を承認しますか？"
                                 >
                                     @csrf
 
@@ -234,7 +234,7 @@
                                 <form
                                     action="{{ route('store.request.reject', $request->id) }}"
                                     method="POST"
-                                    onsubmit="return confirm('この申請を却下しますか？');"
+                                    data-confirm="この申請を却下しますか？"
                                 >
                                     @csrf
 

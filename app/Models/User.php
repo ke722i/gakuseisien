@@ -21,6 +21,7 @@ use Illuminate\Notifications\Notifiable;
     'homeroom_teacher',
     'teacher_number',
     'teacher_name',
+    'subject',
 ])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
@@ -50,6 +51,23 @@ class User extends Authenticatable
         return $this->isTeacher()
             ? ($this->teacher_name ?: $this->login_id)
             : ($this->student_name ?: $this->login_id);
+    }
+
+    /**
+     * 掲示板やQ&Aでの表示名。
+     * 学生は同姓同名でも判別できるよう「氏名（学籍番号）」の形にする。
+     * 氏名が未登録なら学籍番号（＝ログインID）だけを出す。
+     */
+    public function displayNameWithNumber(): string
+    {
+        if ($this->isTeacher()) {
+            return $this->teacher_name ?: $this->login_id;
+        }
+
+        $name = $this->student_name;
+        $number = $this->student_number ?: $this->login_id;
+
+        return $name ? "{$name}（{$number}）" : $number;
     }
 
     /**

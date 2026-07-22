@@ -35,14 +35,14 @@ class UserSeeder extends Seeder
     private function seedTeachers(): void
     {
         $teachers = [
-            // login_id,   password,      氏名,     教員番号, 担当クラス
-            ['katayama',   'katayama1',   '片山 誠', 'T002',  'R4SA00'],
-            ['eguchi',     'eguchi1',     '江口 学', 'T003',  'R1SA00'],
-            ['kutoku',     'kutoku1',     '久徳 明', 'T004',  'R2SC00'],
-            ['furukawa',   'furukawa1',   '古川 隆', 'T005',  'R3SC00'],
+            // login_id,   password,      氏名,     教員番号, 担当クラス, 担当科目
+            ['katayama',   'katayama1',   '片山 誠', 'T002',  'R4SA00', '情報処理'],
+            ['eguchi',     'eguchi1',     '江口 学', 'T003',  'R1SA00', '数学'],
+            ['kutoku',     'kutoku1',     '久徳 明', 'T004',  'R2SC00', '英語'],
+            ['furukawa',   'furukawa1',   '古川 隆', 'T005',  'R3SC00', 'ネットワーク'],
         ];
 
-        foreach ($teachers as [$loginId, $password, $name, $number, $class]) {
+        foreach ($teachers as [$loginId, $password, $name, $number, $class, $subject]) {
             User::updateOrCreate(
                 ['login_id' => $loginId],
                 [
@@ -52,6 +52,7 @@ class UserSeeder extends Seeder
                     'teacher_name' => $name,
                     'teacher_number' => $number,
                     'class_number' => $class,
+                    'subject' => $subject,
                 ],
             );
         }
@@ -121,6 +122,7 @@ class UserSeeder extends Seeder
                 'must_change_password' => false,
                 'teacher_name' => '教員 太郎',
                 'teacher_number' => 'T001',
+                'subject' => '国語',
                 'class_number' => 'R4SA00',
             ],
         );
@@ -133,6 +135,7 @@ class UserSeeder extends Seeder
                 'must_change_password' => false,
                 'teacher_name' => '管理 花子',
                 'teacher_number' => 'T000',
+                'subject' => '社会',
                 'class_number' => 'R4SA00',
             ],
         );

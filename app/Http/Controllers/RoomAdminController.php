@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Reservation;
 use App\Models\Room;
 use App\Models\RoomUnavailableSlot;
+use App\Models\UserNotification;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -69,10 +71,42 @@ class RoomAdminController extends Controller
     public function destroy(Room $room)
     {
         $floor = $room->floor;
+
+        // 教室を消すと、その教室の予約もデータベース側の設定で一緒に消える。
+        // 黙って消えると利用者が気づけないため、これから使う予約を先に知らせる。
+        $affected = Reservation::where('room_id', $room->id)
+            ->where('reservation_date', '>=', now()->toDateString())
+            ->where('status', '!=', Reservation::STATUS_REJECTED)
+            ->with(['user', 'room'])
+            ->get();
+
+        foreach ($affected as $reservation) {
+            UserNotification::send(
+                $reservation->user_id,
+                '教室予約がキャンセルされました',
+                $this->reservationSummary($reservation) . '／教室が削除されたため取り消されました。',
+                route('classroom.reservation.list', absolute: false)
+            );
+        }
+
         $room->delete();
 
+        $message = '教室を削除しました。';
+        if ($affected->isNotEmpty()) {
+            $message .= "（この教室の予約{$affected->count()}件を取り消し、予約者に通知しました）";
+        }
+
         return redirect()->route('admin.rooms.index', ['floor' => $floor])
-            ->with('success', '教室を削除しました。');
+            ->with('success', $message);
+    }
+
+    /** 通知本文に使う「教室・日付・時限」の表記 */
+    private function reservationSummary(Reservation $reservation): string
+    {
+        $roomName = $reservation->room?->name ?? '教室';
+        $date = $reservation->reservation_date->format('Y/m/d');
+
+        return "{$roomName}／{$date} {$reservation->period}限";
     }
 
     /** 利用不可時間帯を追加 */
@@ -80,10 +114,13 @@ class RoomAdminController extends Controller
     {
         $validated = $request->validate([
             'room_id' => ['required', 'exists:rooms,id'],
-            'date' => ['required', 'date'],
+            // 過ぎた日付を利用不可にしても意味がないため当日以降のみ
+            'date' => ['required', 'date', 'after_or_equal:today'],
             'period' => ['required', 'integer', 'min:1', 'max:6'],
             'reason' => ['nullable', 'string', 'max:255'],
-        ], [], [
+        ], [
+            'date.after_or_equal' => '過去の日付は設定できません。',
+        ], [
             'room_id' => '教室',
             'date' => '日付',
             'period' => '時限',

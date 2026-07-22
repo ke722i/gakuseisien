@@ -5,7 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>店舗申請</title>
-    @vite(['resources/css/app.css', 'resources/css/store/request.css'])
+    @vite([
+        'resources/css/app.css',
+        'resources/css/store/request.css',
+        'resources/js/store-request.js',
+    ])
 </head>
 
 <body>
@@ -41,14 +45,33 @@
 
                 <div class="form-group">
                     <label for="name">店舗名</label>
-                    <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        value="{{ old('name') }}"
-                        placeholder="店舗名を入力"
-                        required
-                    >
+
+                    <div class="suggest-field">
+                        <input
+                            type="text"
+                            id="name"
+                            name="name"
+                            value="{{ old('name') }}"
+                            placeholder="店舗名を入力"
+                            autocomplete="off"
+                            required
+                        >
+
+                        @if ($placeSearchEnabled)
+                            <ul
+                                id="name-suggestions"
+                                class="suggest-list"
+                                data-search-url="{{ route('store.place.search') }}"
+                                hidden
+                            ></ul>
+                        @endif
+                    </div>
+
+                    @if ($placeSearchEnabled)
+                        <p class="field-hint" id="name-hint">
+                            店舗名を入力すると候補が表示されます。候補を選ぶと、住所・ジャンル・営業時間{{ $distanceAutoFillEnabled ? '・学校からの距離' : '' }}・公式URLが自動で入力されます。
+                        </p>
+                    @endif
                 </div>
 
                 <div class="form-group">
@@ -137,6 +160,12 @@
                         min="0"
                         required
                     >
+
+                    @if ($distanceAutoFillEnabled)
+                        <p class="field-hint">
+                            候補から選ぶと、学校からの直線距離が自動で入ります。実際の徒歩距離に合わせて修正できます。
+                        </p>
+                    @endif
                 </div>
 
                 <div class="form-group">
@@ -166,11 +195,6 @@
             </label>
         @endforeach
     </div>
-
-    @error('payment_method')
-        <p class="error-message">{{ $message }}</p>
-    @enderror
-</div>
 
     @error('payment_method')
         <p class="error-message">{{ $message }}</p>

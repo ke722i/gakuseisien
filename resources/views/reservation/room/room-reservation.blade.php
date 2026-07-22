@@ -32,7 +32,7 @@
             <form class="filter-section" method="GET" action="{{ route('classroom.reservation.room') }}">
                 <div class="filter-group">
                     <label for="date-input">日付</label>
-                    <input type="date" id="date-input" name="date" value="{{ $date }}">
+                    <input type="date" id="date-input" name="date" value="{{ $date }}" min="{{ now()->toDateString() }}">
                 </div>
 
                 <div class="filter-group">

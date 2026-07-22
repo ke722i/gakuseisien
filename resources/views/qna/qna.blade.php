@@ -94,7 +94,7 @@
                 <div class="qna-card-footer" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; width: 100%;">
                     <a href="{{ route('qna.detail', $post->id) }}#comment-section" style="text-decoration: none;">
                         <button type="button" class="qna-icon-btn" title="comments" style="cursor: pointer;">
-                            💬 コメント {{ $post->answers->count() }}件
+                            💬 コメント {{ $post->answers_count }}件
                         </button>
                     </a>
                     <button type="button" class="qna-icon-btn" title="URLをコピー" data-url="{{ route('qna.detail', $post->id) }}" onclick="handleShare(event, this)">共有</button>
@@ -109,8 +109,9 @@
                     @if(!$post->best_answer_id)
                     @auth
                     @if(Auth::id() == $post->user_id)
-                    <a href="{{ route('qna.detail', $post->id) }}?action=select_best" class="qna-icon-btn" title="解決にする" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
-                        解決する
+                    {{-- ベストアンサーは詳細画面の各回答から選ぶ --}}
+                    <a href="{{ route('qna.detail', $post->id) }}" class="qna-icon-btn" title="回答からベストアンサーを選ぶ" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
+                        回答から選ぶ
                     </a>
                     @endif
                     @endauth
@@ -191,16 +192,14 @@
             });
         }
 
-        function handleReport(event, element) {
+        async function handleReport(event, element) {
             event.preventDefault();
             event.stopPropagation();
+
             const id = element.dataset.id;
-            const reason = prompt("通報する理由を入力してください（スパム、嫌がらせ、公序良俗に反する投稿など）：");
+            const reason = await promptDialog('通報する理由を入力してください（スパム、嫌がらせ、公序良俗に反する投稿など）');
             if (reason === null) return;
-            if (reason.trim() === "") {
-                showToast("通報理由は必須入力です。", 'error');
-                return;
-            }
+
             document.getElementById('report-reason-' + id).value = reason;
             document.getElementById('report-form-' + id).submit();
         }
