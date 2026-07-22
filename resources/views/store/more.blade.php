@@ -8,9 +8,10 @@
     <title>{{ $shop->name }}｜店舗詳細</title>
 
     @vite([
-        'resources/css/app.css',
-        'resources/css/store/more.css'
-    ])
+    'resources/css/app.css',
+    'resources/css/store/more.css'
+])
+    @vite(['resources/css/app.css', 'resources/css/store/more.css'])
 
 </head>
 
@@ -60,9 +61,7 @@
                 </p>
 
                 @auth
-                @php
-                    $isFav = $shop->isFavoritedBy(Auth::user());
-                @endphp
+                @php($isFav = $shop->isFavoritedBy(Auth::user()))
                 <form method="POST" action="{{ route('store.favorite.toggle', $shop) }}" class="fav-detail-form">
                     @csrf
                     <button type="submit" class="fav-detail-btn {{ $isFav ? 'is-fav' : '' }}">
@@ -91,12 +90,7 @@
 
                 <tr>
                     <th>決済方法</th>
-                    {{-- 複数選択のため配列で保存されている。古いデータは文字列のこともある --}}
-                    <td>
-                        {{ is_array($shop->payment_method)
-                            ? implode('、', $shop->payment_method)
-                            : $shop->payment_method }}
-                    </td>
+                    <td>{{ $shop->payment_method }}</td>
                 </tr>
 
                 <tr>
@@ -340,7 +334,7 @@
                             <form
                                 action="{{ route('reviews.destroy', $review->id) }}"
                                 method="POST"
-                                data-confirm="この口コミを削除しますか？"
+                                onsubmit="return confirm('この口コミを削除しますか？');"
                             >
                                 @csrf
                                 @method('DELETE')
