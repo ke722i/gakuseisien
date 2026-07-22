@@ -94,7 +94,25 @@ class AttendanceNotificationController extends Controller
 
         $request->validate($rules);
 
-        // 3. 対象の届出データを更新
+        // 3. 対象の届出を取得する
+        //    削除済みや存在しないIDが送られても500にならないよう、先に存在を確かめる
+        $report = DB::table('attendance_reports')->find($id);
+
+        abort_if(! $report, 404, '対象の届出が見つかりません。');
+
+        // 4. 自分の担当クラスの届出かどうかを確認する
+        //    一覧はクラスで絞り込んでいるが、URLのIDを直接書き換えれば
+        //    他クラスの届出も操作できてしまうため、更新前にここでも確かめる
+        $teacher = Auth::user();
+        $classPrefix = substr($teacher?->class_number ?? '', 0, 4);
+
+        abort_if(
+            $classPrefix === '' || substr($report->class_number ?? '', 0, 4) !== $classPrefix,
+            403,
+            '担当クラス以外の届出は操作できません。'
+        );
+
+        // 5. 対象の届出データを更新
         DB::table('attendance_reports')
             ->where('id', $id)
             ->update([
@@ -104,10 +122,9 @@ class AttendanceNotificationController extends Controller
                 'updated_at'      => now(),
             ]);
 
-        // 4. 提出した学生に結果を通知する
+        // 6. 提出した学生に結果を通知する
         //    届は学籍番号しか持たないため、学籍番号からユーザーを逆引きする
         //    （見つからない場合は通知なしで続行）
-        $report = DB::table('attendance_reports')->find($id);
         $student = User::where('student_number', $report->student_number)->first();
 
         $isAccepted = $request->input('report_status') === '受理';

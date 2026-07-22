@@ -157,7 +157,8 @@
                                             </form>
                                         @endif
 
-                                        @if (!Auth::user()->isTeacher())
+                                        {{-- 自分の投稿は通報できない（学内Q&Aと同じ扱い） --}}
+                                        @if (!Auth::user()->isTeacher() && Auth::id() !== $post->user_id)
                                             {{-- 通報理由は自由記述（data-confirm-input で入力欄付きダイアログを出す） --}}
                                             <form method="POST" action="{{ route('forum.report', $post) }}"
                                                   data-confirm="この投稿を通報します。理由を入力してください（スパム、嫌がらせ、公序良俗に反する投稿など）"

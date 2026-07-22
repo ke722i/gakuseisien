@@ -40,6 +40,13 @@ return [
     'embed_key' => env('GOOGLE_MAPS_EMBED_KEY'),
 ],
 
+    // 学校の所在地。店舗申請時に「学校からの距離」を自動計算するために使う。
+    // 未設定の場合は距離の自動入力だけが行われず、手入力での申請は従来どおり可能。
+    'school' => [
+        'latitude' => env('SCHOOL_LATITUDE'),
+        'longitude' => env('SCHOOL_LONGITUDE'),
+    ],
+
     // 時事ニュース機能（GNews API）。config 経由にすることで config:cache 後も読める。
     'gnews' => [
         'key' => env('GNEWS_API_KEY'),

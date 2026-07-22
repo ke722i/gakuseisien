@@ -26,7 +26,8 @@
                         {{-- 予約可能な教室はDBから生成する（直書きするとDBと食い違い、選んでも登録されない） --}}
                         <select id="roomSelect">
                             @foreach ($reservableRooms as $room)
-                                <option value="{{ $room->name }}">{{ $room->floor }}階 {{ $room->name }}</option>
+                                {{-- 同名の教室が別フロアにあっても取り違えないよう、値はIDで送る --}}
+                                <option value="{{ $room->id }}" data-name="{{ $room->name }}">{{ $room->floor }}階 {{ $room->name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -217,6 +218,7 @@
                 function collectRowData(row) {
                     return {
                         room: row.dataset.room || row.querySelector('td')?.textContent.trim() || '',
+                        roomId: row.dataset.roomId || '',
                         usage: row.dataset.usage || row.querySelectorAll('td')[1]?.textContent.trim() || '',
                         periods: JSON.parse(row.dataset.periods || '[]'),
                         fromDate: row.dataset.fromDate || '',
@@ -298,7 +300,10 @@
                 });
 
                 addToListBtn.addEventListener('click', () => {
-                    const room = document.getElementById('roomSelect').value;
+                    const roomSelect = document.getElementById('roomSelect');
+                    // 送信にはIDを使い、画面表示と重複判定には教室名を使う
+                    const roomId = roomSelect.value;
+                    const room = roomSelect.selectedOptions[0]?.dataset.name || '';
                     const usage = document.getElementById('usageInput').value.trim();
                     const fromDateEl = document.getElementById('fromDate');
                     const toDateEl = document.getElementById('toDate');
@@ -336,6 +341,7 @@
 
                     const candidate = {
                         room,
+                        roomId,
                         usage,
                         periods: selectedPeriods,
                         fromDate,
@@ -345,6 +351,7 @@
 
                     const tr = document.createElement('tr');
                     tr.dataset.room = room;
+                    tr.dataset.roomId = roomId;
                     tr.dataset.usage = usage;
                     tr.dataset.fromDate = fromDate;
                     tr.dataset.toDate = toDate;
@@ -428,7 +435,6 @@
                     }
 
                     // 重複なし
-                    console.log('一括登録データ', rows);
 
                     // 登録データを保持
                     confirmModal.dataset.rows = JSON.stringify(rows);

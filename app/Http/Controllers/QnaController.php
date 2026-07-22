@@ -19,7 +19,8 @@ class QnaController extends Controller
         $sort = $request->input('sort', 'new');
         $keyword = $request->input('keyword');
 
-        $query = Question::query();
+        // 一覧では回答件数しか使わないため、件数だけを1回のクエリでまとめて取る
+        $query = Question::withCount('answers');
 
         // 検索処理：キーワードがあればタイトルまたは内容から検索
         if (!empty($keyword)) {
@@ -106,7 +107,8 @@ class QnaController extends Controller
     //💡 リプライの削除
     public function destroyAnswer(Answer $answer)
     {
-        if (Auth::id() !== $answer->user_id) {
+        // 投稿者本人または教職員のみ削除できる（質問の削除と条件をそろえる）
+        if (Auth::id() !== $answer->user_id && ! Auth::user()?->isTeacher()) {
             abort(403, 'この操作は許可されていません。');
         }
         $answer->delete();
@@ -117,7 +119,9 @@ class QnaController extends Controller
     // 投稿履歴画面
     public function history()
     {
-        $posts = Question::where('user_id', Auth::id())
+        // 一覧では回答件数しか使わないため、件数だけをまとめて取る
+        $posts = Question::withCount('answers')
+            ->where('user_id', Auth::id())
             ->latest('created_at')
             ->get();
         return view('qna.history', compact('posts'));
@@ -126,9 +130,19 @@ class QnaController extends Controller
     //詳細画面
     public function show($id)
     {
+        // 回答は画面で投稿者・投票状況・返信をたどるため、まとめて読み込んでおく。
+        // 返信は3階層先まで先読みし、それ以上の深さでも表示自体は正しく行われる。
+        $nested = ['user', 'upvoters'];
+        $with = array_merge($nested, [
+            'replies' => fn ($q) => $q->with(array_merge($nested, [
+                'replies' => fn ($q2) => $q2->with(array_merge($nested, ['replies.user', 'replies.upvoters'])),
+            ])),
+        ]);
+
         // 💡 'user' を追加しました
-        $post = Question::with(['user', 'answers' => function ($query) use ($id) {
+        $post = Question::with(['user', 'answers' => function ($query) use ($id, $with) {
             $query->whereNull('parent_id')
+                ->with($with)
                 // 承認済み(is_approved)を優先的に一番上に持ってくる設定
                 ->orderByRaw('is_approved DESC, id = (select best_answer_id from questions where id = ?) DESC', [$id])
                 ->orderBy('created_at', 'asc');
@@ -169,14 +183,16 @@ class QnaController extends Controller
             abort(403, 'ベストアンサーを選ぶ権限がありません。');
         }
 
+        // 別の質問に付いた回答IDを指定されても選べないよう、この質問の回答に限定する
+        $answer = Answer::where('question_id', $question->id)->findOrFail($answer_id);
+
         // best_answer_id 列に選ばれた回答のIDを保存して更新
         $question->update([
-            'best_answer_id' => $answer_id
+            'best_answer_id' => $answer->id
         ]);
 
         // 選ばれた回答者に知らせる（気づかれないまま終わらないようにする）
-        $answer = Answer::find($answer_id);
-        if ($answer && $answer->user_id !== Auth::id()) {
+        if ($answer->user_id !== Auth::id()) {
             UserNotification::send(
                 $answer->user_id,
                 'あなたの回答がベストアンサーに選ばれました',
@@ -200,11 +216,52 @@ class QnaController extends Controller
             'reason' => 'required|string|max:1000',
         ]);
 
+        // 同じ投稿を何度も通報できないようにする
+        $alreadyReported = Report::where('question_id', $post->id)
+            ->where('user_id', Auth::id())
+            ->exists();
+
+        if ($alreadyReported) {
+            return redirect()->back()->with('error', 'この投稿はすでに通報済みです。');
+        }
+
         Report::create([
             'question_id' => $post->id,
             'user_id' => Auth::id(),
             'reason' => $request->reason,
             'type' => 'question', // 通報管理一覧で掲示板と区別するため
+        ]);
+
+        return redirect()->back()->with('success', '通報を受け付けました。ご協力ありがとうございます。');
+    }
+
+    /**
+     * 回答（コメント）への通報。
+     * 質問への通報と別扱いにしないと、同じIDの質問への通報として記録されてしまう。
+     */
+    public function reportAnswer(Request $request, Answer $answer)
+    {
+        if ($answer->user_id === Auth::id()) {
+            return redirect()->back()->with('error', '自分の投稿を通報することはできません。');
+        }
+
+        $request->validate([
+            'reason' => 'required|string|max:1000',
+        ]);
+
+        $alreadyReported = Report::where('answer_id', $answer->id)
+            ->where('user_id', Auth::id())
+            ->exists();
+
+        if ($alreadyReported) {
+            return redirect()->back()->with('error', 'この投稿はすでに通報済みです。');
+        }
+
+        Report::create([
+            'answer_id' => $answer->id,
+            'user_id' => Auth::id(),
+            'reason' => $request->reason,
+            'type' => 'answer',
         ]);
 
         return redirect()->back()->with('success', '通報を受け付けました。ご協力ありがとうございます。');

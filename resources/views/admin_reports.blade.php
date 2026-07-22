@@ -57,7 +57,25 @@
                 @php
                     // type が未設定の古いデータでも、紐づくIDから種別を判定する
                     $isForum = $report->type === 'forum_post' || (! $report->type && $report->post_id);
-                    $target = $isForum ? $report->post : $report->question;
+                    $isAnswer = $report->type === 'answer' || (! $report->type && $report->answer_id);
+
+                    $target = match (true) {
+                        $isForum => $report->post,
+                        $isAnswer => $report->answer,
+                        default => $report->question,
+                    };
+
+                    // 回答には見出しが無いため、本文の冒頭を見出し代わりに表示する
+                    $targetTitle = $isAnswer
+                        ? mb_strimwidth($target?->content ?? '', 0, 60, '…')
+                        : $target?->title;
+
+                    $sourceLabel = $isForum ? '掲示板' : '学内Q&A';
+                    $targetLabel = match (true) {
+                        $isForum => '対象の掲示板投稿：',
+                        $isAnswer => '対象の回答：',
+                        default => '対象の質問タイトル：',
+                    };
                 @endphp
 
                 <article class="qna-custom-card" style="border-left: 5px solid {{ $isForum ? '#2563eb' : '#e0a800' }}; margin-bottom: 15px;">
@@ -66,7 +84,7 @@
 
                             <div style="margin-bottom: 8px; font-size: 13px; color: #666666;">
                                 <span class="source-badge {{ $isForum ? 'source-forum' : 'source-qna' }}">
-                                    {{ $isForum ? '掲示板' : '学内Q&A' }}
+                                    {{ $sourceLabel }}
                                 </span>
                                 <span class="qna-badge" style="background-color: #dc3545; color: #ffffff; padding: 2px 8px; border-radius: 4px; margin-right: 8px;">
                                     通報ID: {{ $report->id }}
@@ -79,11 +97,11 @@
 
                             <div style="background-color: #f8f9fa; padding: 10px; border-radius: 4px; margin-bottom: 12px; border: 1px solid #e9ecef;">
                                 <p style="margin: 0; font-size: 12px; color: #6c757d; font-weight: bold;">
-                                    {{ $isForum ? '対象の掲示板投稿：' : '対象の質問タイトル：' }}
+                                    {{ $targetLabel }}
                                 </p>
                                 <h3 style="margin: 5px 0 0 0; font-size: 16px;">
                                     @if ($target)
-                                        {{ $target->title }}
+                                        {{ $targetTitle }}
                                     @else
                                         <span style="color: #999; font-style: italic;">（既に削除された投稿です）</span>
                                     @endif

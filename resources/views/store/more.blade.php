@@ -60,7 +60,9 @@
                 </p>
 
                 @auth
-                @php($isFav = $shop->isFavoritedBy(Auth::user()))
+                @php
+                    $isFav = $shop->isFavoritedBy(Auth::user());
+                @endphp
                 <form method="POST" action="{{ route('store.favorite.toggle', $shop) }}" class="fav-detail-form">
                     @csrf
                     <button type="submit" class="fav-detail-btn {{ $isFav ? 'is-fav' : '' }}">
@@ -89,7 +91,12 @@
 
                 <tr>
                     <th>決済方法</th>
-                    <td>{{ $shop->payment_method }}</td>
+                    {{-- 複数選択のため配列で保存されている。古いデータは文字列のこともある --}}
+                    <td>
+                        {{ is_array($shop->payment_method)
+                            ? implode('、', $shop->payment_method)
+                            : $shop->payment_method }}
+                    </td>
                 </tr>
 
                 <tr>

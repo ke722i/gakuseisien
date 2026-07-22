@@ -95,13 +95,14 @@
                     <option value="2000" @selected(request('distance') === '2000')>2,000m以内</option>
                 </select>
 
+                {{-- 申請フォームの選択肢と一致させる。ずれていると検索しても常に0件になる --}}
                 <select name="payment_method">
                     <option value="">決済方法</option>
-                    <option value="現金" @selected(request('payment_method') === '現金')>現金</option>
-                    <option value="クレジット" @selected(request('payment_method') === 'クレジット')>クレジット</option>
-                    <option value="PayPay" @selected(request('payment_method') === 'PayPay')>PayPay</option>
-                    <option value="電子マネー" @selected(request('payment_method') === '電子マネー')>電子マネー</option>
-                    <option value="その他" @selected(request('payment_method') === 'その他')>その他</option>
+                    @foreach (['現金', 'クレジットカード', '交通系IC', 'QRコード決済', '電子マネー'] as $payment)
+                        <option value="{{ $payment }}" @selected(request('payment_method') === $payment)>
+                            {{ $payment }}
+                        </option>
+                    @endforeach
                 </select>
 
                 <button type="submit" class="search-btn">

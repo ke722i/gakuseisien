@@ -94,7 +94,7 @@
                 <div class="qna-card-footer" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; width: 100%;">
                     <a href="{{ route('qna.detail', $post->id) }}#comment-section" style="text-decoration: none;">
                         <button type="button" class="qna-icon-btn" title="comments" style="cursor: pointer;">
-                            💬 コメント {{ $post->answers->count() }}件
+                            💬 コメント {{ $post->answers_count }}件
                         </button>
                     </a>
                     <button type="button" class="qna-icon-btn" title="URLをコピー" data-url="{{ route('qna.detail', $post->id) }}" onclick="handleShare(event, this)">共有</button>
@@ -109,8 +109,9 @@
                     @if(!$post->best_answer_id)
                     @auth
                     @if(Auth::id() == $post->user_id)
-                    <a href="{{ route('qna.detail', $post->id) }}?action=select_best" class="qna-icon-btn" title="解決にする" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
-                        解決する
+                    {{-- ベストアンサーは詳細画面の各回答から選ぶ --}}
+                    <a href="{{ route('qna.detail', $post->id) }}" class="qna-icon-btn" title="回答からベストアンサーを選ぶ" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center;">
+                        回答から選ぶ
                     </a>
                     @endif
                     @endauth

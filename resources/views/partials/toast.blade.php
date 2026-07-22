@@ -97,6 +97,12 @@
 
     .app-dialog-input-wrap { display: block; margin-bottom: 18px; }
 
+    /*
+       display:block は hidden 属性より優先されるため、明示的に打ち消す。
+       これがないと、入力欄を使わない確認ダイアログでも入力欄が出てしまう。
+    */
+    .app-dialog-input-wrap[hidden] { display: none; }
+
     .app-dialog-input-label {
         display: block;
         margin-bottom: 6px;

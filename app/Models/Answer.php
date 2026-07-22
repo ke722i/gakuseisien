@@ -36,6 +36,12 @@ class Answer extends Model
     public function isUpvotedBy(?User $user): bool
     {
         if (!$user) return false;
+
+        // upvoters を読み込み済みなら、そこから判定して問い合わせを増やさない
+        if ($this->relationLoaded('upvoters')) {
+            return $this->upvoters->contains('id', $user->id);
+        }
+
         return $this->upvoters()->where('user_id', $user->id)->exists();
     }
 

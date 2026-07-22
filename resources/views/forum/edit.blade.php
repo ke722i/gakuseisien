@@ -25,7 +25,10 @@
 
             <div class="form-group category-group">
                 <span class="group-label">カテゴリを選択</span>
-                <label class="radio-label"><input type="radio" name="category" value="落とし物" {{ old('category', $post->category) === '落とし物' ? 'checked' : '' }}> 落とし物</label>
+                {{-- 落とし物は教職員専用。ただし教職員が作成済みの投稿を開いた場合は選択肢を残す --}}
+                @if ((Auth::check() && Auth::user()->isTeacher()) || old('category', $post->category) === '落とし物')
+                    <label class="radio-label"><input type="radio" name="category" value="落とし物" {{ old('category', $post->category) === '落とし物' ? 'checked' : '' }}> 落とし物</label>
+                @endif
                 <label class="radio-label"><input type="radio" name="category" value="サークル" {{ old('category', $post->category) === 'サークル' ? 'checked' : '' }}> サークル</label>
                 <label class="radio-label"><input type="radio" name="category" value="教科書" {{ old('category', $post->category) === '教科書' ? 'checked' : '' }}> 教科書</label>
             </div>

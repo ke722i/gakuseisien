@@ -6,6 +6,7 @@ use App\Models\Event;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class EventController extends Controller
 {
@@ -29,8 +30,9 @@ class EventController extends Controller
         $gridEnd = $current->copy()->endOfMonth()->endOfWeek(Carbon::SATURDAY);
 
         // 表示範囲の予定を日付(Y-m-d)ごとにまとめる（複数日にまたがる予定は各日に配置）
+        // 件数が増えても重くならないよう、表示するマスに重なる予定だけを取り出す
         $eventsByDate = [];
-        foreach (Event::orderBy('start_at')->get() as $event) {
+        foreach ($this->eventsOverlapping($gridStart, $gridEnd) as $event) {
             $start = $event->start_at->copy()->startOfDay();
             $end = ($event->end_at ?? $event->start_at)->copy()->startOfDay();
 
@@ -67,12 +69,7 @@ class EventController extends Controller
 
         // 「今日の予定」パネル用（表示中の月に関係なく today）
         $today = Carbon::today();
-        $todayEvents = Event::orderBy('start_at')->get()->filter(function (Event $e) use ($today) {
-            $s = $e->start_at->copy()->startOfDay();
-            $en = ($e->end_at ?? $e->start_at)->copy()->startOfDay();
-
-            return $today->gte($s) && $today->lte($en);
-        })->values();
+        $todayEvents = $this->eventsOverlapping($today, $today);
 
         return view('event.calendar', [
             'current' => $current,
@@ -88,18 +85,30 @@ class EventController extends Controller
     }
 
     /**
+     * 指定期間に重なる予定を取り出す。
+     *
+     * 終了日が未設定の予定は開始日だけの1日予定として扱うため、
+     * 期間の判定には「終了日、無ければ開始日」を使う。
+     *
+     * @return \Illuminate\Database\Eloquent\Collection<int, Event>
+     */
+    private function eventsOverlapping(Carbon $from, Carbon $to)
+    {
+        return Event::query()
+            ->whereDate('start_at', '<=', $to->toDateString())
+            ->whereRaw('date(coalesce(end_at, start_at)) >= ?', [$from->toDateString()])
+            ->orderBy('start_at')
+            ->get();
+    }
+
+    /**
      * 指定日の予定一覧。
      */
     public function day(string $date)
     {
         $target = Carbon::parse($date)->startOfDay();
 
-        $events = Event::orderBy('start_at')->get()->filter(function (Event $event) use ($target) {
-            $start = $event->start_at->copy()->startOfDay();
-            $end = ($event->end_at ?? $event->start_at)->copy()->startOfDay();
-
-            return $target->gte($start) && $target->lte($end);
-        })->values();
+        $events = $this->eventsOverlapping($target, $target);
 
         return view('event.day', [
             'date' => $target,
@@ -114,7 +123,8 @@ class EventController extends Controller
     {
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
-            'category' => ['required', 'string', 'max:50'],
+            // 画面の選択肢以外の値を直接送られても受け付けない
+            'category' => ['required', 'string', Rule::in(array_keys(Event::CATEGORY_CLASSES))],
             // 新規登録は過去日を受け付けない（編集は過去の予定も直せるよう制限しない）
             'start_at' => ['required', 'date', 'after_or_equal:today'],
             'end_at' => ['nullable', 'date', 'after_or_equal:start_at'],
@@ -150,7 +160,8 @@ class EventController extends Controller
     {
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:255'],
-            'category' => ['required', 'string', 'max:50'],
+            // 画面の選択肢以外の値を直接送られても受け付けない
+            'category' => ['required', 'string', Rule::in(array_keys(Event::CATEGORY_CLASSES))],
             'start_at' => ['required', 'date'],
             'end_at' => ['nullable', 'date', 'after_or_equal:start_at'],
             'location' => ['nullable', 'string', 'max:255'],

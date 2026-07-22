@@ -29,6 +29,7 @@ export default defineConfig({
                 'resources/css/store/shome.css',
                 'resources/css/store/more.css',
                 'resources/css/store/request.css',
+                'resources/js/store-request.js',
                 'resources/css/store/admin.css',
                 'resources/css/event/calendar.css',
                 'resources/css/news.css',

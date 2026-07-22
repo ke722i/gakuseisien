@@ -647,3 +647,58 @@ textarea:focus {
 .review-menu-list button {
     color: #dc2626;
 }
+/* =========================
+   申請詳細の承認・却下ボタン
+========================= */
+
+.request-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 26px;
+    padding-top: 22px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.request-actions .action-button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    min-width: 140px;
+    min-height: 42px;
+    padding: 10px 22px;
+    border: none;
+    border-radius: 8px;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+        opacity 0.15s,
+        transform 0.15s,
+        box-shadow 0.15s;
+}
+
+.request-actions .action-button:hover {
+    opacity: 0.88;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(15, 23, 42, 0.15);
+}
+
+.request-actions .approve {
+    background: #16a34a;
+}
+
+.request-actions .reject {
+    background: #dc2626;
+}
+
+@media (max-width: 700px) {
+    .request-actions {
+        flex-direction: column;
+    }
+
+    .request-actions .action-button {
+        width: 100%;
+    }
+}
